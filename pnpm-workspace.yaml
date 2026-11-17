@@ -1,0 +1,25 @@
+packages:
+  - sites/*
+
+saveExact: true
+strictPeerDependencies: true
+# min age is in minutes for pnpm; 5d=7200
+minimumReleaseAge: 7200
+# Admitted before aging out of minimumReleaseAge; pruned automatically once they are older than the minimum.
+# wrangler 4.164.0 and the workerd/miniflare builds it requires (newer previews and secrets config support).
+minimumReleaseAgeExclude:
+  - wrangler@4.164.0
+  - miniflare@5.20261117.0-beta
+  - workerd@1.20261117.1
+  - '@cloudflare/workerd-darwin-64@1.20261117.1'
+  - '@cloudflare/workerd-darwin-arm64@1.20261117.1'
+  - '@cloudflare/workerd-linux-64@1.20261117.1'
+  - '@cloudflare/workerd-linux-arm64@1.20261117.1'
+  - '@cloudflare/workerd-windows-64@1.20261117.1'
+minimumReleaseAgeExcludePrune: true
+updateNotifier: false
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true

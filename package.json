@@ -1,0 +1,12 @@
+{
+  "name": "evidential-site",
+  "private": true,
+  "packageManager": "pnpm@12.2.1",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "26.13.1",
+      "onFail": "download"
+    }
+  }
+}
