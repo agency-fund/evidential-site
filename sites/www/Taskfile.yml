@@ -1,0 +1,90 @@
+version: "3"
+
+vars:
+  # Keep in sync with WORKER in .github/scripts/preview_cleanup.py.
+  PREVIEW_WORKER: evidential-www-preview
+
+tasks:
+  install:
+    desc: Install dependencies from the lockfile.
+    cmd: pnpm install --frozen-lockfile
+
+  start:
+    desc: Run the Astro dev server with hot reload at http://localhost:4321.
+    interactive: true
+    cmd: pnpm exec astro dev
+
+  build:
+    desc: "Build the static site into dist/. Set DEPLOY_ENV (development|preview|production) to control indexing and analytics."
+    cmd: pnpm exec astro build
+
+  preview:
+    desc: Build, then serve dist/ and the contact Worker locally with wrangler at http://localhost:8787.
+    interactive: true
+    deps: [build]
+    cmds:
+      - test -f .dev.vars || cp .dev.vars.example .dev.vars
+      - pnpm exec wrangler dev
+
+  types:
+    desc: Generate Worker binding and runtime types (worker/worker-configuration.d.ts, not committed) from wrangler.jsonc.
+    cmd: pnpm exec wrangler types --strict-vars=false worker/worker-configuration.d.ts
+
+  check:
+    desc: Type-check the site and Worker, verify formatting, and run Worker tests.
+    cmds:
+      - task: types
+      - pnpm exec astro check
+      - pnpm exec tsc -p worker/test/tsconfig.json
+      - pnpm exec prettier --check .
+      - pnpm exec vitest run
+
+  format:
+    desc: Format all files with Prettier.
+    cmd: pnpm exec prettier --write .
+
+  linkcheck:
+    desc: Check internal links and assets in the built site (run `task build` first).
+    cmd: pnpm exec linkinator dist
+
+  lighthouse:
+    desc: Run Lighthouse CI against the built site and enforce the score budgets in lighthouserc.json.
+    cmds:
+      # Google Chrome isn't available for Linux arm64 (including GitHub's Arm runners), so use Playwright's Chromium
+      # unless CHROME_PATH points at a browser already. --with-deps installs its system libraries in CI.
+      - pnpm exec playwright install chromium {{if .CI}}--with-deps{{end}}
+      - >-
+        CHROME_PATH="${CHROME_PATH:-$(pnpm exec node -e 'import("playwright").then((m) => console.log(m.chromium.executablePath()))')}"
+        pnpm exec lhci autorun
+
+  walkthrough:
+    desc: "Record a 2-minute walkthrough video, share-preview cards, and a Lighthouse report into walkthrough/ at the repo root. Needs ffmpeg. Pass e.g. ONLY=video to make one artifact."
+    cmds:
+      - pnpm exec playwright install chromium
+      - pnpm exec node scripts/walkthrough/index.ts {{if .ONLY}}--only {{.ONLY}}{{end}}
+
+  deploy:preview:
+    desc: "Build and push a Cloudflare Preview from this machine (needs `wrangler login` or CLOUDFLARE_API_TOKEN). Named after the git branch unless NAME=… is given. Prints the public Preview URL."
+    env:
+      DEPLOY_ENV: preview
+    cmds:
+      - pnpm exec astro build
+      # Previews go to their own Worker, so the token CI uses for them can't touch production.
+      - >-
+        pnpm exec wrangler preview --worker-name {{.PREVIEW_WORKER}}
+        {{if .NAME}}--name {{.NAME}}{{end}}
+        {{if .MESSAGE}}--message "{{.MESSAGE}}"{{end}}
+        {{.CLI_ARGS}}
+
+  launch:
+    desc: "First production deploy: prompts for the Turnstile secret, uploads it with the deploy, and attaches www.evidential.dev. Run once, with `wrangler login`."
+    interactive: true
+    cmd: scripts/launch.sh
+
+  ci:deploy:production:
+    desc: "CI only (www workflow, main branch): build and deploy a new production version. The first deploy is `task www:launch`."
+    env:
+      DEPLOY_ENV: production
+    cmds:
+      - pnpm exec astro build
+      - pnpm exec wrangler deploy

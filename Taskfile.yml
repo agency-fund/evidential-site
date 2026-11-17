@@ -1,0 +1,28 @@
+version: "3"
+
+includes:
+  www:
+    taskfile: sites/www/Taskfile.yml
+    dir: sites/www
+  # docs: sites/docs/Taskfile.yml will be included here once docs.evidential.dev moves into this repo.
+
+tasks:
+  setup:
+    desc: Install dependencies and the git pre-commit hooks.
+    cmds:
+      - pnpm install --frozen-lockfile
+      - prek install
+
+  setup:github:
+    desc: "Create the GitHub environments, variable, and Cloudflare token secret used by the www workflow (prompts for the token)."
+    interactive: true
+    cmd: scripts/setup-github.sh {{.CLI_ARGS}}
+
+  lint:
+    desc: Run all pre-commit hooks (formatting, YAML/JSON checks, workflow linting) on every file.
+    cmd: prek run -a
+
+  check:
+    desc: Run every site's checks.
+    cmds:
+      - task: www:check
