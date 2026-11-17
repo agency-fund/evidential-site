@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Let new releases age before adopting them (pnpm-workspace.yaml enforces a similar minimumReleaseAge).
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Let new releases age before adopting them (pnpm-workspace.yaml enforces a similar minimumReleaseAge).
+    cooldown:
+      default-days: 7
+    groups:
+      astro:
+        patterns: ["astro", "@astrojs/*", "prettier-plugin-astro"]
+      cloudflare:
+        patterns: ["wrangler", "@cloudflare/*"]
+      tooling:
+        patterns: ["*"]

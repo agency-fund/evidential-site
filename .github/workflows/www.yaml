@@ -1,0 +1,187 @@
+name: www
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - sites/www/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Taskfile.yml
+      - .github/workflows/www.yaml
+  push:
+    branches: [main]
+    paths:
+      - sites/www/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Taskfile.yml
+      - .github/workflows/www.yaml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          cache: true
+          require-lockfile: true
+      - uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: task www:check
+      # Build as production so Lighthouse measures what visitors get, including analytics.
+      - run: task www:build
+        env:
+          DEPLOY_ENV: production
+      - run: task www:linkcheck
+      - run: task www:lighthouse
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-reports
+          path: sites/www/.lighthouseci/
+          retention-days: 14
+
+  preview-wanted:
+    # Previews are for reviewing what visitors see, so only same-repo, non-Dependabot pull requests that change the
+    # page, its assets, or the contact-form Worker get one. Tooling, tests, docs, and dependency-only changes don't.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      wanted: ${{ steps.filter.outputs.visible }}
+    steps:
+      # On pull_request events, paths-filter lists the pull request's changed files through the API; no checkout needed.
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            visible:
+              - 'sites/www/src/**'
+              - 'sites/www/public/**'
+              # The Worker's sources; * doesn't cross /, so worker/test/ is excluded.
+              - 'sites/www/worker/*.ts'
+              - 'sites/www/astro.config.mjs'
+  preview:
+    needs: [check, preview-wanted]
+    if: needs.preview-wanted.outputs.wanted == 'true'
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    # This job runs the pull request's code with the preview environment's token. That token can only change the
+    # evidential-www-preview Worker, which holds nothing but Previews; production's token is in the main-only
+    # production environment.
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    # Shared with www-preview-cleanup.yaml. Neither cancels the other: a cleanup waits for a running deploy and then
+    # deletes its Preview, and a deploy queued behind a cleanup sees the closed pull request and skips. A newer push's
+    # deploy replaces an older one that hasn't started yet.
+    concurrency:
+      group: www-preview-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          cache: true
+          require-lockfile: true
+      - uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # Checked inside the concurrency group: if the pull request closed while this job waited, deploying would
+          # recreate the Preview that cleanup just deleted.
+          state=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq .state)
+          if [[ "${state}" != open ]]; then
+            echo "Pull request #${PR_NUMBER} is ${state}; not deploying its Preview."
+            exit 0
+          fi
+          task www:deploy:preview NAME="pr-${PR_NUMBER}" MESSAGE="PR #${PR_NUMBER} @ ${HEAD_SHA}" | tee deploy.log
+          url=$(grep -oE "https://pr-${PR_NUMBER}-evidential-www-preview\.[a-z0-9-]+\.workers\.dev" deploy.log | head -1)
+          test -n "${url}"
+          echo "url=${url}" >> "${GITHUB_OUTPUT}"
+      - name: Comment preview URL on the PR
+        if: steps.deploy.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          marker="<!-- www-preview -->"
+          body=$(printf '%s\n**www preview:** %s\n\nBuilt from %s. Previews are not indexed and the contact form does not send email.' "${marker}" "${URL}" "${HEAD_SHA}")
+          id=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"${marker}\"))) | .id" | head -1)
+          if [ -n "${id}" ]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${id}" -f body="${body}" > /dev/null
+          else
+            gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" -f body="${body}" > /dev/null
+          fi
+
+  production:
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 15
+    # Deploys run one at a time and are never cancelled midway.
+    concurrency:
+      group: www-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: https://www.evidential.dev
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          cache: true
+          require-lockfile: true
+      - uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: task www:ci:deploy:production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
