@@ -2,6 +2,9 @@
 import { defineConfig, envField, fontProviders } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
+const PRODUCTION_TURNSTILE_SITE_KEY = "0x4AAAAAAGF2EIsVlurhPK2l";
+const TEST_TURNSTILE_SITE_KEY = "1x00000000000000000000AA";
+
 export default defineConfig({
   site: "https://www.evidential.dev",
   trailingSlash: "ignore",
@@ -26,6 +29,13 @@ export default defineConfig({
         access: "public",
         values: ["development", "preview", "production"],
         default: "development",
+      }),
+      // Site keys are public. Production uses the "evidential-www contact form" widget (www.evidential.dev and
+      // evidential.dev); every other build uses Cloudflare's always-passing test key, which previews' Worker accepts.
+      TURNSTILE_SITE_KEY: envField.string({
+        context: "client",
+        access: "public",
+        default: process.env.DEPLOY_ENV === "production" ? PRODUCTION_TURNSTILE_SITE_KEY : TEST_TURNSTILE_SITE_KEY,
       }),
     },
   },

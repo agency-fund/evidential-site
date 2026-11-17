@@ -1,0 +1,5 @@
+# `task www:preview` copies this to .dev.vars. This is Cloudflare's Turnstile test secret that always passes.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Optional: a Slack incoming-webhook URL to test Slack delivery locally. wrangler dev only loads secrets listed in
+# `secrets.required` in wrangler.jsonc, so declare it there and enable the channel in worker/notifications.config.ts.
+# SLACK_WEBHOOK_WEBSITE_LEADS=https://hooks.slack.com/services/...

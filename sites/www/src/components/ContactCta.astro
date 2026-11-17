@@ -1,0 +1,666 @@
+---
+import { Image } from "astro:assets";
+import { STARTING_POINTS } from "../contact";
+import endorsement from "../assets/logos/idinsight-agency-fund.svg";
+import programOfficer from "../assets/photos/program-officer-phone.webp";
+import { SITE } from "../site";
+---
+
+<section class="tint" id="cta">
+  <div class="wrap final">
+    <div>
+      <figure class="cta-photo">
+        <Image
+          src={programOfficer}
+          alt="A program officer using a phone alongside printed survey materials"
+          widths={[560, 1000]}
+          sizes="(max-width: 900px) calc(100vw - 48px), 560px"
+        />
+      </figure>
+      <h2>Curious whether Evidential fits your program?</h2>
+      <p class="sub">
+        Our team will help you find a first experiment worth running. Tell us a little about your work and we'll take it
+        from there.
+      </p>
+      <p class="bigattr">Free and open source · Hands-on support · Your data stays yours</p>
+      <div class="endorse">
+        <span>Built by</span>
+        <Image src={endorsement} alt="IDinsight | The Agency Fund" />
+      </div>
+    </div>
+    <div>
+      <form class="form" action="/api/contact" method="post" novalidate>
+        <label class="sr" for="cf-name">
+          Your name
+        </label>
+        <input
+          id="cf-name"
+          aria-describedby="cf-name-error"
+          name="name"
+          placeholder="Your name"
+          autocomplete="name"
+          maxlength="200"
+          required
+        />
+        <p class="field-error" id="cf-name-error"></p>
+        <label class="sr" for="cf-email">
+          Work email
+        </label>
+        <input
+          id="cf-email"
+          aria-describedby="cf-email-error"
+          name="email"
+          placeholder="Work email"
+          type="email"
+          autocomplete="email"
+          maxlength="254"
+          required
+        />
+        <p class="field-error" id="cf-email-error"></p>
+        <label class="sr" for="cf-org">
+          Organisation
+        </label>
+        <input
+          id="cf-org"
+          aria-describedby="cf-org-error"
+          name="organization"
+          placeholder="Organisation"
+          autocomplete="organization"
+          maxlength="200"
+          required
+        />
+        <p class="field-error" id="cf-org-error"></p>
+        <label class="sr" for="cf-start">
+          Where are you starting from?
+        </label>
+        <select id="cf-start" aria-describedby="cf-start-error" name="startingPoint" required>
+          <option value="" selected disabled>
+            Where are you starting from?
+          </option>
+          {STARTING_POINTS.map((point) => (
+            <option value={point}>{point}</option>
+          ))}
+        </select>
+        <p class="field-error" id="cf-start-error"></p>
+        <label class="sr" for="cf-message">
+          What would you like to test? (optional)
+        </label>
+        <textarea
+          id="cf-message"
+          aria-describedby="cf-message-error"
+          name="message"
+          rows="3"
+          maxlength="5000"
+          placeholder="What would you like to test? (optional)"
+        ></textarea>
+        <p class="field-error" id="cf-message-error"></p>
+        <div class="trap" aria-hidden="true">
+          <label for="cf-website">Leave this field empty</label>
+          <input id="cf-website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+        <div class="turnstile"></div>
+        <button class="btn btn-primary" type="submit">
+          Start experimenting
+        </button>
+        <p class="form-status" role="status" aria-live="polite"></p>
+        <p class="form-note">Takes under a minute. We'll reply within a few working days.</p>
+        <noscript>
+          <p class="form-note">
+            This form needs JavaScript. Email <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a> instead.
+          </p>
+        </noscript>
+      </form>
+      <div class="form-done" tabindex="-1" hidden>
+        <svg class="check" viewBox="0 0 52 52" aria-hidden="true">
+          <circle cx="26" cy="26" r="24"></circle>
+          <path d="M15 27l7 7 15-15"></path>
+        </svg>
+        <h3>Thanks, we got your message</h3>
+        <p>
+          We'll reply to <strong class="done-email"></strong> within a few working days.
+        </p>
+      </div>
+      <div class="existing">
+        <div class="ex-txt">
+          <h3>Already using Evidential?</h3>
+          <p>Email the team about your experiments or the Experimentation Advisory Service.</p>
+        </div>
+        <a class="btn btn-primary" href={`mailto:${SITE.supportEmail}`}>
+          {SITE.supportEmail}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { TURNSTILE_SITE_KEY } from "astro:env/client";
+  import { FIELD_ERRORS } from "../contact";
+
+  type ContactResponse = { ok: boolean; error?: string; errors?: Record<string, string> };
+  type Turnstile = {
+    render: (container: HTMLElement, options: Record<string, unknown>) => string;
+    reset: (widgetId: string) => void;
+  };
+
+  const TOKEN_TIMEOUT_MS = 20_000;
+  const form = document.querySelector<HTMLFormElement>("#cta .form")!;
+  const status = form.querySelector<HTMLElement>(".form-status")!;
+  const done = document.querySelector<HTMLElement>("#cta .form-done")!;
+  const submit = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+  const container = form.querySelector<HTMLElement>(".turnstile")!;
+  let turnstile: Promise<Turnstile> | undefined;
+  let widgetId: string | undefined;
+  let token = "";
+  let tokenWaiters: Array<(token: string) => void> = [];
+
+  // Turnstile is a third-party script, so it loads only once someone starts filling in the form.
+  function loadTurnstile(): Promise<Turnstile> {
+    if (turnstile) return turnstile;
+    turnstile = new Promise<Turnstile>((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onload = () => resolve((window as unknown as { turnstile: Turnstile }).turnstile);
+      script.onerror = () => {
+        script.remove();
+        reject(new Error("Turnstile failed to load"));
+      };
+      document.head.appendChild(script);
+    }).then((api) => {
+      widgetId = api.render(container, {
+        sitekey: TURNSTILE_SITE_KEY,
+        appearance: "interaction-only",
+        action: "contact",
+        callback: (issued: string) => {
+          token = issued;
+          tokenWaiters.forEach((resolve) => resolve(issued));
+          tokenWaiters = [];
+        },
+        "expired-callback": () => (token = ""),
+        // The widget stays out of the layout unless Turnstile needs the visitor to interact with it.
+        "before-interactive-callback": () => container.classList.add("is-interactive"),
+        "after-interactive-callback": () => container.classList.remove("is-interactive"),
+      });
+      return api;
+    });
+    // Forget a failed load (e.g. a dropped connection), so the next submission tries again instead of failing forever.
+    turnstile.catch(() => (turnstile = undefined));
+    return turnstile;
+  }
+
+  async function getToken(): Promise<string> {
+    await loadTurnstile();
+    if (token) return token;
+    return new Promise((resolve, reject) => {
+      tokenWaiters.push(resolve);
+      setTimeout(() => reject(new Error("Timed out waiting for Turnstile")), TOKEN_TIMEOUT_MS);
+    });
+  }
+
+  /**
+   * Replaces the form with a confirmation, so nobody resubmits thinking the first attempt didn't go through. The panel
+   * keeps the form's height to avoid a layout jump, and takes focus so screen readers announce it.
+   */
+  function showDone(email: string, formHeight: number) {
+    done.querySelector(".done-email")!.textContent = email;
+    done.style.minHeight = `${formHeight}px`;
+    form.hidden = true;
+    done.hidden = false;
+    done.focus({ preventScroll: true });
+  }
+
+  function setStatus(message: string, kind: "error" | "") {
+    status.textContent = message;
+    status.dataset.kind = kind;
+  }
+
+  function clearFieldError(field: HTMLElement) {
+    field.removeAttribute("aria-invalid");
+    const slot = document.getElementById(`${field.id}-error`);
+    if (slot) slot.textContent = "";
+  }
+
+  /** Shows each message under its field and moves focus to the first one. */
+  function showFieldErrors(errors: Record<string, string>) {
+    form.querySelectorAll<HTMLElement>("[aria-invalid]").forEach(clearFieldError);
+    const invalid = Object.entries(errors).flatMap(([name, message]) => {
+      const field = form.elements.namedItem(name);
+      return field instanceof HTMLElement ? [{ field, message }] : [];
+    });
+    for (const { field, message } of invalid) {
+      field.setAttribute("aria-invalid", "true");
+      const slot = document.getElementById(`${field.id}-error`);
+      if (slot) slot.textContent = message;
+    }
+    invalid[0]?.field.focus();
+    setStatus(invalid.length === 1 ? "Check the highlighted field." : "Check the highlighted fields.", "error");
+  }
+
+  function clientErrors(): Record<string, string> {
+    const fields = Array.from(form.querySelectorAll<HTMLInputElement>("input[name], select[name], textarea[name]"));
+    return Object.fromEntries(
+      fields
+        .filter((field) => !field.validity.valid)
+        .map((field) => [field.name, FIELD_ERRORS[field.name as keyof typeof FIELD_ERRORS] ?? field.validationMessage]),
+    );
+  }
+
+  form.addEventListener("focusin", () => loadTurnstile().catch(() => undefined), { once: true });
+  // A field's error clears as soon as the visitor edits it.
+  form.addEventListener("input", (event) => {
+    if (event.target instanceof HTMLElement && event.target.hasAttribute("aria-invalid")) clearFieldError(event.target);
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const invalid = clientErrors();
+    if (Object.keys(invalid).length) {
+      showFieldErrors(invalid);
+      return;
+    }
+    // Measured before "Sending…" appears, so the confirmation matches the form's resting height.
+    const formHeight = form.offsetHeight;
+    submit.disabled = true;
+    setStatus("Sending…", "");
+    try {
+      const body = new FormData(form);
+      body.set("cf-turnstile-response", await getToken());
+      const response = await fetch(form.action, { method: "POST", body, headers: { Accept: "application/json" } });
+      const result = (await response.json()) as ContactResponse;
+      if (result.ok) {
+        showDone(String(body.get("email") ?? ""), formHeight);
+      } else if (result.errors) {
+        showFieldErrors(result.errors);
+      } else {
+        setStatus(result.error ?? "Something went wrong. Please try again.", "error");
+      }
+    } catch {
+      setStatus("We couldn't send your message. Email support@evidential.dev instead.", "error");
+    } finally {
+      // Tokens are single-use; get a fresh one for any later submission.
+      token = "";
+      if (widgetId) (await turnstile)?.reset(widgetId);
+      submit.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .turnstile:not(.is-interactive),
+  .form-status:empty,
+  .field-error:empty {
+    display: none;
+  }
+  /* Matches .form-note below it. */
+  .form-status {
+    margin: 0;
+    font-size: 14px;
+    text-align: center;
+  }
+  .field-error {
+    margin: -4px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--danger-600);
+  }
+  .form-status[data-kind="error"] {
+    color: var(--danger-600);
+  }
+  .form-done {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 22px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: #fff;
+    text-align: center;
+  }
+  /* .form and .form-done set display, which would otherwise override the hidden attribute. */
+  .form[hidden],
+  .form-done[hidden] {
+    display: none;
+  }
+  /* Focus is moved here programmatically only; the panel itself isn't interactive. */
+  .form-done:focus {
+    outline: none;
+  }
+  .form-done h3 {
+    margin: 10px 0 0;
+    font-size: 20px;
+    color: var(--text-heading);
+  }
+  .form-done p {
+    margin: 0;
+    max-width: 30ch;
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+  .form-done strong {
+    color: var(--navy-900);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .check {
+    width: 64px;
+    height: 64px;
+  }
+  .check circle {
+    fill: var(--success-100);
+    stroke: var(--success-600);
+    stroke-width: 2;
+    transform-origin: center;
+    animation: check-pop 320ms var(--ease-out) both;
+  }
+  .check path {
+    fill: none;
+    stroke: var(--success-600);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 34;
+    stroke-dashoffset: 34;
+    animation: check-draw 420ms 180ms var(--ease-out) forwards;
+  }
+  @keyframes check-pop {
+    from {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+  }
+  @keyframes check-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .check circle,
+    .check path {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
+  .form [aria-invalid="true"] {
+    border-color: var(--danger-600);
+  }
+  .endorse {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 26px 0 0;
+  }
+  .endorse img {
+    height: 26px;
+    display: block;
+  }
+  .endorse span {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 500;
+    color: var(--grey-500);
+  }
+  .bigattr {
+    font-size: 13px;
+    color: var(--grey-500);
+    margin-top: 14px;
+  }
+  .cta-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 600ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .cta-photo {
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 26px;
+    background: var(--navy-100);
+  }
+  .final {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .form {
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 22px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 51, 102, 0.06));
+  }
+  .form input {
+    padding: 11px 13px;
+    border-radius: 6px;
+    border: 1px solid var(--grey-300);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--navy-900);
+    background: #fff;
+  }
+  .form input:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-color: var(--navy-400);
+  }
+  .form input::placeholder {
+    color: var(--grey-500);
+  }
+  @media (max-width: 900px) {
+    .final {
+      grid-template-columns: 1fr;
+    }
+  }
+  .form select,
+  .form textarea {
+    padding: 11px 13px;
+    border-radius: 6px;
+    border: 1px solid var(--grey-300);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--navy-900);
+    background: #fff;
+    resize: vertical;
+  }
+  .form select:invalid {
+    color: var(--grey-500);
+  }
+  .form select:focus,
+  .form textarea:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-color: var(--navy-400);
+  }
+  .form textarea::placeholder {
+    color: var(--grey-500);
+  }
+  .form-note {
+    font-size: 12px;
+    color: var(--grey-500);
+    text-align: center;
+  }
+  .existing {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--navy-50);
+    border: 1px solid var(--navy-100);
+    font-size: 13.5px;
+    color: var(--navy-700);
+    line-height: 1.5;
+  }
+  .existing a {
+    font-weight: 600;
+    color: var(--navy-500);
+  }
+  .existing {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--navy-50);
+    border: 1px solid var(--navy-100);
+    border-left: 4px solid var(--gold-500);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .existing h3 {
+    font-size: 14.5px;
+    color: var(--navy-600);
+  }
+  .existing p {
+    font-size: 13px;
+    color: var(--grey-600);
+    margin-top: 2px;
+    line-height: 1.45;
+  }
+  .existing .btn,
+  .existing .btn:hover {
+    color: #fff;
+    align-self: flex-start;
+    padding: 8px 14px;
+    font-size: 13.5px;
+  }
+  @media (max-width: 900px) {
+    .existing {
+      text-align: left;
+    }
+  }
+  .final .sub {
+    font-size: 18px !important;
+  }
+  .endorse span {
+    font-size: 13px;
+    color: #000;
+  }
+  .existing .btn,
+  .existing .btn:hover {
+    font-size: 15.5px;
+  }
+  .bigattr {
+    font-size: 16px;
+    color: #000;
+  }
+  .form input,
+  .form select,
+  .form textarea {
+    font-size: 16px;
+    color: #000;
+  }
+  .form-note {
+    font-size: 14px;
+    color: #000;
+  }
+  .existing {
+    font-size: 16px;
+    color: #000;
+  }
+  .existing h3 {
+    font-size: 18px;
+    color: #000;
+  }
+  .existing p {
+    font-size: 16px;
+    color: #000;
+  }
+  .final h2 {
+    line-height: 1.3;
+  }
+  .form,
+  .existing,
+  .cta-photo {
+    border-radius: 6px;
+  }
+  .form {
+    box-shadow: none;
+  }
+  .existing {
+    background: var(--navy-50);
+    border: 0;
+    padding: 18px 20px;
+  }
+  .form input,
+  .form select,
+  .form textarea {
+    font-size: 17px;
+  }
+  .form-note {
+    font-size: 15px;
+  }
+  .existing,
+  .existing p {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .bigattr {
+    font-size: 17px;
+  }
+  @media (max-width: 640px) {
+    .final {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .final > div {
+      min-width: 0;
+    }
+    .final img,
+    .cta-photo {
+      max-width: 100%;
+    }
+  }
+  .final h2,
+  .final .sub,
+  .final .bigattr {
+    text-align: left;
+  }
+  .final .endorse {
+    justify-content: flex-start;
+  }
+  @media (max-width: 640px) {
+    .final h2,
+    .final .sub,
+    .final .bigattr {
+      text-align: center;
+    }
+    .final .endorse {
+      justify-content: center;
+      align-items: center;
+    }
+    .cta-photo {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .existing {
+      text-align: center;
+      align-items: center;
+    }
+    .existing .btn,
+    .existing .btn:hover {
+      align-self: center;
+    }
+    .form-note {
+      text-align: center;
+    }
+  }
+  #cta .final .sub {
+    margin-top: 14px;
+  }
+  #cta .final .bigattr {
+    margin-top: 18px;
+  }
+</style>
