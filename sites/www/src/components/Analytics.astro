@@ -1,0 +1,35 @@
+---
+/**
+ * Google Tag Manager with Consent Mode v2. All storage defaults to "denied" until the visitor accepts in
+ * ConsentBanner; a previously stored choice is restored before GTM loads so tags see the right state.
+ */
+interface Props {
+  gtmId: string;
+}
+const { gtmId } = Astro.props;
+---
+
+<script is:inline define:vars={{ gtmId }}>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  window.gtag = gtag;
+  var granted = false;
+  try {
+    granted = localStorage.getItem("ev-consent") === "granted";
+  } catch (e) {}
+  var state = granted ? "granted" : "denied";
+  gtag("consent", "default", {
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+    analytics_storage: state,
+    wait_for_update: 500,
+  });
+  window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+  var s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtm.js?id=" + encodeURIComponent(gtmId);
+  document.head.appendChild(s);
+</script>

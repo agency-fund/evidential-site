@@ -30,6 +30,7 @@ export default defineConfig({
         values: ["development", "preview", "production"],
         default: "development",
       }),
+      GTM_ID: envField.string({ context: "client", access: "public", default: "GTM-WDJFFSBP" }),
       // Site keys are public. Production uses the "evidential-www contact form" widget (www.evidential.dev and
       // evidential.dev); every other build uses Cloudflare's always-passing test key, which previews' Worker accepts.
       TURNSTILE_SITE_KEY: envField.string({

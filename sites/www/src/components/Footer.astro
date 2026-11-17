@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import logo from "../assets/logos/evidential-endorsed-white.svg";
+import { GTM_ENABLED } from "../analytics";
 import { SITE } from "../site";
 
 const columns = [
@@ -58,6 +59,13 @@ const columns = [
               )}
             </li>
           ))}
+          {column.heading === "Organisation" && GTM_ENABLED && (
+            <li>
+              <button type="button" class="cookie-settings" data-consent-open>
+                Cookie settings
+              </button>
+            </li>
+          )}
         </ul>
       </div>
     ))}
@@ -98,6 +106,15 @@ const columns = [
   }
   .footgrid a:hover {
     color: #fff;
+  }
+  .cookie-settings {
+    font: inherit;
+    font-size: 16px;
+    color: #fff;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
   }
   .footbrand img.logo {
     height: 74px;

@@ -1,6 +1,9 @@
 ---
 import { Font } from "astro:assets";
-import { DEPLOY_ENV } from "astro:env/client";
+import { DEPLOY_ENV, GTM_ID } from "astro:env/client";
+import { GTM_ENABLED } from "../analytics";
+import Analytics from "../components/Analytics.astro";
+import ConsentBanner from "../components/ConsentBanner.astro";
 import { SITE } from "../site";
 import "../styles/tokens.css";
 import "../styles/global.css";
@@ -76,10 +79,13 @@ const jsonLd = {
     <Font cssVariable="--font-jost" />
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    {GTM_ENABLED && <Analytics gtmId={GTM_ID} />}
   </head>
   <body>
+    {/* No <noscript> GTM iframe: without JavaScript there is no consent banner, so it would track without consent. */}
     <div class="ev-page">
       <slot />
     </div>
+    {GTM_ENABLED && <ConsentBanner />}
   </body>
 </html>
