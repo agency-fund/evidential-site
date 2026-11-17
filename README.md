@@ -1,4 +1,4 @@
-# Welcome, Lenny! 🎉✨🌈😄🚀💖
+# Evidential Public Websites
 
 ## Repository layout
 
