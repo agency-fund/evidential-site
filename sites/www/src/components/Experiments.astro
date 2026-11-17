@@ -1,0 +1,538 @@
+---
+import { getEntry } from "astro:content";
+import { ordered } from "../content/ordered";
+import ChevronLeft from "../icons/chevron-left.svg";
+import ChevronRight from "../icons/chevron-right.svg";
+import Pause from "../icons/pause.svg";
+import Play from "../icons/play-small.svg";
+import PartnerLogo from "./PartnerLogo.astro";
+
+const stats = await ordered("stats");
+const testimonials = await Promise.all(
+  (await ordered("testimonials")).map(async (t) => ({ ...t.data, partner: await getEntry(t.data.partner) })),
+);
+// Each odometer digit column holds 0-9 twice so it can roll past 9 before settling on the target digit.
+const reel = [..."01234567890123456789"];
+---
+
+<section id="experiments">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Nonprofits learn faster with Evidential</h2>
+      <p class="sub">Real experiments our partners have run, and what they found.</p>
+    </div>
+    <div class="stats">
+      {stats.map(({ data }) => (
+        <div class="stat">
+          <div class="v">
+            <span class="sr">{data.value}</span>
+            <span class="odo" aria-hidden="true">
+              {[...String(data.value)].map((digit, i) => (
+                <span class="dg" style={`--d:${digit};--i:${i}`}>
+                  <span class="dgs" set:html={reel.join("<br>")} />
+                </span>
+              ))}
+            </span>
+          </div>
+          <div class="k">{data.label}</div>
+        </div>
+      ))}
+    </div>
+    <div class="quotes3 qshow">
+      <div class="qstage">
+        {testimonials.map((t, i) => (
+          <figure class:list={["q", { "is-on": i === 0 }]}>
+            <blockquote>“{t.quote}”</blockquote>
+            <figcaption>
+              <b>{t.name}</b>
+              <span>{t.role}</span>
+            </figcaption>
+            <div class="qlogo">
+              <PartnerLogo partner={t.partner} height={t.partner.data.wordmark ? 28 : undefined} />
+            </div>
+          </figure>
+        ))}
+      </div>
+      <div class="qctrl">
+        <button type="button" class="qbtn" aria-label="Previous testimonial" data-step="-1">
+          <ChevronLeft aria-hidden="true" />
+        </button>
+        <div class="qdots">
+          {testimonials.map((_, i) => (
+            <button
+              type="button"
+              class:list={["qdot", { "is-on": i === 0 }]}
+              aria-label={`Show testimonial ${i + 1}`}
+              aria-pressed={i === 0 ? "true" : "false"}
+            />
+          ))}
+        </div>
+        <button type="button" class="qbtn" aria-label="Next testimonial" data-step="1">
+          <ChevronRight aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          class="qbtn rotate-toggle"
+          data-label-pause="Pause testimonials"
+          data-label-play="Play testimonials"
+          hidden
+        >
+          <Pause class="when-playing" aria-hidden="true" />
+          <Play class="when-paused" aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { autoRotate, prefersReducedMotion, showOnly } from "../scripts/carousel";
+
+  const reduced = prefersReducedMotion();
+  const root = document.querySelector<HTMLElement>(".quotes3")!;
+  const quotes = Array.from(root.querySelectorAll(".q"));
+  const dots = Array.from(root.querySelectorAll<HTMLButtonElement>(".qdot"));
+  let current = 0;
+
+  function show(index: number) {
+    current = (index + quotes.length) % quotes.length;
+    showOnly(quotes, current);
+    showOnly(dots, current);
+    dots.forEach((dot, i) => dot.setAttribute("aria-pressed", String(i === current)));
+  }
+
+  dots.forEach((dot, i) => dot.addEventListener("click", () => show(i)));
+  root.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((button) => {
+    button.addEventListener("click", () => show(current + Number(button.dataset.step)));
+  });
+  autoRotate({
+    region: root,
+    toggle: root.querySelector<HTMLButtonElement>(".rotate-toggle")!,
+    intervalMs: 8000,
+    advance: () => show(current + 1),
+  });
+
+  // Roll the odometer digits into place the first time the stats scroll into view.
+  const stats = document.querySelector<HTMLElement>("#experiments .stats");
+  if (stats && "IntersectionObserver" in window && !reduced) {
+    stats.classList.add("pre");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          stats.classList.replace("pre", "in");
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(stats);
+  }
+</script>
+
+<style>
+  .rotate-toggle[hidden] {
+    display: none;
+  }
+  .rotate-toggle[data-state="playing"] .when-paused,
+  .rotate-toggle[data-state="paused"] .when-playing {
+    display: none;
+  }
+  .rotate-toggle svg {
+    fill: currentColor;
+  }
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 88px;
+    flex-wrap: wrap;
+    margin: 40px 0 44px;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat .v {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--navy-600);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .stat .v b {
+    color: var(--gold-500);
+  }
+  .stat .k {
+    font-size: 13px;
+    color: var(--grey-600);
+    margin-top: 8px;
+  }
+  @media (max-width: 900px) {
+    .stats {
+      gap: 40px;
+    }
+  }
+  .stat .v {
+    font-size: 44px;
+    color: #000;
+  }
+  .stat .v b {
+    color: #000;
+  }
+  .stat .k {
+    font-size: 16px;
+    color: #000;
+  }
+  .stats {
+    justify-content: flex-start;
+    gap: 72px;
+    margin: 40px 0 14px;
+  }
+  #experiments .sec-head {
+    display: block;
+  }
+  #experiments .sec-head .sub {
+    margin: 16px 0 0 !important;
+    max-width: 820px;
+  }
+  #experiments .stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0;
+    border: 0;
+    margin: 56px 0 64px;
+  }
+  #experiments .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 16px;
+    padding: 0 56px 0 0;
+    border: 0;
+  }
+  #experiments .stat + .stat {
+    padding: 0 56px;
+    border-left: 1px solid var(--grey-300);
+  }
+  #experiments .stat:last-child {
+    padding-right: 0;
+  }
+  #experiments .stat .k {
+    align-self: flex-start;
+    margin: 0;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: #f6f7f8;
+    border: 1px solid var(--grey-300);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.2;
+    color: #000;
+  }
+  #experiments .stat .v {
+    font-family: var(--font-jost);
+    font-size: 84px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: #000;
+  }
+  #experiments .stat .v b {
+    color: #000;
+    font-weight: 500;
+  }
+  #experiments .stat {
+    position: relative;
+  }
+  #experiments .stat .v {
+    display: flex;
+    align-items: flex-start;
+    font-variant-numeric: tabular-nums;
+  }
+  .odo {
+    display: inline-flex;
+  }
+  .dg {
+    display: block;
+    height: 1em;
+    overflow: hidden;
+    text-align: center;
+  }
+  .dgs {
+    display: block;
+    transform: translateY(calc(-1em * (10 + var(--d))));
+  }
+  .stats.pre .dgs {
+    transform: none;
+    transition: none;
+  }
+  .stats.in .dgs {
+    transform: translateY(calc(-1em * (10 + var(--d))));
+    transition: transform 1.9s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * 140ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stats.in .dgs {
+      transition: none;
+    }
+  }
+  .stat {
+    text-align: left;
+  }
+  .stat .v {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .quotes3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 40px;
+    row-gap: 0;
+    grid-template-rows: auto auto auto;
+  }
+  .q {
+    margin: 0;
+    padding-top: 0;
+    border-top: 0;
+    display: grid;
+    grid-row: span 3;
+    grid-template-rows: subgrid;
+    row-gap: 24px;
+  }
+  .q blockquote {
+    position: relative;
+    margin: 0;
+    padding: 28px 30px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #000;
+    text-wrap: pretty;
+    background: #f6f7f8;
+    border: 1px solid var(--grey-300);
+    border-radius: 26px;
+  }
+  .q blockquote::after {
+    content: "";
+    position: absolute;
+    left: 42px;
+    bottom: -9px;
+    width: 16px;
+    height: 16px;
+    background: #f6f7f8;
+    border-right: 1px solid var(--grey-300);
+    border-bottom: 1px solid var(--grey-300);
+    transform: rotate(45deg);
+    border-bottom-right-radius: 3px;
+  }
+  .q figcaption,
+  .q .qlogo {
+    padding-left: 8px;
+  }
+  .q figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #000;
+  }
+  .q figcaption b {
+    font-weight: 700;
+    font-size: 19px;
+  }
+  .q .qlogo {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+  }
+  .q .qlogo img {
+    height: 26px;
+    width: auto;
+    display: block;
+  }
+  .q .qlogo .hp img {
+    height: 28px;
+  }
+  .quotes3.qshow {
+    display: block;
+    grid-template-columns: none;
+    grid-template-rows: none;
+  }
+  .qstage {
+    display: grid;
+  }
+  .qstage .q {
+    grid-area: 1/1;
+    grid-template-rows: none;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 32px;
+    row-gap: 28px;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.5s ease,
+      visibility 0.5s;
+  }
+  .qstage .q.is-on {
+    opacity: 1;
+    visibility: visible;
+  }
+  .qstage .q blockquote {
+    grid-column: 1/-1;
+    padding: 44px 60px;
+    font-size: 22px;
+    font-style: italic;
+    line-height: 1.6;
+    border-radius: 36px;
+  }
+  .qstage .q blockquote::after {
+    left: 60px;
+  }
+  .qstage .q figcaption {
+    padding-left: 12px;
+  }
+  .qstage .q .qlogo {
+    padding-left: 0;
+    justify-content: flex-end;
+    margin-top: 0;
+  }
+  .qctrl {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 32px;
+  }
+  /* Each dot button is a 24px touch target (WCAG 2.5.8); the visible pill is drawn by ::before. */
+  .qdot:focus-visible {
+    outline: none;
+  }
+  .qdot:focus-visible::before {
+    outline: 3px solid var(--navy-600);
+    outline-offset: 3px;
+  }
+  .qdots {
+    display: flex;
+    align-items: center;
+  }
+  .qdot {
+    display: grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .qdot::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--grey-300);
+    transition:
+      width 0.3s ease,
+      background 0.3s ease;
+  }
+  .qdot.is-on::before {
+    width: 30px;
+    background: var(--navy-600);
+  }
+  @media (max-width: 900px) {
+    .qstage .q {
+      grid-template-columns: 1fr;
+    }
+    .qstage .q blockquote {
+      padding: 28px 26px;
+      font-size: 18px;
+      border-radius: 26px;
+    }
+    .qstage .q blockquote::after {
+      left: 30px;
+    }
+    .qstage .q .qlogo {
+      justify-content: flex-start;
+      padding-left: 12px;
+    }
+    .quotes3 {
+      grid-template-columns: 1fr;
+    }
+    #experiments .stats {
+      grid-template-columns: 1fr;
+    }
+    #experiments .stats {
+      gap: 36px;
+      flex-direction: column;
+    }
+    #experiments .stat,
+    #experiments .stat + .stat,
+    #experiments .stat:last-child {
+      padding: 0;
+      border-left: 0;
+    }
+    #experiments .stat .v {
+      font-size: 64px;
+    }
+    .stats {
+      gap: 36px;
+    }
+  }
+  .q blockquote {
+    font-size: 19px;
+    line-height: 1.6;
+  }
+  .q figcaption {
+    font-size: 17px;
+  }
+  .q figcaption b {
+    font-size: 20px;
+  }
+  #experiments .sec-head {
+    text-align: center;
+  }
+  #experiments .sec-head .sub {
+    margin: 16px auto 0 !important;
+  }
+  #experiments .stats {
+    justify-content: center;
+  }
+  #experiments .stat {
+    align-items: center;
+    text-align: center;
+  }
+  #experiments .stat .k {
+    align-self: center;
+  }
+  #experiments .stat .v {
+    justify-content: center;
+  }
+  .qstage .q {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .qstage .q blockquote {
+    justify-self: stretch;
+    text-align: center;
+  }
+  .qstage .q blockquote::after {
+    left: calc(50% - 8px);
+  }
+  .qstage .q figcaption {
+    padding-left: 0;
+    align-items: center;
+  }
+  .qstage .q .qlogo {
+    padding-left: 0;
+    justify-content: center;
+  }
+  @media (max-width: 780px) {
+    #experiments .stat .v {
+      font-size: 64px;
+    }
+  }
+</style>

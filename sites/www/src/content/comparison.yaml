@@ -1,0 +1,21 @@
+# Rows of the "How Evidential compares" table, shown in this order. Evidential's own row is in Why.astro.
+- id: product-web
+  category: Product & web experimentation (Optimizely, Statsig)
+  builtFor: Product & growth teams
+  measures: Clicks, sign-ups, conversions
+  assumes: In-house engineers
+- id: messaging
+  category: Messaging & chatbot A/B tools (Intercom, WATI)
+  builtFor: Marketing teams
+  measures: Opens, clicks, engagement
+  assumes: A marketing/ops team
+- id: product-analytics
+  category: Product analytics (Mixpanel, Amplitude)
+  builtFor: Product teams
+  measures: Usage & funnels
+  assumes: A product + eng team
+- id: rcts
+  category: Traditional RCTs
+  builtFor: One-off impact studies
+  measures: Causal impact
+  assumes: Researchers, months, funding

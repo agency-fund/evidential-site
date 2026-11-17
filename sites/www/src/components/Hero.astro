@@ -1,0 +1,408 @@
+---
+import Arrow from "./Arrow.astro";
+import { Image } from "astro:assets";
+import bandit from "../assets/screens/console-bandit-analysis.webp";
+import experiments from "../assets/screens/console-experiments.webp";
+import Pause from "../icons/pause.svg";
+import Play from "../icons/play-small.svg";
+
+const slideWidths = [400, 640, 900, 1350, 1800];
+const slideSizes = "(max-width: 948px) calc(100vw - 48px), 900px";
+---
+
+<section class="hero center">
+  <div class="plx-clip" aria-hidden="true">
+    <div class="plx plx-g"></div>
+    <div class="plx plx-l"></div>
+  </div>
+  <div class="wrap">
+    <h1 class="tag">
+      <span class="t1">Experiment rapidly.</span>
+      <span class="t2">
+        <span class="accel">Maximize</span> your impact.
+      </span>
+    </h1>
+    <p class="lead">
+      Evidential is a free, open-source experiment engine built by and for nonprofits. Run experiments on your programs,
+      learn what works, and make them better.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="#cta">
+        Start experimenting
+      </a>
+      <a class="btn btn-ghost btn-lg" href="#demo">
+        See a demo <Arrow />
+      </a>
+    </div>
+    <div class="shotwrap">
+      <div class="shot">
+        <div class="shot-bar">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="shot-url mono">app.evidential.dev</span>
+        </div>
+        <div class="slides">
+          <Image
+            class="slide is-on"
+            src={experiments}
+            alt="Evidential console — experiments list"
+            widths={slideWidths}
+            sizes={slideSizes}
+            loading="eager"
+            fetchpriority="high"
+          />
+          <Image
+            class="slide pad"
+            src={bandit}
+            alt="Evidential console — bandit analysis with leaderboard and historical means"
+            widths={slideWidths}
+            sizes={slideSizes}
+            fetchpriority="low"
+          />
+          <button
+            type="button"
+            class="rotate-toggle"
+            data-label-pause="Pause screenshots"
+            data-label-play="Play screenshots"
+            hidden
+          >
+            <Pause class="when-playing" aria-hidden="true" />
+            <Play class="when-paused" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { autoRotate, showOnly } from "../scripts/carousel";
+
+  const slides = Array.from(document.querySelectorAll<HTMLElement>(".hero .slide"));
+  let current = 0;
+  autoRotate({
+    region: document.querySelector<HTMLElement>(".hero .slides")!,
+    toggle: document.querySelector<HTMLButtonElement>(".hero .rotate-toggle")!,
+    intervalMs: 5200,
+    advance: () => {
+      current = (current + 1) % slides.length;
+      showOnly(slides, current);
+    },
+  });
+</script>
+
+<style>
+  .rotate-toggle {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 1;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border-subtle);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--navy-600);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+  }
+  .rotate-toggle[hidden] {
+    display: none;
+  }
+  .rotate-toggle svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .rotate-toggle[data-state="playing"] .when-paused,
+  .rotate-toggle[data-state="paused"] .when-playing {
+    display: none;
+  }
+  .hero {
+    background: var(--navy-50);
+    padding: 88px 0 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .hero h1 {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .tag {
+    font-size: 58px;
+    line-height: 1.06;
+    letter-spacing: -0.035em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .tag .t1 {
+    display: block;
+    animation: tagUp 700ms cubic-bezier(0.2, 0, 0, 1) both;
+  }
+  .tag .t2 {
+    display: block;
+    position: relative;
+    color: var(--gold-600);
+    padding-bottom: 18px;
+    margin-bottom: 10px;
+    animation: tagZoom 650ms cubic-bezier(0.16, 1, 0.3, 1) 380ms both;
+  }
+  .tag .t2::after {
+    content: "";
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 0;
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, rgba(212, 158, 0, 0), var(--gold-500) 30%, var(--gold-500));
+    transform-origin: left;
+    animation: tagLine 700ms cubic-bezier(0.16, 1, 0.3, 1) 900ms both;
+  }
+  .tag .accel {
+    display: inline-block;
+    font-style: italic;
+    padding-right: 0.06em;
+  }
+  @keyframes tagUp {
+    0% {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes tagZoom {
+    0% {
+      opacity: 0;
+      transform: translateX(-60px) skewX(-12deg);
+      filter: blur(6px);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(6px) skewX(2deg);
+      filter: blur(0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes tagLine {
+    0% {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @media (max-width: 900px) {
+    .tag {
+      font-size: 40px;
+    }
+  }
+  @media (max-width: 520px) {
+    .tag {
+      font-size: 32px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tag .t1,
+    .tag .t2,
+    .tag .t2::after {
+      animation: none;
+    }
+  }
+  .hero .lead {
+    margin: 20px auto 0;
+    max-width: 620px;
+    color: var(--grey-600);
+    font-size: 16px;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 28px 0 0;
+  }
+  .shotwrap {
+    max-width: 900px;
+    margin: 52px auto -80px;
+    position: relative;
+    z-index: 2;
+  }
+  .shot {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    box-shadow: 0 30px 70px -40px rgba(0, 51, 102, 0.45);
+    overflow: hidden;
+    text-align: left;
+  }
+  .shot-bar {
+    height: 34px;
+    background: var(--grey-100);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+  }
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--grey-300);
+  }
+  .shot-url {
+    margin-left: 12px;
+    font-size: 11px;
+    color: var(--grey-500);
+  }
+  .slides {
+    position: relative;
+    aspect-ratio: 3004/1606;
+    background: var(--grey-50);
+    box-sizing: border-box;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    opacity: 0;
+    transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .slide.pad {
+    padding: 18px 22px;
+    background: #fff;
+    object-fit: contain;
+    object-position: top center;
+  }
+  .slide.is-on {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .slide {
+      transition: none;
+    }
+  }
+  .hero .lead {
+    font-size: 20px;
+    color: #000;
+    max-width: 700px;
+  }
+  .shot-url {
+    font-size: 13px;
+    color: #000;
+  }
+  .hero {
+    background-color: #fffef9;
+  }
+  .tag {
+    font-size: 72px;
+    line-height: 1.05;
+  }
+  .hero h1 {
+    max-width: 920px;
+  }
+  @media (max-width: 900px) {
+    .tag {
+      font-size: 44px;
+    }
+  }
+  @media (max-width: 520px) {
+    .tag {
+      font-size: 34px;
+    }
+  }
+  .hero .shotwrap {
+    position: relative;
+    z-index: 2;
+  }
+  .hero .shot {
+    box-shadow:
+      0 30px 60px -18px rgba(0, 15, 26, 0.35),
+      0 10px 24px rgba(0, 15, 26, 0.14);
+  }
+  .hero {
+    position: relative;
+  }
+  .plx-clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .plx {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+  .plx-g {
+    background-image: url("../assets/textures/grid.svg");
+  }
+  .plx-l {
+    background-attachment: fixed;
+    background-image: url("../assets/textures/waves.svg");
+  }
+  .hero > .wrap {
+    position: relative;
+    z-index: 1;
+  }
+  .shot {
+    border-radius: 6px;
+  }
+  .shot {
+    box-shadow: none;
+  }
+  .hero .lead {
+    font-size: 21px;
+    line-height: 1.6;
+  }
+  .hero {
+    background-image: url("../assets/textures/noise.svg");
+    background-size: 220px 220px;
+  }
+  @media (max-resolution: 1.5dppx), (-webkit-max-device-pixel-ratio: 1.5), (max-width: 900px) {
+    .hero {
+      background-image: url("../assets/textures/noise-subtle.svg");
+    }
+  }
+  .hero .plx-l {
+    background-attachment: scroll;
+  }
+  @media (max-width: 780px) {
+    .hero-cta {
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+    .hero-cta .btn-lg {
+      padding: 12px 14px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .tag {
+      font-size: 30px;
+    }
+    .hero .lead,
+    .hero p.lead {
+      font-size: 18px;
+    }
+  }
+</style>

@@ -1,0 +1,85 @@
+---
+import { Font } from "astro:assets";
+import { DEPLOY_ENV } from "astro:env/client";
+import { SITE } from "../site";
+import "../styles/tokens.css";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = SITE.title, description = SITE.description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
+const isProduction = DEPLOY_ENV === "production";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${Astro.site}#organization`,
+      name: SITE.name,
+      url: Astro.site?.href,
+      logo: new URL("/favicon.svg", Astro.site).href,
+      email: SITE.supportEmail,
+      sameAs: [SITE.githubUrl],
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: SITE.name,
+      url: SITE.appUrl,
+      description: SITE.description,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      isAccessibleForFree: true,
+      license: "https://www.apache.org/licenses/LICENSE-2.0",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      publisher: { "@id": `${Astro.site}#organization` },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {!isProduction && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#003366" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <slot name="head" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Evidential: Experiment rapidly. Maximize your impact." />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <Font cssVariable="--font-inter" preload={[{ weight: 400 }, { weight: 700 }, { weight: 800 }]} />
+    <Font cssVariable="--font-inter-arrow" />
+    <Font cssVariable="--font-plex-mono" />
+    <Font cssVariable="--font-jost" />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <div class="ev-page">
+      <slot />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,323 @@
+---
+import Arrow from "./Arrow.astro";
+import { ordered } from "../content/ordered";
+
+const options = await ordered("readiness");
+---
+
+<section id="readiness">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Where are you starting from?</h2>
+      <p class="sub">
+        We'll look at your program and data together and set Evidential up with you. How much support you need depends
+        on where you're starting from.
+      </p>
+    </div>
+    <div class="choose" role="radiogroup" aria-label="Where are you starting from?">
+      {options.map(({ data }, i) => (
+        <button
+          type="button"
+          class:list={["opt", { "is-on": i === 0 }]}
+          role="radio"
+          aria-checked={i === 0 ? "true" : "false"}
+        >
+          <span class="radio" aria-hidden="true" />
+          <span class="olabel">{data.label}</span>
+        </button>
+      ))}
+    </div>
+    <div class="answer p0" aria-live="polite">
+      {options.map(({ data }, i) => (
+        <div class:list={["ans", { "is-on": i === 0 }]}>
+          <div class="ans-meta">
+            <small>What it costs:</small>
+            <span class="cost">{data.cost}</span>
+            {data.service && <span class="svc">{data.service}</span>}
+          </div>
+          <p class="ans-text">{data.body}</p>
+        </div>
+      ))}
+    </div>
+    <div class="ready-cta">
+      <p>Not sure which one fits? That's what the first conversation is for.</p>
+      <a class="btn btn-gold btn-xl" href="#cta">
+        Start a conversation with us <Arrow />
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { showOnly } from "../scripts/carousel";
+
+  const options = Array.from(document.querySelectorAll<HTMLButtonElement>(".opt"));
+  const answers = Array.from(document.querySelectorAll(".ans"));
+  const answer = document.querySelector<HTMLElement>(".answer")!;
+
+  function choose(index: number) {
+    showOnly(options, index);
+    showOnly(answers, index);
+    answer.classList.remove("p0", "p1", "p2");
+    answer.classList.add(`p${index}`);
+    options.forEach((option, i) => option.setAttribute("aria-checked", String(i === index)));
+  }
+
+  options.forEach((option, i) => option.addEventListener("click", () => choose(i)));
+</script>
+
+<style>
+  .ready-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+  .ready-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 40px;
+  }
+  .ready-cta p {
+    font-size: 15px;
+    color: var(--grey-600);
+  }
+  .ready-cta p {
+    font-size: 18px;
+    color: #000;
+  }
+  .choose {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .opt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    min-height: 64px;
+    padding: 12px 22px 12px 20px;
+    text-align: left;
+    border-radius: 999px;
+    border: 1.5px solid var(--grey-300);
+    background: #fff;
+    font: inherit;
+    color: #000;
+    cursor: pointer;
+    transition:
+      background 0.25s,
+      border-color 0.25s,
+      color 0.25s,
+      box-shadow 0.25s;
+  }
+  .opt:hover {
+    border-color: #000;
+  }
+  .opt:focus-visible {
+    outline: 3px solid var(--navy-600);
+    outline-offset: 3px;
+  }
+  .opt .olabel {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+  .opt .radio {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--grey-500);
+    background: #fff;
+    transition: border-color 0.2s ease;
+  }
+  .opt .radio::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--navy-600);
+    transform: scale(0);
+    transition: transform 0.2s ease;
+  }
+  .opt.is-on .radio {
+    border-color: #fff;
+  }
+  .opt.is-on .radio::after {
+    transform: scale(1);
+  }
+  .opt.is-on {
+    background: var(--navy-600);
+    border-color: var(--navy-600);
+    color: #fff;
+    box-shadow: 0 12px 24px -12px rgba(0, 51, 102, 0.65);
+  }
+  .opt.is-on:hover {
+    border-color: var(--navy-600);
+  }
+  .answer {
+    position: relative;
+    display: grid;
+    margin-top: 26px;
+    border: 1px solid var(--grey-300);
+    border-radius: 24px;
+    background: #f6f7f8;
+  }
+  .answer::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    background: #f6f7f8;
+    border-left: 1px solid var(--grey-300);
+    border-top: 1px solid var(--grey-300);
+    border-top-left-radius: 4px;
+    transform: translateX(-50%) rotate(45deg);
+    transition: left 0.3s ease;
+  }
+  .answer.p0::before {
+    left: 16.67%;
+  }
+  .answer.p1::before {
+    left: 50%;
+  }
+  .answer.p2::before {
+    left: 83.33%;
+  }
+  .ans {
+    grid-area: 1/1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 36px 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s;
+  }
+  .ans.is-on {
+    opacity: 1;
+    visibility: visible;
+  }
+  .ans-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .ans-meta small {
+    font-size: 15px;
+  }
+  .cost {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 16px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--grey-300);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .ans-meta .svc {
+    font-size: 16px;
+  }
+  .ans-text {
+    margin: 0;
+    max-width: 62ch;
+    font-size: 26px;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+  }
+  @media (max-width: 900px) {
+    .choose {
+      grid-template-columns: 1fr;
+    }
+    .opt .olabel {
+      white-space: normal;
+    }
+    .answer::before {
+      display: none;
+    }
+    .ans {
+      padding: 28px 24px;
+    }
+    .ans-text {
+      font-size: 21px;
+    }
+  }
+  .ready-cta {
+    align-items: flex-start;
+  }
+  .ans-meta small {
+    font-size: 18px;
+  }
+  .cost {
+    font-size: 17px;
+  }
+  .ans-meta .svc {
+    font-size: 17px;
+  }
+  .ready-cta p {
+    font-size: 19px;
+  }
+  @media (max-width: 640px) {
+    .choose {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 28px;
+    }
+    .opt {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 10px;
+      min-height: 0;
+      padding: 12px 10px 12px 12px;
+      border-radius: 18px;
+    }
+    .opt .olabel {
+      font-size: 13px;
+      line-height: 1.25;
+    }
+    .opt .radio {
+      width: 18px;
+      height: 18px;
+    }
+    .opt .radio::after {
+      width: 8px;
+      height: 8px;
+    }
+    .ready-cta .btn-xl {
+      padding: 13px 20px;
+      font-size: 15px;
+    }
+    .ans,
+    .ans-text {
+      text-align: center;
+    }
+    .ans-meta {
+      justify-content: center;
+    }
+    .ready-cta,
+    .ready-cta p {
+      text-align: center;
+      align-items: center;
+    }
+  }
+  @media (max-width: 780px) {
+    .ans-text {
+      font-size: 18px;
+    }
+  }
+</style>

@@ -1,0 +1,7 @@
+dist/
+.astro/
+.wrangler/
+pnpm-lock.yaml
+worker-configuration.d.ts
+.lighthouseci/
+.dev.vars

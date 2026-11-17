@@ -1,0 +1,164 @@
+---
+import { ordered } from "../content/ordered";
+import PartnerLogo from "./PartnerLogo.astro";
+
+const partners = await ordered("partners");
+---
+
+<div class="trust">
+  <div class="wrap inner">
+    <span class="lbl">Trusted by partners</span>
+    <div class="marquee is-scrolling" role="group" aria-label="Partners">
+      <div class="track">
+        <div class="set">
+          {partners.map((partner) => (
+            <PartnerLogo partner={partner} height={partner.data.marqueeHeight} />
+          ))}
+        </div>
+        <div class="set" aria-hidden="true">
+          {partners.map((partner) => (
+            <PartnerLogo partner={partner} height={partner.data.marqueeHeight} decorative />
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .trust {
+    padding: 112px 0 28px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .trust .inner {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding-top: 8px;
+  }
+  .trust .lbl {
+    font-size: 12px;
+    color: var(--grey-500);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .trust .lbl {
+    flex: none;
+    white-space: nowrap;
+  }
+  .marquee {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee .track {
+    display: flex;
+    width: max-content;
+    animation: marquee 38s linear infinite;
+  }
+  .marquee:hover .track {
+    animation-play-state: paused;
+  }
+  .marquee .set {
+    display: flex;
+    align-items: center;
+    gap: 56px;
+    padding-right: 56px;
+  }
+  .marquee img {
+    display: block;
+    width: auto;
+  }
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee .track {
+      animation: none;
+    }
+  }
+  @media (max-width: 700px) {
+    .trust .inner {
+      flex-direction: column;
+      gap: 14px;
+    }
+    .marquee {
+      width: 100%;
+    }
+  }
+  .trust .lbl {
+    font-size: 14px;
+    color: #000;
+  }
+  .trust .inner {
+    justify-content: center;
+  }
+  .marquee {
+    flex: 1;
+    min-width: 0;
+    -webkit-mask: none;
+    mask: none;
+  }
+  .marquee .track {
+    animation: none;
+    width: auto;
+    justify-content: center;
+  }
+  .marquee .set {
+    gap: 88px;
+    padding-right: 0;
+  }
+  .marquee .set[aria-hidden="true"] {
+    display: none;
+  }
+  .marquee.is-scrolling {
+    -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee.is-scrolling .track {
+    width: max-content;
+    justify-content: flex-start;
+    animation: marquee 38s linear infinite;
+  }
+  .marquee.is-scrolling .set {
+    padding-right: 88px;
+  }
+  .marquee.is-scrolling .set[aria-hidden="true"] {
+    display: flex;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee.is-scrolling .track {
+      animation: none;
+    }
+  }
+  .trust .lbl {
+    font-size: 15px;
+  }
+  .trust {
+    background-image: url("../assets/textures/noise.svg");
+    background-size: 220px 220px;
+  }
+  @media (max-resolution: 1.5dppx), (-webkit-max-device-pixel-ratio: 1.5), (max-width: 900px) {
+    .trust {
+      background-image: url("../assets/textures/noise-subtle.svg");
+    }
+  }
+  @media (max-width: 640px) {
+    .trust .lbl {
+      text-align: center;
+    }
+  }
+  /* v7's hover pause above is overridden by the later shorthand; restore it. */
+  .marquee.is-scrolling:hover .track {
+    animation-play-state: paused;
+  }
+</style>

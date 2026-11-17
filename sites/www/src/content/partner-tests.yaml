@@ -1,0 +1,35 @@
+# Experiment results in the "What partners have tested" section, shown in this order.
+# The first entry with a `result` is rendered as the large featured card with a bar chart; the rest are small cards.
+# `partner` must match an id in partners.yaml. `statIcon` optionally shows an icon before the stat (e.g. whatsapp).
+- id: noora-buttons
+  partner: noora-health
+  stat: "+125%"
+  statLabel: more user responses
+  title: Noora Health used interactive buttons to get more mothers to respond
+  body: Added buttons and prompts to WhatsApp health messages for about 2,400 new mothers.
+  result:
+    type: A/B test
+    title: Interactive buttons vs. control
+    description: >-
+      Experiment result, responses indexed to the control group at 100: control 100, interactive buttons 225, a 125%
+      lift. Interactive buttons won.
+    control: { label: Control, value: 100 }
+    treatment: { label: Interactive buttons, value: 225, lift: "+125%" }
+    population: About 2,400 new mothers
+    winner: Interactive buttons won
+    note: Responses indexed to the control group (= 100), derived from the reported +125%. [Add source and period.]
+- id: udhyam-reminders
+  partner: udhyam
+  logoHeight: 30
+  stat: "+69%"
+  statLabel: lesson-report submissions
+  title: Udhyam used WhatsApp reminders to get teachers to submit lesson reports
+  body: Sent reminders to about 700 teachers in Maharashtra and compared them with a control group.
+- id: kabakoo-channels
+  partner: kabakoo
+  logoHeight: 22
+  stat: WhatsApp
+  statIcon: whatsapp
+  statLabel: beat push notifications
+  title: Kabakoo tested which channel gets learners to show up
+  body: WhatsApp reminders lifted exposure and participation. Sending more reminders didn't deepen engagement.

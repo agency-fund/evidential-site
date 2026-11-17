@@ -1,0 +1,23 @@
+# Rotating quotes in the "Nonprofits learn faster with Evidential" section, shown in this order.
+# `partner` must match an id in partners.yaml.
+- id: kabakoo
+  partner: kabakoo
+  quote: >-
+    Since adopting Evidential, we've been able to surface clear, actionable insights much faster, and I'd recommend
+    it to any team that needs to test product or engagement ideas quickly without sacrificing rigor.
+  name: Godwin Houdji
+  role: Quantitative Researcher, Kabakoo
+- id: udhyam
+  partner: udhyam
+  quote: >-
+    Evidential transformed how we approach our digital engagement. […] It takes the complexity out of rigorous
+    experimental design and gives you the exact data you need to drive real-world impact.
+  name: Shashanka Kundu
+  role: Director of Product, Udhyam Learning Foundation
+- id: maia
+  partner: maia
+  quote: >-
+    We've found Evidential to be a very useful tool in building up the culture and practice of A/B testing. […] I
+    love logging in and checking progress regularly, and that builds up the test & iterate muscle.
+  name: Bailey Klinger
+  role: Founder & Director, MAIA

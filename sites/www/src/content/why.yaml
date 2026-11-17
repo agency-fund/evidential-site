@@ -1,0 +1,17 @@
+# Bullet points in the "Built for how non-profits work" card. `icon` is a name from src/icons/index.ts.
+- id: social-sector
+  icon: heart
+  title: Designed for the social sector.
+  body: The roadmap is steered by mission-driven orgs, not advertisers.
+- id: impact-metrics
+  icon: bar-chart
+  title: Impact-first metrics.
+  body: Measures behaviour change and program outcomes, not vanity reach.
+- id: continuous
+  icon: refresh
+  title: Made for continuous experimentation.
+  body: Set it up once, then experiment indefinitely.
+- id: data-ownership
+  icon: lock
+  title: Your data stays yours.
+  body: Kept on your own infrastructure.

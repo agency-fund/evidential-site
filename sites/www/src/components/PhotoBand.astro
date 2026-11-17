@@ -1,0 +1,115 @@
+---
+import { Image } from "astro:assets";
+import clinic from "../assets/photos/clinic-records-review.webp";
+import enumerators from "../assets/photos/enumerator-training-map.webp";
+import fieldSurvey from "../assets/photos/field-survey-form.webp";
+import kabakooWorkshop from "../assets/photos/kabakoo-workshop.webp";
+import sprint from "../assets/photos/nairobi-sprint-2026.webp";
+import programOfficer from "../assets/photos/program-officer-phone.webp";
+import speaker from "../assets/photos/workshop-speaker.webp";
+import ChevronLeft from "../icons/chevron-left.svg";
+import ChevronRight from "../icons/chevron-right.svg";
+
+const photos = [
+  { src: clinic, alt: "IDinsight team reviewing records with health workers at a clinic" },
+  { src: fieldSurvey, alt: "IDinsight field team member guiding a respondent through a form" },
+  { src: enumerators, alt: "Enumerator training session with a live map of survey locations" },
+  { src: programOfficer, alt: "A program officer using a phone alongside printed survey materials" },
+  { src: kabakooWorkshop, alt: "Kabakoo team members smiling as a colleague passes them a microphone at a workshop" },
+  { src: sprint, alt: "Group photo of participants at the 2026 Nairobi Sprint hosted by The Agency Fund" },
+  { src: speaker, alt: "A workshop participant speaking into a microphone while the room listens" },
+];
+---
+
+<div class="photoband">
+  <div class="wrap">
+    <div class="pscroll">
+      <div class="ptrack">
+        {photos.map((photo) => (
+          <figure class="pcard">
+            <Image src={photo.src} alt={photo.alt} widths={[400, 800]} sizes="(max-width: 700px) 78vw, 360px" />
+          </figure>
+        ))}
+      </div>
+      <button type="button" class="qbtn parrow prev" aria-label="Previous photos" data-step="-1">
+        <ChevronLeft aria-hidden="true" />
+      </button>
+      <button type="button" class="qbtn parrow next" aria-label="Next photos" data-step="1">
+        <ChevronRight aria-hidden="true" />
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { prefersReducedMotion } from "../scripts/carousel";
+
+  document.querySelectorAll<HTMLButtonElement>(".parrow").forEach((button) => {
+    button.addEventListener("click", () => {
+      const track = button.parentElement!.querySelector<HTMLElement>(".ptrack")!;
+      const card = track.querySelector<HTMLElement>(".pcard")!;
+      track.scrollBy({
+        left: Number(button.dataset.step) * (card.getBoundingClientRect().width + 20),
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      });
+    });
+  });
+</script>
+
+<style>
+  .photoband {
+    padding: 0 0 72px;
+  }
+  .pscroll {
+    position: relative;
+  }
+  .ptrack {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ptrack::-webkit-scrollbar {
+    display: none;
+  }
+  .pcard {
+    flex: 0 0 calc((100% - 40px) / 3);
+    margin: 0;
+    scroll-snap-align: start;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--navy-100);
+  }
+  .pcard img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+  .parrow {
+    position: absolute;
+    top: 50%;
+    margin-top: -22px;
+    z-index: 2;
+    box-shadow: 0 8px 20px -8px rgba(0, 15, 26, 0.4);
+  }
+  .parrow.prev {
+    left: -22px;
+  }
+  .parrow.next {
+    right: -22px;
+  }
+  @media (max-width: 900px) {
+    .pcard {
+      flex-basis: 78%;
+    }
+    .parrow.prev {
+      left: 6px;
+    }
+    .parrow.next {
+      right: 6px;
+    }
+  }
+</style>

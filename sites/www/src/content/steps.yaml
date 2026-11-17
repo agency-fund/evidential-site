@@ -1,0 +1,21 @@
+# The "From idea to insight in five steps" timeline, shown in this order. `icon` is a name from src/icons/index.ts.
+- id: connect
+  icon: database
+  title: Connect your data
+  body: Link the channel you deliver on and the data you already collect.
+- id: design
+  icon: flask
+  title: Design the experiment
+  body: Set your hypothesis, choose what to compare and how to measure it.
+- id: assign
+  icon: shuffle
+  title: Assign at random
+  body: Target the right-sized audience (for all your variations) with just a few clicks.
+- id: results
+  icon: pulse
+  title: See results live
+  body: Outcomes update as people respond, so you see what works early.
+- id: act
+  icon: bulb
+  title: Learn & act
+  body: Clean data and lessons in one place, ready to act on.

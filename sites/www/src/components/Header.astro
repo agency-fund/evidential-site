@@ -1,0 +1,488 @@
+---
+import { Image } from "astro:assets";
+import agencyFund from "../assets/logos/agency-fund-white.svg";
+import evidential from "../assets/logos/evidential.svg";
+import idinsight from "../assets/logos/idinsight-white.svg";
+import { NAV_LINKS, SITE } from "../site";
+
+const external = { target: "_blank", rel: "noopener" };
+---
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="/" aria-label="Evidential — home">
+      <Image src={evidential} alt="Evidential" loading="eager" />
+    </a>
+    <nav class="navlinks" aria-label="Primary">
+      {NAV_LINKS.map((link) => (
+        <a href={link.href} {...("external" in link ? external : {})}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+    <div class="navcta">
+      <a class="login" href={SITE.appUrl} {...external}>
+        Log in
+      </a>
+      <a class="btn btn-primary" href="#cta">
+        Start experimenting
+      </a>
+      <button type="button" class="burger" aria-label="Menu" aria-expanded="false" aria-controls="navmenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+  <div class="endorsebar">
+    <div class="wrap">
+      <a class="btn btn-primary mstart" href="#cta">
+        Start experimenting
+      </a>
+      <span>Built by</span>
+      <div class="marks">
+        <a class="idi" href={SITE.idinsightUrl} {...external}>
+          <Image src={idinsight} alt="IDinsight" />
+        </a>
+        <span class="rule"></span>
+        <a class="af" href={SITE.agencyFundUrl} {...external}>
+          <Image src={agencyFund} alt="The Agency Fund" />
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="mbar">
+    <nav class="mlinks" id="navmenu" aria-label="Main">
+      {NAV_LINKS.map((link) => (
+        <a href={link.href} {...("external" in link ? external : {})}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>(".burger")!;
+  const menu = document.querySelector<HTMLElement>(".mlinks")!;
+
+  function setOpen(open: boolean) {
+    burger.classList.toggle("is-open", open);
+    menu.classList.toggle("is-open", open);
+    burger.setAttribute("aria-expanded", String(open));
+  }
+
+  burger.addEventListener("click", () => setOpen(!burger.classList.contains("is-open")));
+  menu.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && burger.classList.contains("is-open")) {
+      setOpen(false);
+      burger.focus();
+    }
+  });
+</script>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    height: 68px;
+  }
+  .nav .logo {
+    display: block;
+    height: 42px;
+  }
+  .nav .logo img {
+    height: 42px;
+    display: block;
+  }
+  @media (max-width: 1120px) {
+    .navlinks {
+      gap: 13px;
+    }
+    .navlinks a {
+      font-size: 13px;
+    }
+    .navcta {
+      gap: 10px;
+    }
+    .navcta .btn {
+      padding: 9px 13px;
+    }
+  }
+  @media (max-width: 940px) {
+    .navlinks {
+      gap: 11px;
+    }
+    .navlinks a {
+      font-size: 12.5px;
+    }
+  }
+  .navlinks {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    min-width: 0;
+    flex-wrap: nowrap;
+  }
+  .navlinks a {
+    position: relative;
+    color: var(--grey-700);
+    font-weight: 500;
+    font-size: 13.5px;
+    white-space: nowrap;
+    padding: 6px 0;
+    transition: color 140ms ease;
+  }
+  .navlinks a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--gold-500);
+    opacity: 0;
+    transform: scaleX(0.4);
+    transform-origin: center;
+    transition:
+      opacity 140ms ease,
+      transform 140ms ease;
+  }
+  .navlinks a:hover {
+    color: var(--navy-600);
+  }
+  .endorsebar {
+    background: var(--navy-600);
+    border-bottom: 1px solid var(--navy-700);
+    overflow: hidden;
+    height: 40px;
+    opacity: 1;
+    transition:
+      height 200ms cubic-bezier(0.2, 0, 0, 1),
+      opacity 160ms ease;
+  }
+  .endorsebar .wrap {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .endorsebar span {
+    font-size: 11px;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .endorsebar img {
+    display: block;
+  }
+  .endorsebar .marks {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .endorsebar .marks a {
+    display: flex;
+    align-items: center;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 140ms ease;
+  }
+  .endorsebar .marks a:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+  .endorsebar .marks a:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 1px;
+  }
+  .endorsebar .marks .idi img {
+    height: 15px;
+  }
+  .endorsebar .marks .af img {
+    height: 26px;
+  }
+  .endorsebar .rule {
+    width: 1px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.45);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .endorsebar {
+      transition: none;
+    }
+  }
+  .navcta .btn {
+    padding: 9px 16px;
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+  .navcta .login {
+    color: var(--grey-700);
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  @media (max-width: 780px) {
+    .navlinks {
+      display: none;
+    }
+    .nav {
+      grid-template-columns: auto 1fr;
+    }
+    .navcta {
+      grid-column: 2;
+    }
+  }
+  .navcta {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .navlinks a {
+    font-size: 15.5px;
+    color: #000;
+  }
+  .navlinks a:hover {
+    color: #000;
+  }
+  .navcta .login {
+    font-size: 16px;
+    color: #000;
+  }
+  .navcta .btn {
+    font-size: 15.5px;
+  }
+  .endorsebar span {
+    font-size: 13px;
+    color: #fff;
+  }
+  @media (max-width: 1120px) {
+    .navlinks a {
+      font-size: 14.5px;
+    }
+  }
+  @media (max-width: 940px) {
+    .navlinks a {
+      font-size: 14px;
+    }
+  }
+  .navlinks a::after {
+    background: var(--navy-600);
+  }
+  @media (max-width: 640px) {
+    .nav {
+      gap: 8px;
+    }
+    .navcta {
+      gap: 10px;
+      min-width: 0;
+    }
+    .navcta .login {
+      font-size: 13.5px;
+    }
+    .navcta .btn {
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+  }
+  .mbar {
+    display: none;
+  }
+  .endorsebar .wrap {
+    gap: 4px;
+  }
+  @media (max-width: 780px) {
+    header .nav {
+      grid-template-columns: auto 1fr;
+      height: 60px;
+      gap: 10px;
+    }
+    .nav .logo,
+    .nav .logo img {
+      height: 32px;
+    }
+    .navcta {
+      grid-column: 2;
+      justify-self: end;
+      gap: 10px;
+    }
+    .navcta .login {
+      font-size: 13px;
+    }
+    .navcta .btn {
+      padding: 8px 11px;
+      font-size: 12.5px;
+    }
+    .endorsebar .wrap {
+      justify-content: center;
+    }
+    .mbar {
+      display: block;
+      background: var(--navy-500);
+      border-bottom: 1px solid var(--navy-600);
+    }
+    .burger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+      height: 44px;
+      padding: 0;
+      background: 0 0;
+      border: 0;
+      cursor: pointer;
+    }
+    .burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      border-radius: 2px;
+      background: #fff;
+      transition:
+        transform 0.25s ease,
+        opacity 0.2s ease;
+    }
+    .burger.is-open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .burger.is-open span:nth-child(2) {
+      opacity: 0;
+    }
+    .burger.is-open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+    .burger:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: -4px;
+    }
+    .mlinks {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .mlinks.is-open {
+      display: flex;
+    }
+    .mlinks a {
+      width: 100%;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 500;
+      color: #fff;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .mlinks a:last-child {
+      border-bottom: 0;
+    }
+  }
+  .navcta .burger {
+    display: none;
+  }
+  .mstart {
+    display: none;
+  }
+  @media (max-width: 780px) {
+    .navcta .btn {
+      display: none;
+    }
+    .navcta {
+      gap: 14px;
+    }
+    .navcta .burger {
+      display: flex;
+      width: 40px;
+      height: 40px;
+    }
+    .navcta .burger span {
+      background: var(--navy-600);
+    }
+    .endorsebar,
+    .endorsebar .wrap {
+      height: 46px;
+    }
+    .endorsebar .wrap {
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .endorsebar .mstart {
+      display: inline-flex;
+      margin-right: auto;
+      padding: 7px 12px;
+      font-size: 12px;
+      white-space: nowrap;
+      background: var(--navy-500);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .endorsebar span {
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .endorsebar .marks {
+      gap: 8px;
+    }
+    .endorsebar .marks .idi img {
+      height: 12px;
+    }
+    .endorsebar .marks .af img {
+      height: 20px;
+    }
+    .endorsebar .marks .rule {
+      height: 18px;
+    }
+    .mbar {
+      padding: 0;
+      border-bottom: 0;
+    }
+  }
+  @media (max-width: 780px) {
+    @media (max-width: 360px) {
+      .endorsebar .wrap {
+        padding: 0 12px;
+        gap: 6px;
+      }
+      .endorsebar .mstart {
+        padding: 6px 9px;
+        font-size: 11px;
+      }
+      .endorsebar span {
+        font-size: 9px;
+      }
+      .endorsebar .marks {
+        gap: 6px;
+      }
+      .endorsebar .marks .idi img {
+        height: 11px;
+      }
+      .endorsebar .marks .af img {
+        height: 18px;
+      }
+    }
+  }
+  @media (max-width: 780px) {
+    .mlinks {
+      width: 100%;
+      margin: 0;
+      border-top: 0;
+      border-bottom: 1px solid var(--navy-600);
+    }
+  }
+</style>

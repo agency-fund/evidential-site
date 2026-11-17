@@ -1,0 +1,144 @@
+---
+import { Image } from "astro:assets";
+import bandit from "../assets/screens/console-bandit-analysis.webp";
+import { SITE } from "../site";
+---
+
+<section class="demo-band">
+  <div class="wrap">
+    <div class="demo-embed" id="demo">
+      <Image
+        class="demo-still"
+        src={bandit}
+        alt=""
+        widths={[760, 1520]}
+        sizes="(max-width: 808px) calc(100vw - 48px), 760px"
+      />
+      <span class="scrim"></span>
+      <a class="ph-inner" href={SITE.demoVideoUrl} target="_blank" rel="noopener">
+        <span class="playic" aria-hidden="true"></span>
+        <span>Watch the 2-minute demo</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .playic {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--navy-900);
+    display: grid;
+    place-items: center;
+  }
+  .playic::after {
+    content: "";
+    width: 11px;
+    height: 11px;
+    margin-left: 2px;
+    background: var(--gold-500);
+    -webkit-mask: url("../icons/play.svg") center/contain no-repeat;
+    mask: url("../icons/play.svg") center/contain no-repeat;
+  }
+  .demo-embed {
+    margin: 36px auto 0;
+    max-width: 760px;
+    aspect-ratio: 16/9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--navy-700);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: #fff;
+    box-shadow: 0 20px 44px -26px rgba(0, 35, 68, 0.6);
+  }
+  .demo-embed .ph-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  .demo-embed .playic {
+    width: 56px;
+    height: 56px;
+  }
+  .demo-embed .playic::after {
+    width: 24px;
+    height: 24px;
+  }
+  .demo-embed a.ph-inner {
+    color: rgba(255, 255, 255, 0.88);
+    text-decoration: none;
+  }
+  .demo-embed a.ph-inner:hover {
+    color: #fff;
+  }
+  .demo-embed .ph-inner,
+  .demo-embed a.ph-inner,
+  .demo-embed a.ph-inner:hover {
+    font-size: 17px;
+    color: #fff;
+  }
+  .demo-band {
+    background: #fff;
+    padding: 96px 0;
+  }
+  .demo-band .demo-embed {
+    margin: 0 auto;
+  }
+  .demo-embed {
+    position: relative;
+    border-radius: 6px;
+    box-shadow: none;
+    background: var(--navy-900);
+  }
+  .demo-still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    display: block;
+  }
+  .demo-embed .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 15, 26, 0.62);
+  }
+  .demo-embed a.ph-inner {
+    position: relative;
+    z-index: 1;
+  }
+  .demo-embed .playic {
+    background: #fff;
+  }
+  .demo-embed .playic::after {
+    background: var(--navy-900);
+  }
+  .demo-band {
+    position: relative;
+  }
+  .demo-band > .wrap {
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 900px) {
+    .demo-band {
+      padding: 56px 0;
+    }
+  }
+  .demo-band {
+    background-image: url("../assets/textures/noise.svg");
+    background-size: 220px 220px;
+  }
+  @media (max-resolution: 1.5dppx), (-webkit-max-device-pixel-ratio: 1.5), (max-width: 900px) {
+    .demo-band {
+      background-image: url("../assets/textures/noise-subtle.svg");
+    }
+  }
+</style>

@@ -1,0 +1,39 @@
+# Rows of the "What Evidential can do" picker, shown in this order.
+# Each row shows a cropped region of a console screenshot (`screen`: experiments | bandit-analysis).
+# `crop` positions the screenshot inside the frame, as percentages of the frame width: `width` is the image's
+# rendered width, `left`/`top` its offset.
+- id: ab-tests
+  title: A/B tests
+  summary: Is B better than A? Assignment and power handled for you.
+  useWhen: you have a few versions of a message and want to know which one works.
+  screen: experiments
+  alt: Experiment cards labelled A/B and bandit experiment types
+  crop: { width: 193.85, left: -82.05, top: -45.19 }
+- id: bayesian
+  title: Bayesian designs
+  summary: Decide sooner, even with small samples.
+  useWhen: your audience is small, or you want an answer you can act on before the experiment ends.
+  screen: bandit-analysis
+  alt: Analysis panel showing a beta prior and a binary reward type
+  crop: { width: 201.6, left: -42.67, top: -17 }
+- id: bandits
+  title: Adaptive bandits
+  summary: Shift people toward what works while it runs.
+  useWhen: you have several options and don’t want to keep sending people to the weaker ones.
+  screen: bandit-analysis
+  alt: Leaderboard of estimated average outcomes for each arm
+  crop: { width: 168, left: -35.56, top: -29.17 }
+- id: statistics
+  title: Statistics built in
+  summary: Trustworthy results, no statistician needed.
+  useWhen: you need results you can show a funder or your board.
+  screen: bandit-analysis
+  alt: Historical means chart with uncertainty ranges over time
+  crop: { width: 280, left: -62.96, top: -119.44 }
+- id: integrations
+  title: Works with your data
+  summary: Warehouse and event integrations, plus a full API.
+  useWhen: your data already lives in a warehouse or app and you don’t want to move it by hand.
+  screen: experiments
+  alt: Evidential sidebar with the Integrations menu and experiments list
+  crop: { width: 229.09, left: 0, top: -18.18 }

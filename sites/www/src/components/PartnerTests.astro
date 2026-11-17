@@ -1,0 +1,452 @@
+---
+import { getEntry } from "astro:content";
+import { ordered } from "../content/ordered";
+import WhatsApp from "../icons/whatsapp.svg";
+import PartnerLogo from "./PartnerLogo.astro";
+
+const tests = await Promise.all(
+  (await ordered("partnerTests")).map(async (t) => ({ ...t.data, partner: await getEntry(t.data.partner) })),
+);
+const featured = tests.find((t) => t.result);
+const cards = tests.filter((t) => t !== featured);
+
+// Bar heights are a share of the plot height; the axis runs from 0 to the next gridline above the larger value.
+const GRID_STEP = 100;
+const PLOT_HEADROOM = 0.9;
+function barHeight(value: number, max: number): string {
+  return `${Math.round((value / max) * PLOT_HEADROOM * 100)}%`;
+}
+const result = featured?.result;
+const axisMax = result ? Math.max(result.control.value, result.treatment.value) : GRID_STEP;
+const gridlines = [0, GRID_STEP, 2 * GRID_STEP];
+---
+
+<section id="partner-tests">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>What partners have tested</h2>
+    </div>
+    {featured && result && (
+      <article class="exp-lead">
+        <div class="el-text">
+          <PartnerLogo class="el-logo" partner={featured.partner} />
+          <div class="exp-stat">{featured.stat}</div>
+          <div class="exp-statlbl">{featured.statLabel}</div>
+          <h3>{featured.title}</h3>
+          <p>{featured.body}</p>
+        </div>
+        <div class="res" role="img" aria-label={result.description}>
+          <div class="res-head">
+            <span class="res-tag">{result.type}</span>
+            <span class="res-title">{result.title}</span>
+          </div>
+          <div class="res-plot" aria-hidden="true">
+            <div class="res-grid">
+              {gridlines.map((value, i) => (
+                <span class={`g${i}`}>
+                  <i>{value}</i>
+                </span>
+              ))}
+            </div>
+            <div class="res-col" style={`--h:${barHeight(result.control.value, axisMax)}`}>
+              <b class="res-val">{result.control.value}</b>
+              <span class="res-bar" />
+              <span class="res-lab">{result.control.label}</span>
+            </div>
+            <div class="res-col t" style={`--h:${barHeight(result.treatment.value, axisMax)}`}>
+              <span class="res-lift">{result.treatment.lift}</span>
+              <b class="res-val">{result.treatment.value}</b>
+              <span class="res-bar" />
+              <span class="res-lab">{result.treatment.label}</span>
+            </div>
+          </div>
+          <div class="res-foot">
+            <span>{result.population}</span>
+            <span class="res-win">{result.winner}</span>
+          </div>
+          <p class="res-note">{result.note}</p>
+        </div>
+      </article>
+    )}
+    <div class="exp-grid">
+      {cards.map((card) => (
+        <article class="exp">
+          <div class="exp-top">
+            <PartnerLogo partner={card.partner} height={card.logoHeight} />
+          </div>
+          <div class="exp-stat">
+            {card.statIcon === "whatsapp" && <WhatsApp class="wa" aria-hidden="true" />}
+            {card.stat}
+          </div>
+          <div class="exp-statlbl">{card.statLabel}</div>
+          <h3>{card.title}</h3>
+          <p>{card.body}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .exp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .exp {
+    background: #fff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 22px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 26px -20px rgba(0, 35, 68, 0.45);
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .exp:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 30px -20px rgba(0, 35, 68, 0.55);
+  }
+  .exp-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .exp-top img {
+    display: block;
+    width: auto;
+    max-width: 60%;
+    object-fit: contain;
+  }
+  .exp-stat {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    color: var(--success-600);
+    line-height: 1;
+  }
+  .exp-statlbl {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--success-600);
+    margin-top: 4px;
+  }
+  .exp h3 {
+    font-size: 16px;
+    line-height: 1.35;
+    color: var(--navy-600);
+    margin-top: 16px;
+  }
+  .exp p {
+    font-size: 13px;
+    color: var(--grey-600);
+    line-height: 1.55;
+    margin-top: 6px;
+  }
+  @media (max-width: 900px) {
+    .exp-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .exp-stat {
+    font-size: 46px;
+    color: #000;
+  }
+  .exp-statlbl {
+    font-size: 16px;
+    color: #000;
+  }
+  .exp h3 {
+    font-size: 19px;
+    color: #000;
+  }
+  .exp p {
+    font-size: 16px;
+    color: #000;
+  }
+  .exp-lead {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 48px;
+    align-items: center;
+    background: var(--navy-50);
+    border-radius: 6px;
+    padding: 40px;
+    margin-top: 40px;
+  }
+  .el-logo {
+    height: 30px;
+    width: auto;
+    display: block;
+    margin-bottom: 24px;
+  }
+  .exp-lead .exp-stat {
+    font-size: 72px;
+  }
+  .exp-lead h3 {
+    font-size: 22px;
+    margin-top: 16px;
+    color: #000;
+  }
+  .exp-lead p {
+    font-size: 17px;
+    color: #000;
+    margin-top: 8px;
+  }
+  .exp-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .exp {
+    border-radius: 6px;
+    box-shadow: none;
+    transition: none;
+  }
+  .exp:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .exp .exp-top {
+    height: 36px;
+    display: flex;
+    align-items: center;
+  }
+  .exp .exp-stat {
+    font-size: 36px;
+    line-height: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .exp-stat .wa {
+    width: 0.85em;
+    height: 0.85em;
+    vertical-align: -0.1em;
+    margin-right: 0.3em;
+    fill: #25d366;
+  }
+  .res {
+    background: #fff;
+    border: 1px solid var(--grey-300);
+    border-radius: 12px;
+    padding: 22px 24px 20px;
+    box-shadow:
+      0 20px 40px -16px rgba(0, 15, 26, 0.25),
+      0 6px 16px rgba(0, 15, 26, 0.1);
+  }
+  .res-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--grey-300);
+  }
+  .res-tag {
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: #e6eef8;
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .res-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #000;
+  }
+  .res-plot {
+    position: relative;
+    height: 240px;
+    margin: 64px 0 62px 38px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+  }
+  .res-grid span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px dashed var(--grey-300);
+  }
+  .res-grid span i {
+    position: absolute;
+    left: -38px;
+    top: -9px;
+    width: 28px;
+    text-align: right;
+    font-style: normal;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: #000;
+  }
+  .res-grid .g0 {
+    bottom: 0;
+    border-top: 1px solid var(--grey-500);
+  }
+  .res-grid .g1 {
+    bottom: 40%;
+  }
+  .res-grid .g2 {
+    bottom: 80%;
+  }
+  .res-col {
+    position: relative;
+    z-index: 1;
+    width: 30%;
+    height: 100%;
+  }
+  .res-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--h);
+    background: var(--grey-500);
+    border-radius: 4px 4px 0 0;
+  }
+  .res-col.t .res-bar {
+    background: var(--navy-600);
+  }
+  .res-val {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--h) + 8px);
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: #000;
+  }
+  .res-lift {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--h) + 42px);
+    transform: translateX(-50%);
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--navy-600);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .res-lab {
+    position: absolute;
+    top: 100%;
+    left: -30%;
+    right: -30%;
+    margin-top: 14px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #000;
+  }
+  .res-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 12px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--grey-300);
+    font-size: 15px;
+    color: #000;
+  }
+  .res-win {
+    font-weight: 700;
+  }
+  .exp-lead .res-note {
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #000;
+  }
+  @media (max-width: 900px) {
+    .exp-lead {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .exp-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .exp-lead p {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .exp p {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .exp-statlbl {
+    font-size: 17px;
+  }
+  @media (max-width: 640px) {
+    .exp-lead,
+    .exp-lead .el-text,
+    .exp-lead .res {
+      text-align: center;
+    }
+    .el-logo {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .res-head,
+    .res-foot {
+      justify-content: center;
+      text-align: center;
+    }
+    .res-note,
+    .exp-lead .res-note {
+      text-align: center;
+    }
+    .exp,
+    .exp h3,
+    .exp p {
+      text-align: center;
+    }
+    .exp .exp-top {
+      justify-content: center;
+    }
+    .exp .exp-stat,
+    .exp .exp-statlbl {
+      justify-content: center;
+      text-align: center;
+    }
+  }
+  @media (max-width: 780px) {
+    .exp-lead .exp-stat {
+      font-size: 56px;
+    }
+    .exp .exp-stat {
+      font-size: 30px;
+    }
+    .exp-lead h3 {
+      font-size: 20px;
+    }
+  }
+  @media (max-width: 640px) {
+    #partner-tests .wrap {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    .exp-lead {
+      padding: 24px 8px;
+    }
+    .exp-lead .el-text {
+      padding: 0 12px;
+    }
+    .res {
+      padding: 18px 10px 16px;
+    }
+  }
+</style>

@@ -1,0 +1,236 @@
+---
+import Arrow from "./Arrow.astro";
+import { ordered } from "../content/ordered";
+import { SITE } from "../site";
+import FeatureShot from "./FeatureShot.astro";
+
+const features = await ordered("features");
+---
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>What Evidential can do</h2>
+      <p class="sub">Pick the method that fits your question. Evidential handles the set-up and the statistics.</p>
+    </div>
+    <div class="feat-wrap">
+      <div class="flist">
+        {features.map((feature, i) => (
+          <button type="button" class:list={["frow", { "is-on": i === 0 }]} aria-pressed={i === 0 ? "true" : "false"}>
+            <span class="ft">{feature.data.title}</span>
+            <span class="what">{feature.data.summary}</span>
+            <span class="more">
+              <span class="more-in">
+                <span class="use">
+                  <b>Use it when</b> {feature.data.useWhen}
+                </span>
+                <span class="fshot">
+                  <FeatureShot feature={feature} />
+                </span>
+              </span>
+            </span>
+          </button>
+        ))}
+        <div class="docs-link">
+          <a class="btn btn-ghost" href={SITE.docsUrl} target="_blank" rel="noopener">
+            See full details in the docs <Arrow />
+          </a>
+        </div>
+      </div>
+      <div class="fcrops">
+        <div class="fstage">
+          {features.map((feature, i) => (
+            <div class:list={["fcrop", { "is-on": i === 0 }]}>
+              <FeatureShot feature={feature} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { showOnly } from "../scripts/carousel";
+
+  const rows = Array.from(document.querySelectorAll<HTMLButtonElement>(".frow"));
+  const crops = Array.from(document.querySelectorAll(".fcrop"));
+
+  function pick(index: number) {
+    showOnly(rows, index);
+    showOnly(crops, index);
+    rows.forEach((row, i) => row.setAttribute("aria-pressed", String(i === index)));
+  }
+
+  rows.forEach((row, i) => {
+    row.addEventListener("click", () => pick(i));
+    row.addEventListener("mouseenter", () => pick(i));
+  });
+</script>
+
+<style>
+  .docs-link {
+    text-align: center;
+    margin-top: 36px;
+  }
+  .feat-wrap {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 64px;
+    align-items: start;
+    margin-top: 40px;
+  }
+  .flist {
+    display: flex;
+    flex-direction: column;
+  }
+  .frow {
+    display: block;
+    width: calc(100% + 40px);
+    margin: 0-20px;
+    padding: 22px 20px;
+    text-align: left;
+    background: 0 0;
+    border: 0;
+    border-top: 1px solid var(--grey-300);
+    border-radius: 0;
+    font: inherit;
+    color: #000;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+  .frow:last-of-type {
+    border-bottom: 1px solid var(--grey-300);
+  }
+  .frow:hover {
+    background: #fff;
+  }
+  .frow.is-on {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow:
+      0 10px 26px -14px rgba(0, 15, 26, 0.3),
+      0 2px 8px rgba(0, 15, 26, 0.06);
+  }
+  .frow .ft {
+    display: block;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  .frow .what {
+    display: block;
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 46ch;
+  }
+  .frow .more {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .frow.is-on .more {
+    grid-template-rows: 1fr;
+  }
+  .frow .more-in {
+    display: block;
+    overflow: hidden;
+  }
+  .frow .use {
+    display: block;
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 46ch;
+    padding-top: 10px;
+  }
+  .frow .use b {
+    font-weight: 700;
+  }
+  .flist .docs-link {
+    text-align: left;
+    margin-top: 28px;
+  }
+  .fcrops {
+    position: sticky;
+    top: 96px;
+  }
+  .fstage {
+    position: relative;
+    aspect-ratio: 3/2;
+    border: 1px solid var(--grey-300);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow:
+      0 20px 40px -16px rgba(0, 15, 26, 0.25),
+      0 6px 16px rgba(0, 15, 26, 0.1);
+  }
+  .fcrop {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .fcrop.is-on {
+    opacity: 1;
+  }
+  .fcrop img {
+    position: absolute;
+    max-width: none;
+    display: block;
+  }
+  .fshot {
+    display: none;
+  }
+  @media (max-width: 900px) {
+    .fcrops {
+      display: none;
+    }
+    .frow .fshot {
+      display: block;
+      position: relative;
+      aspect-ratio: 3/2;
+      margin-top: 16px;
+      border: 1px solid var(--grey-300);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 12px 24px -14px rgba(0, 15, 26, 0.3);
+    }
+    .frow .fshot img {
+      position: absolute;
+      max-width: none;
+      display: block;
+    }
+    .feat-wrap {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+  .frow .what {
+    font-size: 18px;
+    line-height: 1.55;
+  }
+  .frow .use {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  @media (max-width: 640px) {
+    .frow,
+    .frow .ft,
+    .frow .what,
+    .frow .use {
+      text-align: center;
+    }
+    .frow .what,
+    .frow .use {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .flist .docs-link {
+      text-align: center;
+    }
+  }
+</style>

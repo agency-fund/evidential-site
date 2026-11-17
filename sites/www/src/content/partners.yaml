@@ -1,0 +1,20 @@
+# Partner organizations shown in the "Trusted by partners" marquee, testimonials, and experiment cards.
+# `logo` paths are relative to this file. Set `wordmark: true` when the logo is a square mark that needs the
+# partner name rendered beside it. `marqueeHeight` is the logo height in pixels within the marquee.
+- id: kabakoo
+  name: Kabakoo
+  logo: ../assets/partners/kabakoo.png
+  marqueeHeight: 28
+- id: udhyam
+  name: Udhyam Learning Foundation
+  logo: ../assets/partners/udhyam.png
+  marqueeHeight: 40
+- id: maia
+  name: MAIA
+  logo: ../assets/partners/maia-mark.png
+  wordmark: true
+  marqueeHeight: 34
+- id: noora-health
+  name: Noora Health
+  logo: ../assets/partners/noora-health.png
+  marqueeHeight: 34

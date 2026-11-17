@@ -1,0 +1,25 @@
+---
+/** A cropped region of a console screenshot, positioned by percentages from features.yaml. */
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import bandit from "../assets/screens/console-bandit-analysis.webp";
+import experiments from "../assets/screens/console-experiments.webp";
+
+interface Props {
+  feature: CollectionEntry<"features">;
+  class?: string;
+}
+
+const screens = { experiments, "bandit-analysis": bandit };
+const { feature, class: className } = Astro.props;
+const { screen, alt, crop } = feature.data;
+---
+
+<Image
+  class={className}
+  src={screens[screen]}
+  alt={alt}
+  widths={[1200, 2400]}
+  sizes="(max-width: 900px) 200vw, 1400px"
+  style={`width:${crop.width}%;left:${crop.left}%;top:${crop.top}%`}
+/>

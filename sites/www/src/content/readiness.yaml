@@ -1,0 +1,20 @@
+# Options in "Where are you starting from?".
+- id: data-ready
+  label: Your data is ready
+  cost: Free
+  body: >-
+    You track outcomes in a database or event system and have a question in mind. We connect Evidential to your data
+    and get your first experiment live.
+- id: data-needs-work
+  label: Your data needs some work
+  cost: Free, with extra setup support
+  body: >-
+    The data exists but isn't connected yet, or you're not sure what to measure. We'll help with the database and
+    integrations, and design your first experiment with you.
+- id: advisory
+  label: You want a team behind you
+  cost: Paid retainer
+  service: Experimentation Advisory Service
+  body: >-
+    An IDinsight economist works with your team on a fractional basis. They help you design experiments, run them,
+    and turn the results into decisions you can act on.

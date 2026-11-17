@@ -1,0 +1,39 @@
+---
+/**
+ * A partner's logo; square marks (`wordmark: true`) get the partner name rendered beside them.
+ * `class` is applied to every rendered element so the parent's scoped styles reach them.
+ */
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  partner: CollectionEntry<"partners">;
+  height?: number;
+  decorative?: boolean;
+  class?: string;
+}
+
+// Logos display at most 40px tall (marquee); generate that size plus a 2x version instead of the full-size source.
+const RENDER_HEIGHT = 40;
+const DENSITIES = [1, 2];
+
+const { partner, height, decorative = false, class: className } = Astro.props;
+const { name, logo, wordmark } = partner.data;
+const style = height ? `height:${height}px` : undefined;
+---
+
+{wordmark ? (
+  <span class:list={["hp", className]}>
+    <Image class={className} src={logo} alt="" style={style} height={RENDER_HEIGHT} densities={DENSITIES} />
+    <span class={className}>{name}</span>
+  </span>
+) : (
+  <Image
+    class={className}
+    src={logo}
+    alt={decorative ? "" : name}
+    style={style}
+    height={RENDER_HEIGHT}
+    densities={DENSITIES}
+  />
+)}

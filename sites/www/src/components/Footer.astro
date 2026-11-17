@@ -1,0 +1,163 @@
+---
+import { Image } from "astro:assets";
+import logo from "../assets/logos/evidential-endorsed-white.svg";
+import { SITE } from "../site";
+
+const columns = [
+  {
+    heading: "Product",
+    links: [
+      { label: "How it works", href: "#how" },
+      { label: "Why Evidential", href: "#why" },
+      { label: "Partner experiments", href: "#partner-tests" },
+      { label: "Features", href: "#features" },
+      { label: "Integrations", href: `${SITE.docsUrl}/integration/overview/` },
+      { label: "API", href: `${SITE.docsUrl}/integration/integration/` },
+    ],
+  },
+  {
+    heading: "Resources",
+    links: [
+      { label: "Documentation", href: SITE.docsUrl },
+      { label: "Getting started", href: `${SITE.docsUrl}/welcome/getting-started/` },
+      { label: "GitHub", href: SITE.githubUrl },
+      { label: "Experimentation Advisory Service", href: "#readiness" },
+      { label: "Readiness check", href: "#readiness" },
+    ],
+  },
+  {
+    heading: "Organisation",
+    links: [
+      { label: "IDinsight", href: SITE.idinsightUrl },
+      { label: "The Agency Fund", href: SITE.agencyFundUrl },
+      { label: "Contact", href: "#cta" },
+      { label: "Privacy", href: `${SITE.docsUrl}/legal/terms/` },
+    ],
+  },
+];
+---
+
+<footer>
+  <div class="wrap footgrid">
+    <div class="footbrand">
+      <Image class="logo" src={logo} alt="Evidential — by IDinsight & The Agency Fund" />
+      <p>{SITE.tagline}</p>
+    </div>
+    {columns.map((column) => (
+      <div>
+        <h4>{column.heading}</h4>
+        <ul>
+          {column.links.map((link) => (
+            <li>
+              {link.href.startsWith("#") ? (
+                <a href={link.href}>{link.label}</a>
+              ) : (
+                <a href={link.href} target="_blank" rel="noopener">
+                  {link.label}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</footer>
+
+<style>
+  footer {
+    background: var(--navy-900);
+    color: rgba(255, 255, 255, 0.72);
+    padding: 52px 0 40px;
+    margin-top: 0;
+  }
+  .footgrid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 32px;
+  }
+  .footgrid h4 {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .footgrid ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .footgrid a {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 13px;
+  }
+  .footgrid a:hover {
+    color: #fff;
+  }
+  .footbrand img.logo {
+    height: 74px;
+    display: block;
+    margin-bottom: 16px;
+  }
+  .footbrand p {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.55);
+    max-width: 250px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 900px) {
+    .footgrid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  footer {
+    color: #fff;
+  }
+  .footgrid h4 {
+    font-size: 17px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #fff;
+  }
+  .footgrid a {
+    font-size: 15px;
+    color: #fff;
+  }
+  .footbrand p {
+    font-size: 15px;
+    color: #fff;
+    max-width: 300px;
+  }
+  .footgrid a,
+  .footbrand p {
+    font-size: 16px;
+  }
+  @media (max-width: 640px) {
+    .footgrid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .footbrand {
+      grid-column: 1/-1;
+    }
+    .footgrid a {
+      overflow-wrap: anywhere;
+    }
+    .footbrand,
+    .footgrid > div {
+      text-align: center;
+    }
+    .footbrand img.logo,
+    .footbrand p {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .footgrid ul {
+      align-items: center;
+    }
+  }
+</style>
