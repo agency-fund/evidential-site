@@ -44,13 +44,14 @@ tasks:
     cmd: pnpm exec prettier --write .
 
   ci:check:
-    desc: "CI only (www workflow): checks, a production build, link check, and Lighthouse budgets."
+    desc: "CI only (www workflow): checks, a production build, link check, and Lighthouse budgets. LIGHTHOUSE=false skips Lighthouse."
     cmds:
       - task: check
       # Build as production so Lighthouse measures what visitors get, including analytics.
       - task: build:production
       - task: linkcheck
       - task: lighthouse
+        if: '{{ne .LIGHTHOUSE "false"}}'
 
   build:production:
     internal: true

@@ -3,12 +3,12 @@
 ## Repository layout
 
 This repository holds Evidential's public websites. Each site lives in its own directory under `sites/`, with its
-own `Taskfile.yml` and GitHub Actions workflow:
+own `Taskfile.yml` and GitHub Actions workflow (see [sites/README.md](sites/README.md)):
 
-| Directory    | Site                                               | Status                                                                                                         |
-| ------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `sites/www`  | [www.evidential.dev](https://www.evidential.dev)   | Astro static site plus a small Cloudflare Worker for the contact form                                          |
-| `sites/docs` | [docs.evidential.dev](https://docs.evidential.dev) | Nimbus (Astro) docs site, with the OpenAPI reference |
+| Directory    | Site                                               | Status                                                                |
+| ------------ | -------------------------------------------------- | --------------------------------------------------------------------- |
+| `sites/www`  | [www.evidential.dev](https://www.evidential.dev)   | Astro static site plus a small Cloudflare Worker for the contact form |
+| `sites/docs` | [docs.evidential.dev](https://docs.evidential.dev) | Nimbus (Astro) docs site, with the OpenAPI reference                  |
 
 ## Getting started
 
@@ -23,5 +23,7 @@ task lint         # all pre-commit hooks
 task --list       # everything else
 ```
 
-See [sites/www/README.md](sites/www/README.md) for editing content and how deployments work. See [sites/docs/README.md](sites/docs/README.md) for the docs
-site, and [Contribute to the docs](sites/docs/src/content/docs/develop/guides/contribute-to-the-docs.mdx) to propose a change to it.
+[sites/README.md](sites/README.md) covers what the sites share: CI, Previews, deployment, and the Cloudflare and
+GitHub resources behind them. [sites/www/README.md](sites/www/README.md) covers editing www's content and its contact
+form, and [sites/docs/README.md](sites/docs/README.md) the docs site. To propose a change to the docs, see
+[Contribute to the docs](sites/docs/src/content/docs/develop/guides/contribute-to-the-docs.mdx).

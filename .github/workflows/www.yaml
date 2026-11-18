@@ -27,30 +27,21 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  check:
-    uses: $/.github/workflows/site-check.yaml
-    with:
-      site: www
-      artifact-path: sites/www/.lighthouseci/
-
-  preview-wanted:
-    needs: check
-    # Fork and Dependabot pull requests can't read the preview environment's token.
-    if: >-
-      github.event_name == 'pull_request'
-      && github.event.pull_request.head.repo.full_name == github.repository
-      && github.event.pull_request.user.login != 'dependabot[bot]'
+  visible-changes:
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: read
     outputs:
-      wanted: ${{ steps.filter.outputs.visible }}
+      # Whether the change touches files readers see. Only pull requests are filtered; pushes to main and manual runs
+      # always count as visible.
+      changed: ${{ github.event_name != 'pull_request' || steps.filter.outputs.visible == 'true' }}
     steps:
-      # Only pull requests that change files readers see get a Preview; tooling, tests, docs, and dependency-only changes
-      # don't. On pull_request events, paths-filter lists the changed files through the API; no checkout needed.
-      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+      # Tooling, tests, docs, and dependency-only changes don't count. On pull_request events, paths-filter lists the
+      # changed files through the API; no checkout needed.
+      - if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
           # The page, its assets, and the contact-form Worker; * doesn't cross /, so worker/test/ is excluded.
@@ -61,9 +52,23 @@ jobs:
               - 'sites/www/worker/*.ts'
               - 'sites/www/astro.config.mjs'
 
+  check:
+    needs: visible-changes
+    uses: $/.github/workflows/site-check.yaml
+    with:
+      site: www
+      artifact-path: sites/www/.lighthouseci/
+      # Lighthouse measures what readers see, so it runs only when that changed.
+      lighthouse: ${{ needs.visible-changes.outputs.changed == 'true' }}
+
   preview:
-    needs: preview-wanted
-    if: needs.preview-wanted.outputs.wanted == 'true'
+    needs: [visible-changes, check]
+    # Fork and Dependabot pull requests can't read the preview environment's token.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+      && needs.visible-changes.outputs.changed == 'true'
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 15
     permissions:

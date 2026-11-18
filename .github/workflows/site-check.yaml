@@ -17,6 +17,10 @@ on:
         description: Files to upload after the checks, even when they fail, such as Lighthouse reports.
         type: string
         default: ""
+      lighthouse:
+        description: Whether the site's checks include Lighthouse, for sites that run it (passed to Task as LIGHTHOUSE).
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -41,6 +45,7 @@ jobs:
       - run: task "${SITE}:ci:check"
         env:
           SITE: ${{ inputs.site }}
+          LIGHTHOUSE: ${{ inputs.lighthouse }}
       - if: ${{ !cancelled() && inputs.artifact-path != '' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -48,4 +53,6 @@ jobs:
           path: ${{ inputs.artifact-path }}
           # Report directories such as www's .lighthouseci/ are hidden, which upload-artifact skips by default.
           include-hidden-files: true
+          # Checks that were skipped, such as Lighthouse, leave nothing to upload.
+          if-no-files-found: ignore
           retention-days: 14
