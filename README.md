@@ -25,4 +25,4 @@ task --list       # everything else
 ```
 
 See [sites/www/README.md](sites/www/README.md) for editing content and how deployments work. See [sites/docs/README.md](sites/docs/README.md) for the docs
-site.
+site, and [Contribute to the docs](sites/docs/src/content/docs/develop/guides/contribute-to-the-docs.mdx) to propose a change to it.

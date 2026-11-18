@@ -4,6 +4,9 @@ Evidential's technical documentation, built with [Nimbus](https://nimbus-docs.co
 theme. It was migrated from MkDocs in [agency-fund/evidential-docs](https://github.com/agency-fund/evidential-docs),
 which still builds and deploys the live site until hosting moves here. Nothing in this repository deploys the docs yet.
 
+To contribute to the docs, including the pull request workflow and writing conventions, see
+[Contribute to the docs](src/content/docs/develop/guides/contribute-to-the-docs.mdx). This README covers how the site is built.
+
 ## Development
 
 Run these from the repository root (or drop the `docs:` prefix inside `sites/docs`):

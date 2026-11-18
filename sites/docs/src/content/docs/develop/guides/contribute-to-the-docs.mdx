@@ -4,24 +4,68 @@ sidebar:
   order: 11
 ---
 
-:::note
-Cheatsheet for anyone who edits, deploys, or rolls back the Evidential docs site
+Thanks for helping improve the Evidential docs! Whether you're fixing a typo or writing a new guide, every change goes
+through a pull request on [agency-fund/evidential-site](https://github.com/agency-fund/evidential-site), where the docs
+live in `sites/docs/`. Automated checks run on every pull request, and a reviewer reads it before it's merged, so you
+don't need to get everything right on your own.
 
-**Repo:** `github.com/agency-fund/evidential-site`, in `sites/docs/`
+The site is built with [Nimbus](https://nimbus-docs.com), a documentation framework based on
+[Astro](https://astro.build). Pages are MDX files: Markdown that can also use a few components, such as callouts and
+expandable sections.
 
-**Live site:** [https://docs.evidential.dev](https://docs.evidential.dev)
-:::
+## Who Can Contribute
 
----
+Anyone can propose a change.
 
-We use [Nimbus](https://nimbus-docs.com), an [Astro](https://astro.build)-based documentation framework, with its
-default theme. Pages are MDX files in `sites/docs/src/content/docs/`, and a page's path there is its URL.
+- **Team members with push access** to evidential-site push a branch to the repository and open a pull request from
+  it. These pull requests get the automated checks and a Preview: a copy of the whole site with your changes, at its own
+  address, linked from the pull request.
+- **Everyone else** works from a [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+  of evidential-site and opens a pull request from it. Pull requests from forks get the same checks but no Preview, so
+  check your change locally with `task docs:start` (see below). The first time you contribute, a maintainer may need
+  to approve the checks before they run.
 
-## Getting Started
+For anything larger than a fix, such as a new page or a reorganized section, it helps to
+[reach out to the team](/contact/) first, or to open an early draft pull request.
 
-1. Install [pnpm](https://pnpm.io/installation) and [Task](https://taskfile.dev/docs/installation).
+## Quick Edits on GitHub
 
-1. Clone the repository and install dependencies and the pre-commit hooks:
+For a typo, a broken link, or a sentence that needs rewording, you can make the whole change in your browser, with no
+local setup:
+
+<Steps>
+
+1. **Find the page's file**
+
+   Open the page's file under
+   [`sites/docs/src/content/docs/`](https://github.com/agency-fund/evidential-site/tree/main/sites/docs/src/content/docs).
+   A page's path there matches its URL: `/concepts/how-evidential-works/` is `concepts/how-evidential-works.mdx`.
+
+1. **Edit it**
+
+   Select **Edit this file** (the pencil icon). If you don't have push access, GitHub creates a fork for you.
+
+1. **Propose the change**
+
+   Select **Commit changes**, describe what you changed, and choose to create a new branch and start a pull request.
+   Without push access, the button reads **Propose changes**.
+
+1. **Open the pull request**
+
+   GitHub shows the pull request form. Add a sentence on why the change helps, then select **Create pull request**.
+
+</Steps>
+
+The same checks run as for any other pull request, and a reviewer takes it from there.
+
+## Set Up Your Computer
+
+For anything more than a quick edit, work locally so you can see your changes as you make them.
+
+1. Install [pnpm](https://pnpm.io/installation), [Task](https://taskfile.dev/docs/installation),
+   [prek](https://prek.j178.dev), and the [GitHub CLI](https://cli.github.com) (`gh`). pnpm downloads the version of Node.js the site needs, so you don't need to install it.
+
+1. Clone the repository (or your fork) and install its dependencies and git hooks:
 
    ```bash
    git clone git@github.com:agency-fund/evidential-site.git
@@ -29,56 +73,161 @@ default theme. Pages are MDX files in `sites/docs/src/content/docs/`, and a page
    task setup
    ```
 
-1. Preview locally by starting a dev server at [http://localhost:4322](http://localhost:4322):
+1. Start the docs on a local server at [http://localhost:4322](http://localhost:4322):
 
    ```bash
    task docs:start
    ```
 
-1. Before opening a pull request, check that the site type-checks, its links resolve, and its pages lint clean:
+   Pages reload as you save them. Search covers the site as of the last build; run `task docs:build` to include
+   later edits.
+
+Run `task --list` for the other tasks.
+
+## Make a Change with a Pull Request
+
+<Steps>
+
+1. **Create a branch**
+
+   Start from an up-to-date `main`:
 
    ```bash
-   task docs:build docs:check
+   git switch main
+   git pull
+   git switch -c docs/describe-your-change
    ```
 
-Run `task --list` for the other docs tasks, such as `task docs:preview`, which serves the built site with search.
+1. **Edit the pages**
 
-## Writing pages
+   Pages are in `sites/docs/src/content/docs/`. To add a page, create an `.mdx` file in the folder for its section
+   (see [Writing Pages](#writing-pages)).
 
-- Every page needs a `title` in its frontmatter. Don't repeat it as a `#` heading in the body.
-- Add each new page to the sidebar in `sites/docs/astro.config.ts`.
-- Callouts use `:::note`, `:::tip`, `:::caution`, and similar blocks. Expandable sections use `<Accordion>`.
-- Diagrams use Mermaid, written as ``<pre class="mermaid">{`...`}</pre>`` with the diagram between the backticks.
+1. **Preview your change locally**
 
-## Routine content update & deploy
+   With `task docs:start` running, open [http://localhost:4322](http://localhost:4322) and read your change as a
+   reader would.
 
-:::caution
-docs.evidential.dev is still built and deployed from `agency-fund/evidential-docs` while its hosting moves to this
-repository. Until then, the steps below apply to that repository.
-:::
+1. **Run the checks**
 
-After publishing changes and merging the PR into the `docs` branch, the site will be **automatically deployed** by GitHub Actions via the `deploy-docs.yaml` workflow.
+   ```bash
+   task docs:build
+   task docs:check
+   task lint
+   ```
 
-You can monitor deployment progress in the **Actions** tab on GitHub.
+   `task docs:check` type-checks the site, checks that its links resolve, and lints the content. It checks links
+   against the last build, so run `task docs:build` first, especially after adding or moving pages. `task lint` runs
+   the repository's git hooks on every file; they also run on each commit.
 
-The `docs` branch holds the source.
-The `gh-pages` branch holds the built site and the CNAME file.
+1. **Commit and push**
 
-## Safe rollback
+   ```bash
+   git add sites/docs
+   git commit -m "Explain how to rotate API keys"
+   git push -u origin docs/describe-your-change
+   ```
 
-Revert a broken deploy. Besides reverting to previous or known commit:
+1. **Open a pull request**
 
-### 🏷️ Tag known-good states
+   Use the [GitHub CLI](https://cli.github.com) to open a pull request against `main`:
 
-Before deploying a major change, tag the source commit so you can easily roll back:
+   ```bash
+   gh pr create --base main
+   ```
 
-```bash
-git tag -a v1.2 -m "Docs v1.2"
-git push origin v1.2
-```
+   It asks for a title and a description: say what you changed and why, and link any related issue. Add `--web` to
+   finish the pull request in your browser instead.
 
-You can then revert the live site to that state:
+1. **Read your Preview**
 
-```bash
-git push -f origin v1.2:gh-pages
-```
+   Once the checks pass, a bot comments a link to your Preview on the pull request: the whole site, built with your
+   changes. Each later push updates the same Preview and comment. A new Preview can take a minute to start serving.
+
+   Previews are made for pull requests from branches in evidential-site that change the pages, `public/`, the site's
+   configuration, or the API reference. Pull requests from forks don't get one.
+
+1. **Address review**
+
+   A reviewer may suggest changes. Push more commits to the same branch; the checks and Preview update on their own.
+
+1. **Merge**
+
+   Once the checks pass and the pull request is approved, it can be merged into `main`.
+
+</Steps>
+
+After the merge, the site's production version deploys automatically, usually within a few minutes. The pull
+request's Preview is deleted when the pull request is merged or closed.
+
+## Writing Pages
+
+### Where Things Live
+
+All paths are under `sites/docs/`.
+
+| What                     | Where                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| Pages                    | `src/content/docs/`, as `.mdx` files. A file's path is its URL; `index.mdx` is the home page.  |
+| Sidebar                  | Built from the folders; `sidebar.order` in a page's frontmatter sets its place in its section. |
+| Images                   | Beside the page that uses them.                                                               |
+| API reference overview   | `src/api/overview.md`, the introduction at the top of the [API reference](/api/).              |
+| API reference operations | `src/api/openapi.json`, generated from the live API's spec. Don't edit it by hand.            |
+| Files served as-is       | `public/`, such as the onboarding video's poster frame.                                       |
+
+The API reference is built from the Evidential API's OpenAPI spec. Descriptions of endpoints and fields come from the
+API itself, so change those in [evidential-be](https://github.com/agency-fund/evidential-be). To bring the reference
+up to date with the live API, run `task docs:openapi` and commit both files it changes. The
+[docs README](https://github.com/agency-fund/evidential-site/blob/main/sites/docs/README.md#layout) covers the
+details.
+
+### Conventions
+
+- **Title**: every page needs a `title` in its frontmatter. It becomes the page heading, so don't repeat it as a `#`
+  heading in the body.
+
+  ```mdx
+  ---
+  title: "Analyzing Results"
+  ---
+
+  The first paragraph of the page.
+  ```
+
+- **Callouts**: `:::note`, `:::tip`, `:::caution`, and `:::danger`, each with an optional title in brackets:
+
+  ```mdx
+  :::tip[Keep pull requests focused]
+  One change per pull request is quicker to review.
+  :::
+  ```
+
+  Pick the type by what happens if the reader skips it:
+
+  - `:::note` for background or context the reader can skip.
+  - `:::tip` for a recommendation or a better way.
+  - `:::caution` for something that fails, breaks, or surprises if ignored.
+  - `:::danger` for data loss, security, or irreversible production effects.
+
+  Don't use `info`, `warning`, or `important`. Always give a caution or danger a title phrased as the takeaway, such
+  as `:::caution[CI rejects model changes without migrations]`; give a note or tip a title when its body is longer
+  than about two lines. Avoid bare titles like "Important", and emoji. Keep each callout to one to four sentences, use
+  at most about three on a page, and put it beside the step it qualifies. Write "Note:" asides as callouts rather
+  than blockquotes or bold lead-ins, and don't separate sections with horizontal rules.
+
+- **Expandable sections**: `<Accordion>`, with an `<AccordionTrigger>` for the heading and `<AccordionContent>` for
+  what it reveals.
+
+- **Diagrams**: Mermaid, written as ``<pre class="mermaid">{`…`}</pre>`` with the diagram between the backticks.
+
+- **Images**: put the file beside the page and link it relatively, such as `![Architecture](./architecture.png)`, so
+  Astro optimizes it.
+
+- **Steps**: wrap a numbered list in `<Steps>` to show it as a sequence of steps, as on this page.
+
+## How Deploys Work
+
+The docs are a static site served by [Cloudflare Workers](https://developers.cloudflare.com/workers/). GitHub Actions
+(`.github/workflows/docs.yaml`) checks every pull request and deploys each merge into `main`.
+
+You can follow each run in the **Actions** tab, or from the checks on the pull request.
