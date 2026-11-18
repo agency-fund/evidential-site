@@ -17,10 +17,11 @@ permissions:
 
 jobs:
   delete-previews:
-    # Fork pull requests never had a Preview and can't read the Cloudflare token.
+    # Fork and Dependabot pull requests never had a Preview, and runs Dependabot triggers can't read the Cloudflare token.
     if: >-
       github.event_name != 'pull_request'
-      || github.event.pull_request.head.repo.full_name == github.repository
+      || (github.event.pull_request.head.repo.full_name == github.repository
+        && github.event.pull_request.user.login != 'dependabot[bot]')
     strategy:
       fail-fast: false
       matrix:

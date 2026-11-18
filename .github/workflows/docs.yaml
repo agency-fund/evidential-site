@@ -20,6 +20,8 @@ on:
 permissions:
   contents: read
 
+# A newer push to a pull request cancels its older run outright, including a Preview deploy in progress; the preview
+# job's own concurrency setting can't prevent that.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -75,8 +77,9 @@ jobs:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
     # Shared with preview-cleanup.yaml. Neither cancels the other: a cleanup waits for a running deploy and then
-    # deletes its Preview, and a deploy queued behind a cleanup sees the closed pull request and skips. A newer push's
-    # deploy replaces an older one that hasn't started yet.
+    # deletes its Preview, and a deploy queued behind a cleanup sees the closed pull request and skips. A newer push
+    # cancels this whole run, even mid-deploy (see the workflow's concurrency). That's safe: an interrupted upload
+    # leaves the previous version serving, and the newer run deploys the same Preview again once its checks pass.
     concurrency:
       group: docs-preview-pr-${{ github.event.pull_request.number }}
       cancel-in-progress: false

@@ -28,7 +28,7 @@ PR_PREVIEW_NAME = re.compile(r"^pr-(\d+)$")
 
 
 def comment_marker(site: str) -> str:
-    """Marks the comment a site's workflow posts on each pull request; keep in sync with .github/workflows/preview.yaml."""
+    """Marks the Preview comment on each pull request; keep in sync with .github/actions/deploy-preview/action.yml."""
     return f"<!-- {site}-preview -->"
 
 CLOUDFLARE_PAGE_SIZE = 50
