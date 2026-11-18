@@ -26,7 +26,7 @@ before `task docs:check`, or it reports links to the new pages as broken.
 [AGENT.md](AGENT.md) describes the project structure and is the guide for coding agents. In short:
 
 - `src/content/docs/`: the pages, as MDX. A file's path is its URL; `index.mdx` is the home page.
-- `astro.config.ts`: site settings and the sidebar.
+- `astro.config.ts`: site settings, the sidebar, and redirects from old MkDocs URLs.
 - `src/components/`, `src/layouts/`, `src/styles/`: the Nimbus starter, ours to edit. Components under
   `src/components/ui/` come from the Nimbus registry (`task docs:nimbus -- add <slug>`) and are recorded in
   `nimbus.json`. Keep them identical to upstream unless there's a reason not to, so `task docs:outdated` and
@@ -37,3 +37,26 @@ before `task docs:check`, or it reports links to the new pages as broken.
 ## Writing pages
 
 - Frontmatter needs a `title`; the page heading comes from it, so don't repeat it as a `#` heading.
+- The sidebar is set by hand in `astro.config.ts` (it mirrors the MkDocs navigation), so add new pages there.
+- Callouts: `:::note`, `:::tip`, `:::caution`, `:::danger` (with an optional `[Title]`).
+- Expandable sections: `<Accordion>`, `<AccordionTrigger>`, `<AccordionContent>`.
+- Diagrams: Mermaid, as ``<pre class="mermaid">{`…`}</pre>``. The library loads only on pages that have one.
+- Images: put them beside the page and link them relatively (`./diagram.png`), so Astro optimizes them.
+
+## Media
+
+The onboarding video is too large for git, so it's served from the `evidential-media` R2 bucket at
+https://media.evidential.dev/docs/evidential_demo_20250709.mp4, with a poster frame in `public/media/`. To replace it,
+upload a new file under a new name and update the two pages that embed it (`index.mdx` and `welcome/getting-started.mdx`):
+
+```sh
+pnpm exec wrangler r2 object put evidential-media/docs/<file>.mp4 --remote --file <file>.mp4 \
+  --content-type video/mp4 --cache-control "public, max-age=31536000, immutable"
+```
+
+Object names are cached for a year, so never reuse one.
+
+## Known issues carried over from MkDocs
+
+- `legal/terms.mdx` is a copy of the Privacy Policy, as it was on the MkDocs site. It's left out of the sidebar until it
+  has the real terms; the page still builds at `/legal/terms/`.

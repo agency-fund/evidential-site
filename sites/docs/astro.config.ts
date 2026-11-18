@@ -15,15 +15,68 @@ const nimbusConfig = defineNimbusConfig({
   // Shown as the GitHub link in the header.
   github: "https://github.com/agency-fund/evidential-site",
   socialImageAlt: "Evidential documentation preview",
-  // The home page leads the sidebar; every other page joins it automatically.
+  // Mirrors the MkDocs navigation. Pages keep their MkDocs URLs, so the groups are listed here rather than mirrored
+  // by folders. A new page appears only once it is added below.
   sidebar: {
-    items: ["index", { autogenerate: { collection: "docs" } }],
+    items: [
+      { label: "Welcome", items: ["index", "welcome/getting-started"] },
+      {
+        label: "For developers",
+        items: [
+          "development/getting-started-dev",
+          { label: "Contributing", items: ["development/contributing-dev", "contributing-docs"] },
+          {
+            label: "How-to guides",
+            items: [
+              "development/airplane-mode",
+              "development/configuring-oidc",
+              "development/error-reporting",
+              "development/testing",
+              "development/updating-testing-dwh",
+              "development/sqlalchemy",
+              "development/migration",
+            ],
+          },
+          {
+            label: "Explainers",
+            items: ["development/secrets", "development/workers", "development/reading-list", "development/faq"],
+          },
+        ],
+      },
+      {
+        label: "For users",
+        items: [
+          { label: "Integrating", items: ["integration/overview", "integration/integration"] },
+          { label: "Analyzing", items: ["analytics/data_analysis", "analytics/data_storage"] },
+          {
+            label: "What's New",
+            items: ["blog", "blog/experiment-results-history", "blog/multi-armed-and-contextual-bandits"],
+          },
+        ],
+      },
+      {
+        label: "Contact us",
+        items: [
+          "contact",
+          // Terms of Service is left out until legal/terms.mdx has the terms; it's a copy of the Privacy Policy.
+          { label: "Legal", items: [{ label: "Privacy Policy", link: "/legal/privacy/" }] },
+        ],
+      },
+    ],
   },
 });
 
 export default defineConfig({
   // nimbus:adapter
   output: "static",
+  // URLs from the MkDocs site: its own redirects, and blog posts that MkDocs served under their dates.
+  redirects: {
+    "/welcome/": "/",
+    "/development/enabling-oidc/": "/development/configuring-oidc/",
+    "/development/task-queues/": "/development/workers/",
+    "/blog/2025/08/20/multi-armed--contextual-bandits-experiments/": "/blog/multi-armed-and-contextual-bandits/",
+    "/blog/2025/10/27/experiment-results-history/": "/blog/experiment-results-history/",
+  },
   // Tailwind v4 via its Vite plugin (the integration Astro recommends for
   // Tailwind v4 — replaces the PostCSS plugin, which doesn't build under
   // Astro 7's Vite 8 bundler).
