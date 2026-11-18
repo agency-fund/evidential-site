@@ -48,7 +48,6 @@ export const PAGE_REDIRECTS: Record<string, string> = {
   "/blog/experiment-results-history/": "/news/experiment-results-history/",
   "/blog/multi-armed-and-contextual-bandits/": "/news/multi-armed-and-contextual-bandits/",
   "/development/contributing-docs/": "/develop/guides/contribute-to-the-docs/",
-  "/develop/guides/contribute-a-change/": "/develop/guides/contribute-code/",
 
   // Section folders that have no page of their own.
   "/development/": "/develop/",
