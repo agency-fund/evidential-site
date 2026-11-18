@@ -40,7 +40,7 @@ tasks:
         {{.CLI_ARGS}}
 
   launch:
-    desc: "First production deploy: attaches docs.evidential.dev to evidential-docs. Run once, with `wrangler login`; see the README's Deployment section."
+    desc: "First production deploy: attaches docs.evidential.dev to evidential-docs. Run once, with `wrangler login`; see Requirements in sites/README.md."
     interactive: true
     cmd: scripts/launch.sh
 

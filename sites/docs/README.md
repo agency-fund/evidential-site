@@ -93,31 +93,17 @@ Object names are cached for a year, so never reuse one.
 
 ## Deployment
 
-The docs share www's deployment setup: the same check workflow, deploy actions, GitHub environments, and Cloudflare
-tokens (see "Deployment" and "Cloudflare resources" in `sites/www/README.md`). What's specific to the docs:
+How both sites are checked, previewed, and deployed, and the Cloudflare and GitHub resources they share, are in
+[sites/README.md](../README.md). What's specific to the docs:
 
-- **Production**: Worker `evidential-docs`, configured by `wrangler.jsonc`. It has no Worker code: Workers Static
-  Assets serves `dist/` with Nimbus's 404 page, applying the 301s in `dist/_redirects` (generated from
-  `src/redirects.ts`) before any file. It's served only at the `docs.evidential.dev` custom domain, which also owns the
-  zone's `docs` DNS record; its `workers.dev` URL is disabled.
-- **Previews**: Worker `evidential-docs-preview`, which holds only Previews, at
-  `https://<name>-evidential-docs-preview.the-agency-fund.workers.dev`. The site needs no bindings, variables, or
-  secrets, so the `previews` block in `wrangler.jsonc` is empty.
-- **CI** (`.github/workflows/docs.yaml`): every pull request to `main` that touches the site runs `task docs:ci:check`
-  (build, type check, Nimbus check, content lint). Same-repo, non-Dependabot pull requests that change `src/`,
-  `public/`, `astro.config.ts`, or the spec's polish script also get a Preview named `pr-<number>`. Each push to
-  `main` deploys production with `task docs:ci:deploy:production`.
+- **Production**: Worker `evidential-docs`, served only at the `docs.evidential.dev` custom domain, which owns the
+  zone's `docs` DNS record; its `workers.dev` URL is disabled. It has no Worker code: Workers Static Assets serves
+  `dist/` with Nimbus's 404 page, applying the 301s in `dist/_redirects` (generated from `src/redirects.ts`) before any
+  file.
+- **Previews**: Worker `evidential-docs-preview`. Same-repo pull requests get one when they change `src/`, `public/`,
+  `astro.config.ts`, or the spec's polish script. The site needs no bindings, variables, or secrets, so the `previews`
+  block in `wrangler.jsonc` is empty.
 - **Builds** fetch the full git history (`fetch-depth: 0`) for pages' "Last updated" dates and the sitemap.
-
-Requirements:
-
-- Both Workers must exist before CI can deploy to them, since the CI tokens can't create Workers.
-  `evidential-docs-preview` is created by the first `wrangler preview` pushed to it.
-- `github-actions-evidential-www` must include `evidential-docs` in its scope, and
-  `github-actions-evidential-www-preview` must include `evidential-docs-preview`.
-- Attaching the custom domain needs _Zone › Workers Routes: Write_ on evidential.dev, which CI deliberately lacks, so
-  the first production deploy came from a workstation (`task docs:launch`). CI deploys versions, as www's does, so
-  changes to `routes` or `workers_dev` in `wrangler.jsonc` take a `wrangler deploy` from a workstation.
 
 ## Sharing the current state with the team
 
