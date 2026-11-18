@@ -97,9 +97,17 @@ tasks:
     cmd: scripts/launch.sh
 
   ci:deploy:production:
-    desc: "CI only (www workflow, main branch): build and deploy a new production version. The first deploy is `task www:launch`."
+    desc: "CI only (www workflow, main branch): build, then upload and deploy a new production version. The first deploy is `task www:launch`."
     env:
       DEPLOY_ENV: production
     cmds:
       - pnpm exec astro build
-      - pnpm exec wrangler deploy
+      # `wrangler deploy` would also re-attach the custom domain, which needs zone permissions the CI token deliberately
+      # lacks. Uploading a version and deploying it changes only the code, assets, and bindings; secrets carry over.
+      - |
+        set -euo pipefail
+        out=$(mktemp)
+        WRANGLER_OUTPUT_FILE_PATH="$out" pnpm exec wrangler versions upload
+        version=$(sed -n 's/.*"type":"version-upload".*"version_id":"\([^"]*\)".*/\1/p' "$out")
+        rm "$out"
+        pnpm exec wrangler versions deploy "$version@100%" --yes

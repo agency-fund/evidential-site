@@ -45,10 +45,18 @@ tasks:
     cmd: scripts/launch.sh
 
   ci:deploy:production:
-    desc: "CI only (docs workflow, main branch): build and deploy a new production version of evidential-docs. The first deploy is `task docs:launch`."
+    desc: "CI only (docs workflow, main branch): build, then upload and deploy a new production version of evidential-docs. The first deploy is `task docs:launch`."
     cmds:
       - task: build
-      - pnpm exec wrangler deploy
+      # `wrangler deploy` would also re-attach the custom domain, which needs zone permissions the CI token deliberately
+      # lacks. Uploading a version and deploying it changes only the code, assets, and bindings; secrets carry over.
+      - |
+        set -euo pipefail
+        out=$(mktemp)
+        WRANGLER_OUTPUT_FILE_PATH="$out" pnpm exec wrangler versions upload
+        version=$(sed -n 's/.*"type":"version-upload".*"version_id":"\([^"]*\)".*/\1/p' "$out")
+        rm "$out"
+        pnpm exec wrangler versions deploy "$version@100%" --yes
 
   search-index:
     # Builds the site when anything that feeds the search index changed, so `start` can serve a current index.
