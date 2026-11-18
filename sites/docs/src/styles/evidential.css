@@ -246,6 +246,10 @@ h1[style*="--nb-h1-size"]::after {
 [data-nb-sidebar] > ul > li:first-child > details > summary {
   margin-top: 0;
 }
+/* A top-level page after a group gets the group's spacing back. */
+[data-nb-sidebar] > ul > li:has(> details) + li:not(:has(> details)) {
+  margin-top: 0.75rem;
+}
 
 /* ---- Page content ---- */
 .docs-content :where(h2, h3, h4) {

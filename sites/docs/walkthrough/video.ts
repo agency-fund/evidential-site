@@ -65,9 +65,9 @@ export async function recordTour(
     // The sidebar, then a page with an accordion and a diagram.
     await say("Guides for users and developers");
     await page
-      .locator("[data-nb-sidebar] a[href='/development/workers/']")
+      .locator("[data-nb-sidebar] a[href='/develop/concepts/background-workers/']")
       .click();
-    await page.waitForURL("**/development/workers/");
+    await page.waitForURL("**/develop/concepts/background-workers/");
     await until(7);
     await scrollTo(page, "#task-queue", 1300);
     await say("Expandable sections and Mermaid diagrams");

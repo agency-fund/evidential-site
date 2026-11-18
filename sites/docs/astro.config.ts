@@ -4,7 +4,9 @@ import nimbus, {
   defineConfig as defineNimbusConfig,
 } from "@cloudflare/nimbus-docs";
 import { tableScroll } from "@cloudflare/nimbus-docs/markdown";
+import cloudflareRedirects from "./src/integrations/cloudflare-redirects";
 import devSearchIndex from "./src/integrations/dev-search-index";
+import { PAGE_REDIRECTS } from "./src/redirects";
 
 const nimbusConfig = defineNimbusConfig({
   // Canonical origin (no trailing slash): canonical URLs, absolute OG image URLs, robots.txt, sitemap, and /llms.txt.
@@ -39,56 +41,26 @@ const nimbusConfig = defineNimbusConfig({
       },
     },
   ],
-  // Mirrors the MkDocs navigation. Pages keep their MkDocs URLs, so the groups are listed here rather than mirrored
-  // by folders. A new page appears only once it is added below.
+  // Users first and open; developers and operators below, collapsed. The folders under src/content/docs/ are the
+  // groups (guides/ and concepts/ are Diátaxis types, within each audience); a page's `sidebar.order` sets its place
+  // in its folder, and a folder's index.mdx is its landing page. The group holding the current page always opens.
   sidebar: {
+    defaultCollapsed: true,
+    // Each section's index.mdx is its first entry, labelled Overview.
+    indexDisplay: "overview-leaf",
+    overviewLabel: true,
     items: [
-      { label: "Welcome", items: ["index", "welcome/getting-started"] },
-      {
-        label: "For developers",
-        items: [
-          "development/getting-started-dev",
-          { label: "Contributing", items: ["development/contributing-dev", "contributing-docs"] },
-          {
-            label: "How-to guides",
-            items: [
-              "development/airplane-mode",
-              "development/configuring-oidc",
-              "development/error-reporting",
-              "development/testing",
-              "development/updating-testing-dwh",
-              "development/sqlalchemy",
-              "development/migration",
-            ],
-          },
-          {
-            label: "Explainers",
-            items: ["development/secrets", "development/workers", "development/reading-list", "development/faq"],
-          },
-        ],
-      },
-      {
-        label: "For users",
-        items: [
-          {
-            label: "Integrating",
-            items: ["integration/overview", "integration/integration", { label: "API reference", link: "/api/" }],
-          },
-          { label: "Analyzing", items: ["analytics/data_analysis", "analytics/data_storage"] },
-          {
-            label: "What's New",
-            items: ["blog", "blog/experiment-results-history", "blog/multi-armed-and-contextual-bandits"],
-          },
-        ],
-      },
-      {
-        label: "Contact us",
-        items: [
-          "contact",
-          // Terms of Service is left out until legal/terms.mdx has the terms; it's a copy of the Privacy Policy.
-          { label: "Legal", items: [{ label: "Privacy Policy", link: "/legal/privacy/" }] },
-        ],
-      },
+      "index",
+      "quickstart",
+      { label: "Guides", collapsed: false, autogenerate: { directory: "guides" } },
+      { label: "Concepts", collapsed: false, autogenerate: { directory: "concepts" } },
+      { label: "API reference", link: "/api/" },
+      { label: "What's New", autogenerate: { directory: "news" } },
+      { label: "Develop Evidential", autogenerate: { directory: "develop" } },
+      { label: "Operate Evidential", autogenerate: { directory: "operate" } },
+      "contact",
+      // Terms of Service is left out until legal/terms.mdx has the terms; it's a copy of the Privacy Policy.
+      { label: "Privacy Policy", link: "/legal/privacy/" },
     ],
   },
 });
@@ -96,14 +68,8 @@ const nimbusConfig = defineNimbusConfig({
 export default defineConfig({
   // nimbus:adapter
   output: "static",
-  // URLs from the MkDocs site: its own redirects, and blog posts that MkDocs served under their dates.
-  redirects: {
-    "/welcome/": "/",
-    "/development/enabling-oidc/": "/development/configuring-oidc/",
-    "/development/task-queues/": "/development/workers/",
-    "/blog/2025/08/20/multi-armed--contextual-bandits-experiments/": "/blog/multi-armed-and-contextual-bandits/",
-    "/blog/2025/10/27/experiment-results-history/": "/blog/experiment-results-history/",
-  },
+  // Every URL the MkDocs site served, and this site's earlier URLs; see src/redirects.ts.
+  redirects: PAGE_REDIRECTS,
   // Tailwind v4 via its Vite plugin (the integration Astro recommends for
   // Tailwind v4 — replaces the PostCSS plugin, which doesn't build under
   // Astro 7's Vite 8 bundler).
@@ -119,6 +85,8 @@ export default defineConfig({
   integrations: [
     // Serves the last build's search index to `astro dev`; see the file for why.
     devSearchIndex(),
+    // Writes dist/_redirects so Cloudflare answers old URLs with 301s; see the file.
+    cloudflareRedirects(),
     nimbus(nimbusConfig, {
       // Authoring rules are opt-in by design — your repo, your taste. The
       // two below are the load-bearing pair: frontmatter has to validate
@@ -129,6 +97,8 @@ export default defineConfig({
       rules: {
         "nimbus/frontmatter-shape": "error",
         "nimbus/internal-link": "error",
+        // Links that still go through one of the redirects above.
+        "nimbus/redirected-link": "error",
       },
       markdown: {
         // Wrap wide tables so they scroll instead of overflowing the page

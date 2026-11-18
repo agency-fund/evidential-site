@@ -32,8 +32,10 @@ server runs reach search after `task docs:build`, with no restart.
 [AGENT.md](AGENT.md) describes the project structure and is the guide for coding agents. In short:
 
 - `src/content/docs/`: the pages, as MDX. A file's path is its URL; `index.mdx` is the home page.
-- `astro.config.ts`: site settings, the sidebar, redirects from old MkDocs URLs, and the API reference's spec and
-  routes.
+- `astro.config.ts`: site settings, the sidebar's top level, and the API reference's spec and routes.
+- `src/redirects.ts`: every URL the site has served (including the MkDocs site's) mapped to its page now. Astro serves
+  them in dev, and the build writes them to `dist/_redirects` so Cloudflare answers with 301s. When a page moves,
+  update its entries there.
 - `src/api/`: the API reference's inputs. Nimbus doesn't read remote specs, so `task docs:openapi` saves the live API's
   spec as `openapi.upstream.json`, and `scripts/polish-openapi.mjs` turns it into `openapi.json`, the spec the reference
   at `/api` is built from. The script adds `overview.md` as the reference's introduction, splits the operations into
@@ -62,7 +64,11 @@ the palette in step with `sites/www` when either changes.
 ## Writing pages
 
 - Frontmatter needs a `title`; the page heading comes from it, so don't repeat it as a `#` heading.
-- The sidebar is set by hand in `astro.config.ts` (it mirrors the MkDocs navigation), so add new pages there.
+- Put a page in its section's folder: `guides/` and `concepts/` for people using Evidential, `develop/` and
+  `operate/` for those building and running it, `news/` for release notes. Folders become sidebar groups, and
+  `sidebar.order` in the frontmatter sets a page's place in its group.
+- How-to titles are imperative ("Run tests"), concepts are noun phrases ("Background workers"), and the file name is
+  the title in kebab case.
 - Callouts: `:::note`, `:::tip`, `:::caution`, `:::danger` (with an optional `[Title]`).
 - Expandable sections: `<Accordion>`, `<AccordionTrigger>`, `<AccordionContent>`.
 - Diagrams: Mermaid, as ``<pre class="mermaid">{`…`}</pre>``. The library loads only on pages that have one.
@@ -72,7 +78,7 @@ the palette in step with `sites/www` when either changes.
 
 The onboarding video is too large for git, so it's served from the `evidential-media` R2 bucket at
 https://media.evidential.dev/docs/evidential_demo_20250709.mp4, with a poster frame in `public/media/`. To replace it,
-upload a new file under a new name and update the two pages that embed it (`index.mdx` and `welcome/getting-started.mdx`):
+upload a new file under a new name and update the two pages that embed it (`index.mdx` and `quickstart.mdx`):
 
 ```sh
 pnpm exec wrangler r2 object put evidential-media/docs/<file>.mp4 --remote --file <file>.mp4 \
