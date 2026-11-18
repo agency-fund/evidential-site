@@ -25,11 +25,13 @@ Each site is an Astro project served by Cloudflare Workers Static Assets from it
 Each site has a workflow, `.github/workflows/<site>.yaml`, that runs on pull requests to `main` and pushes to `main`
 that touch the site, and on manual dispatch. Its jobs:
 
-- **check**: the reusable workflow `site-check.yaml` runs `task <site>:ci:check` and uploads any reports, such as
-  www's Lighthouse results.
-- **preview-wanted** and **preview** (same-repo, non-Dependabot pull requests, after **check** passes): only when the
-  pull request changes files readers see, as listed in the workflow, pushes a Preview named `pr-<number>` and comments
-  its URL on the pull request. It runs the pull request's code with the `preview` environment's token.
+- **visible-changes**: whether the pull request changes files readers see, as listed in the workflow. Tooling, tests,
+  docs, and dependency-only changes don't count; pushes to `main` and manual runs always do.
+- **check**: the reusable workflow `site-check.yaml` runs `task <site>:ci:check` and uploads any reports. www's
+  Lighthouse budgets run only for visible changes.
+- **preview** (same-repo, non-Dependabot pull requests with visible changes, after **check** passes): pushes a Preview
+  named `pr-<number>` and comments its URL on the pull request. It runs the pull request's code with the `preview`
+  environment's token.
 - **production** (`main` only): `task <site>:ci:deploy:production` with the `production` environment's token.
 
 The preview and production jobs declare their environment themselves and pass its token, as an input, to the
