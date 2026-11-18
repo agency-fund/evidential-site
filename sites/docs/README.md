@@ -1,8 +1,10 @@
 # docs.evidential.dev
 
-Evidential's technical documentation, built with [Nimbus](https://nimbus-docs.com) on Astro, using the default Nimbus
-theme. It was migrated from MkDocs in [agency-fund/evidential-docs](https://github.com/agency-fund/evidential-docs),
-which still builds and deploys the live site until hosting moves here. Nothing in this repository deploys the docs yet.
+Evidential's technical documentation, built with [Nimbus](https://nimbus-docs.com) on Astro, with www.evidential.dev's
+design system (see [Design system](#design-system)). It replaces the MkDocs site in
+[agency-fund/evidential-docs](https://github.com/agency-fund/evidential-docs), and every URL that site served redirects
+to its page here (see `src/redirects.ts`). CI deploys pull request Previews and production from this repository (see
+[Deployment](#deployment)).
 
 To contribute to the docs, including the pull request workflow and writing conventions, see
 [Contribute to the docs](src/content/docs/develop/guides/contribute-to-the-docs.mdx). This README covers how the site is built.
@@ -99,18 +101,23 @@ The docs deploy to Cloudflare like www, through the same reusable workflows (`.g
   requests that change `src/`, `public/`, `astro.config.ts`, or the spec's polish script also get a Preview,
   `task docs:deploy:preview NAME=pr-<number>`, on the `evidential-docs-preview` Worker, with its URL commented on the
   pull request. `preview-cleanup.yaml` deletes it when the pull request closes.
-- **`main`**: `task docs:ci:deploy:production` deploys the `evidential-docs` Worker. Until docs.evidential.dev moves from
-  the MkDocs site, it's served only at https://evidential-docs.the-agency-fund.workers.dev (see `wrangler.jsonc`).
+- **`main`**: `task docs:ci:deploy:production` deploys the `evidential-docs` Worker, served at docs.evidential.dev
+  through the custom domain in `wrangler.jsonc`. To redeploy without a change, run the **docs** workflow manually on
+  `main`.
+
+Workers Static Assets serves `dist/`, applying the 301s in `dist/_redirects` (generated from `src/redirects.ts`) before
+any file. To roll back a bad deploy, run `pnpm exec wrangler rollback` from `sites/docs`, then revert the change on
+`main` so the next deploy doesn't bring it back.
 
 Builds fetch the full git history (`fetch-depth: 0`) for pages' "Last updated" dates and the sitemap.
 
 One-time setup, from a workstation logged in with `pnpm exec wrangler login`, before the first pull request or merge:
 
-1. Create both Workers, which the CI tokens can't:
+1. Create both Workers, which the CI tokens can't: `evidential-docs` with the [first deploy](#first-deploy), and
+   `evidential-docs-preview` with a throwaway Preview:
 
    ```sh
-   pnpm exec wrangler deploy                  # evidential-docs (after `task docs:build`)
-   task docs:deploy:preview NAME=bootstrap    # creates evidential-docs-preview
+   task docs:deploy:preview NAME=bootstrap
    pnpm exec wrangler preview delete --worker-name evidential-docs-preview --name bootstrap
    ```
 
@@ -118,7 +125,24 @@ One-time setup, from a workstation logged in with `pnpm exec wrangler login`, be
    `github-actions-evidential-www-preview` (Cloudflare dashboard, **Account API tokens**). See "GitHub Actions
    Credentials" in `sites/www/README.md`.
 
-To move docs.evidential.dev here later, follow the comment in `wrangler.jsonc`.
+### First deploy
+
+Switches docs.evidential.dev from the MkDocs site, served by GitHub Pages, to this site. Run it from a workstation,
+not CI: attaching the custom domain needs _Zone › Workers Routes: Write_ on evidential.dev, which the CI token
+deliberately doesn't have.
+
+1. Log in: `pnpm exec wrangler login`, as a member of The Agency Fund account.
+2. Run `task docs:launch` and type `launch` to confirm. It builds the site and runs `wrangler deploy`, which attaches
+   the `docs.evidential.dev` custom domain and its certificate. The `docs` CNAME to GitHub Pages still holds the
+   hostname, so wrangler asks whether to update the conflicting DNS record to point to this Worker: answer yes, and it
+   replaces the record in one step.
+3. Check `https://docs.evidential.dev`, and that an old MkDocs URL such as `/development/workers/` answers with a 301
+   to its new page.
+4. In agency-fund/evidential-docs' **Settings › Pages**, remove the custom domain, so GitHub Pages no longer claims
+   it.
+
+Later deploys come from CI and leave the custom domain unchanged. To go back to the MkDocs site, remove the custom
+domain from `evidential-docs` (Workers › **Settings › Domains & Routes**) and recreate the CNAME.
 
 ## Sharing the current state with the team
 

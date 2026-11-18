@@ -39,8 +39,13 @@ tasks:
         {{if .MESSAGE}}--message "{{.MESSAGE}}"{{end}}
         {{.CLI_ARGS}}
 
+  launch:
+    desc: "First production deploy: attaches docs.evidential.dev to evidential-docs. Run once, with `wrangler login`; see the README's First Deploy."
+    interactive: true
+    cmd: scripts/launch.sh
+
   ci:deploy:production:
-    desc: "CI only (docs workflow, main branch): build and deploy a new production version of evidential-docs."
+    desc: "CI only (docs workflow, main branch): build and deploy a new production version of evidential-docs. The first deploy is `task docs:launch`."
     cmds:
       - task: build
       - pnpm exec wrangler deploy

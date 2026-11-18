@@ -7,14 +7,12 @@
     "directory": "./dist",
     "not_found_handling": "404-page",
   },
-  // docs.evidential.dev still serves the MkDocs site, so for now production is reachable only at
-  // https://evidential-docs.the-agency-fund.workers.dev. Moving the hostname here means adding
-  // `"routes": [{ "pattern": "docs.evidential.dev", "custom_domain": true }]`, setting "workers_dev" to false, and
-  // deploying once from a workstation, as www's first deploy did (see README.md).
-  "workers_dev": true,
+  // Production: only the docs.evidential.dev custom domain, attached by the first `wrangler deploy` (`task docs:launch`).
+  "workers_dev": false,
+  "routes": [{ "pattern": "docs.evidential.dev", "custom_domain": true }],
   // Previews go to a separate Worker, evidential-docs-preview (`task docs:deploy:preview` passes --worker-name), so
-  // the token CI uses for them can't change production. The first `wrangler preview` creates that Worker with the two
-  // settings above.
+  // the token CI uses for them can't change production. They never take over routes and are served on
+  // <preview-name>-evidential-docs-preview.the-agency-fund.workers.dev, which Cloudflare marks noindex.
   "preview_urls": true,
   // Previews take only what's listed here; the site needs no bindings, variables, or secrets.
   "previews": {},

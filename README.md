@@ -3,12 +3,12 @@
 ## Repository layout
 
 This repository holds Evidential's public websites. Each site lives in its own directory under `sites/`, with its
-own `Taskfile.yml` and, once it deploys from here, its own GitHub Actions workflow:
+own `Taskfile.yml` and GitHub Actions workflow:
 
-| Directory    | Site                                               | Status                                                                       |
-| ------------ | -------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `sites/www`  | [www.evidential.dev](https://www.evidential.dev)   | Astro static site plus a small Cloudflare Worker for the contact form        |
-| `sites/docs` | [docs.evidential.dev](https://docs.evidential.dev) | Nimbus (Astro) docs site; local development only, not yet deployed from here |
+| Directory    | Site                                               | Status                                                                                                         |
+| ------------ | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `sites/www`  | [www.evidential.dev](https://www.evidential.dev)   | Astro static site plus a small Cloudflare Worker for the contact form                                          |
+| `sites/docs` | [docs.evidential.dev](https://docs.evidential.dev) | Nimbus (Astro) docs site, with the OpenAPI reference |
 
 ## Getting started
 

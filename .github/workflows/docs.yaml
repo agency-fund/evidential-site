@@ -60,6 +60,5 @@ jobs:
     uses: $/.github/workflows/site-production.yaml
     with:
       site: docs
-      # docs.evidential.dev still serves the MkDocs site; see sites/docs/wrangler.jsonc.
-      url: https://evidential-docs.the-agency-fund.workers.dev
+      url: https://docs.evidential.dev
       fetch-depth: 0
