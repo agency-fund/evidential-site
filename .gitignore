@@ -17,3 +17,4 @@ sites/www/worker/worker-configuration.d.ts
 __pycache__/
 # Personal Claude Code permissions; shared settings in .claude/ can still be committed.
 .claude/settings.local.json
+.task/

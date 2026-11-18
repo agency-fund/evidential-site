@@ -1,0 +1,3503 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Evidential Experiments API",
+    "contact": {
+      "name": "Evidential Developers",
+      "url": "https://docs.evidential.dev/",
+      "email": "evidential-support@agency.fund"
+    },
+    "version": "0.9.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.evidential.dev",
+      "description": ""
+    }
+  ],
+  "paths": {
+    "/v1/experiments": {
+      "get": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "List experiments on a data source.",
+        "operationId": "list_experiments",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Datasource-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the datasource to operate on.",
+              "examples": [
+                "testing"
+              ],
+              "title": "Datasource-Id"
+            },
+            "description": "The ID of the datasource to operate on."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListExperimentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 List Experiments"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 List Experiments"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 List Experiments"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}": {
+      "get": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "Get an experiment's design.",
+        "operationId": "get_experiment",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExperimentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Get Experiment"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Get Experiment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Get Experiment"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/assignments": {
+      "get": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "List an experiment's assignments.",
+        "operationId": "get_experiment_assignments",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExperimentAssignmentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Get Experiment Assignments"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Get Experiment Assignments"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Get Experiment Assignments"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/assignments/csv": {
+      "get": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "Export an experiment's assignments as CSV.",
+        "description": "Returns a CSV stream with a header row.\n\n    Output columns:\n    - `participant_id`\n    - `cluster_key`, if the experiment design defines a cluster key\n    - `arm_id`\n    - `arm_name`\n    - `created_at`: the time the assignment was created, as a UTC ISO 8601 timestamp\n    - one column for each strata field defined on the experiment",
+        "operationId": "get_experiment_assignments_as_csv",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Get Experiment Assignments As Csv"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Get Experiment Assignments As Csv"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Get Experiment Assignments As Csv"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/assignments/{participant_id}": {
+      "get": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "Get or create a participant's assignment.",
+        "description": "Gets or creates an arm assignment for a participant. The behavior depends on the experiment type:\n\n    - Preassigned A/B experiments: returns the assignment if one exists. `create_if_none` is ignored.\n    - Online A/B and Multi-armed Bandit experiments: returns the existing assignment, or creates one\n      when `create_if_none` is true.\n    - Contextual Multi-armed Bandit (CMAB) experiments: returns the assignment if one exists. To create\n      a new assignment, use the `assign_cmab` endpoint, which accepts the required context values.",
+        "operationId": "get_assignment",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "participant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Participant Id"
+            }
+          },
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          },
+          {
+            "name": "create_if_none",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Create an assignment if none exists. Set to false to check for an existing assignment without creating one. Ignored for preassigned experiments.",
+              "default": true,
+              "title": "Create If None"
+            },
+            "description": "Create an assignment if none exists. Set to false to check for an existing assignment without creating one. Ignored for preassigned experiments."
+          },
+          {
+            "name": "max_age",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 86400,
+              "minimum": 0,
+              "description": "Sets the Cache-Control max-age, in seconds, for Preassigned A/B and Online A/B experiments. Set to 0 to disable caching.",
+              "default": 3600,
+              "title": "Max Age"
+            },
+            "description": "Sets the Cache-Control max-age, in seconds, for Preassigned A/B and Online A/B experiments. Set to 0 to disable caching."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetParticipantAssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Get Assignment"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Get Assignment"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Get Assignment"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/assignments/{participant_id}/assign_with_filters": {
+      "post": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "Get or create an Online A/B assignment with server-side filtering.",
+        "description": "Gets or creates an arm assignment for a participant on experiments using server-side filtering. If an assignment\n    already exists, that assignment is returned and the properties in the request body are ignored.\n\n    If there are no filters on the experiment, use the get_assignment endpoint.",
+        "operationId": "get_assignment_filtered",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "participant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Participant Id"
+            }
+          },
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          },
+          {
+            "name": "create_if_none",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Create an assignment if none exists. Set to false to check for an existing assignment without creating one.",
+              "default": true,
+              "title": "Create If None"
+            },
+            "description": "Create an assignment if none exists. Set to false to check for an existing assignment without creating one."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnlineAssignmentWithFiltersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetParticipantAssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Get Assignment Filtered"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Get Assignment Filtered"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Get Assignment Filtered"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/assignments/{participant_id}/assign_cmab": {
+      "post": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "Get or create a CMAB assignment for a participant.",
+        "description": "Gets or creates an arm assignment for a participant. Used only for CMAB experiments. If an\n    assignment already exists, `context_inputs` in the request body may be null. If you provide it\n    anyway, it is ignored.",
+        "operationId": "get_assignment_cmab",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "participant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Participant Id"
+            }
+          },
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          },
+          {
+            "name": "create_if_none",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Create an assignment if none exists. Set to false to check for an existing assignment without creating one.",
+              "default": true,
+              "title": "Create If None"
+            },
+            "description": "Create an assignment if none exists. Set to false to check for an existing assignment without creating one."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CMABContextInputRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetParticipantAssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Get Assignment Cmab"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Get Assignment Cmab"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Get Assignment Cmab"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/experiments/{experiment_id}/assignments/{participant_id}/outcome": {
+      "post": {
+        "tags": [
+          "Experiment Integration"
+        ],
+        "summary": "Record a bandit arm outcome for a participant.",
+        "description": "Records the outcome for a participant's assigned arm and returns the updated arm parameters.\n\n    Use this in push integrations to report each outcome as it happens. Applies only to MAB or\n    CMAB experiments using push-based integrations.\n\n    Prerequisites:\n    - The experiment must record outcomes through this API. Experiments of type `mab_online_dwh`\n      use the pull integration, where Evidential reads outcomes from a connected data warehouse,\n      and they reject this call.\n    - The participant must already have an assignment. Create one with the GET assignment endpoint\n      first.\n    - The participant must not already have a recorded outcome. Use the GET assignment endpoint to\n      check whether an outcome is already recorded.\n\n    The endpoint returns a 422 error if a prerequisite is not met.",
+        "operationId": "update_bandit_arm_with_participant_outcome",
+        "security": [
+          {
+            "DatasourceApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "participant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Participant Id"
+            }
+          },
+          {
+            "name": "experiment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The ID of the experiment to fetch.",
+              "title": "Experiment Id"
+            },
+            "description": "The ID of the experiment to fetch."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBanditArmOutcomeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArmBandit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid. Check that the request body matches the required structure and that all required fields and headers are present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 400 Update Bandit Arm With Participant Outcome"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You did not provide a valid API key, or your API key does not have permission for this operation.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 403 Update Bandit Arm With Participant Outcome"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource was not found, or you do not have access to it.\n\nTip: Check that the API key in the `X-API-Key` header has access to the data source or experiment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response 404 Update Bandit Arm With Participant Outcome"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnyBanditDesignSpec": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/MABExperimentSpec"
+          },
+          {
+            "$ref": "#/components/schemas/MABDwhExperimentSpec"
+          },
+          {
+            "$ref": "#/components/schemas/CMABExperimentSpec"
+          }
+        ],
+        "description": "The specific type of bandit experiment design.",
+        "discriminator": {
+          "propertyName": "experiment_type",
+          "mapping": {
+            "cmab_online": "#/components/schemas/CMABExperimentSpec",
+            "mab_online": "#/components/schemas/MABExperimentSpec",
+            "mab_online_dwh": "#/components/schemas/MABDwhExperimentSpec"
+          }
+        }
+      },
+      "AnyFrequentistDesignSpec": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PreassignedFrequentistExperimentSpec"
+          },
+          {
+            "$ref": "#/components/schemas/OnlineFrequentistExperimentSpec"
+          }
+        ],
+        "description": "The specific type of frequentist experiment design.",
+        "discriminator": {
+          "propertyName": "experiment_type",
+          "mapping": {
+            "freq_online": "#/components/schemas/OnlineFrequentistExperimentSpec",
+            "freq_preassigned": "#/components/schemas/PreassignedFrequentistExperimentSpec"
+          }
+        }
+      },
+      "Arm": {
+        "properties": {
+          "arm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arm Id",
+            "description": "Unique ID of the arm. Leave unset when creating an arm."
+          },
+          "arm_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Arm Name"
+          },
+          "arm_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arm Description"
+          },
+          "arm_weight": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArmWeight"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional weight for this arm, used for unequal allocation. The weight must be greater than 0 and less than 100. If you set a weight, all arms must have weights, and they must sum to 100."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "arm_name"
+        ],
+        "title": "Arm",
+        "description": "Describes an experiment treatment arm."
+      },
+      "ArmBandit": {
+        "properties": {
+          "arm_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arm Id",
+            "description": "Unique ID of the arm. Leave unset when creating an arm."
+          },
+          "arm_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Arm Name"
+          },
+          "arm_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arm Description"
+          },
+          "arm_weight": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArmWeight"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional weight for this arm, used for unequal allocation. The weight must be greater than 0 and less than 100. If you set a weight, all arms must have weights, and they must sum to 100."
+          },
+          "alpha_init": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alpha Init",
+            "description": "Initial alpha parameter for the Beta prior.",
+            "examples": [
+              null,
+              1.0
+            ]
+          },
+          "beta_init": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beta Init",
+            "description": "Initial beta parameter for the Beta prior.",
+            "examples": [
+              null,
+              1.0
+            ]
+          },
+          "mu_init": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mu Init",
+            "description": "Initial mean parameter for the Normal prior.",
+            "examples": [
+              null,
+              0.0
+            ]
+          },
+          "sigma_init": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sigma Init",
+            "description": "Initial standard deviation parameter for the Normal prior.",
+            "examples": [
+              null,
+              1.0
+            ]
+          },
+          "alpha": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alpha",
+            "description": "Updated alpha parameter for the Beta prior.",
+            "examples": [
+              null,
+              1.0
+            ]
+          },
+          "beta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beta",
+            "description": "Updated beta parameter for the Beta prior.",
+            "examples": [
+              null,
+              1.0
+            ]
+          },
+          "mu": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mu",
+            "description": "Updated mean vector for the Normal prior.",
+            "examples": [
+              null,
+              [
+                0.0
+              ]
+            ]
+          },
+          "covariance": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Covariance",
+            "description": "Updated covariance matrix for the Normal prior.",
+            "examples": [
+              null,
+              [
+                [
+                  1.0
+                ]
+              ]
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "arm_name"
+        ],
+        "title": "ArmBandit",
+        "description": "Describes an experiment arm for bandit experiments."
+      },
+      "ArmSize": {
+        "properties": {
+          "arm": {
+            "$ref": "#/components/schemas/Arm"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size",
+            "default": 0
+          },
+          "cluster_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster Count",
+            "description": "The number of clusters assigned to this arm. Set only on cluster-randomized experiments."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "arm"
+        ],
+        "title": "ArmSize",
+        "description": "Describes the number of participants assigned to each arm."
+      },
+      "ArmWeight": {
+        "type": "number",
+        "exclusiveMaximum": 100.0,
+        "exclusiveMinimum": 0.0
+      },
+      "AssignSummary": {
+        "properties": {
+          "balance_check": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BalanceCheck"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Balance test results if available. Online experiments do not have balance checks."
+          },
+          "sample_size": {
+            "type": "integer",
+            "title": "Sample Size",
+            "description": "The number of participants across all arms in total."
+          },
+          "arm_sizes": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ArmSize"
+                },
+                "type": "array",
+                "maxItems": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arm Sizes",
+            "description": "For each arm, the number of participants (and optionally clusters) assigned."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sample_size"
+        ],
+        "title": "AssignSummary",
+        "description": "Key pieces of an AssignResponse without the assignments."
+      },
+      "Assignment": {
+        "properties": {
+          "arm_id": {
+            "type": "string",
+            "title": "Arm Id",
+            "description": "ID of the arm this participant was assigned to. Same as Arm.arm_id."
+          },
+          "participant_id": {
+            "type": "string",
+            "maxLength": 64,
+            "title": "Participant Id",
+            "description": "Unique identifier for the participant. This is the primary key for the participant in the data warehouse."
+          },
+          "cluster_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster Key",
+            "description": "Cluster identifier for this participant. Present for cluster-randomized preassigned experiments."
+          },
+          "arm_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Arm Name",
+            "description": "The arm this participant was assigned to. Same as Arm.arm_name."
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At",
+            "description": "The date and time the assignment was created."
+          },
+          "strata": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Strata"
+                },
+                "type": "array",
+                "maxItems": 150
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strata",
+            "description": "List of properties and their values for this participant used for stratification or tracking metrics. If stratification is not used, this will be None."
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed At",
+            "description": "The date and time the outcome was recorded."
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome",
+            "description": "The observed outcome for this assignment."
+          },
+          "autofailed_outcome": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autofailed Outcome",
+            "description": "Whether Evidential failed this outcome automatically (true) or a real outcome was observed (false). Null if no outcome was recorded."
+          },
+          "context_values": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Values",
+            "description": "List of context values for this assignment. If no contexts are used, this will be None."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "arm_id",
+          "participant_id",
+          "arm_name"
+        ],
+        "title": "Assignment",
+        "description": "Base class for treatment assignment in experiments."
+      },
+      "BalanceCheck": {
+        "properties": {
+          "f_statistic": {
+            "type": "number",
+            "title": "F Statistic",
+            "description": "F-statistic testing the overall significance of the model predicting treatment assignment."
+          },
+          "numerator_df": {
+            "type": "integer",
+            "title": "Numerator Df",
+            "description": "The numerator degrees of freedom for the f-statistic related to number of dependent variables."
+          },
+          "denominator_df": {
+            "type": "integer",
+            "title": "Denominator Df",
+            "description": "Denominator degrees of freedom related to the number of observations."
+          },
+          "p_value": {
+            "type": "number",
+            "title": "P Value",
+            "description": "Probability of observing these data if the strata do not predict treatment assignment. A high value means the randomization is balanced."
+          },
+          "balance_ok": {
+            "type": "boolean",
+            "title": "Balance Ok",
+            "description": "Whether the p-value for our observed f_statistic is greater than the f-stat threshold specified in our design specification. (See DesignSpec.fstat_thresh)"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "f_statistic",
+          "numerator_df",
+          "denominator_df",
+          "p_value",
+          "balance_ok"
+        ],
+        "title": "BalanceCheck",
+        "description": "Describes balance test results for treatment assignment."
+      },
+      "CMABContextInputRequest": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "cmab_assignment",
+            "title": "Type",
+            "default": "cmab_assignment"
+          },
+          "context_inputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ContextInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Inputs",
+            "description": "\n            The context values for the assignment, one for each context defined on the experiment.\n            Values are matched to contexts by context_id, not by position in the list.\n            May be null when you retrieve an existing assignment. Otherwise, valid inputs are required.\n            "
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context_inputs"
+        ],
+        "title": "CMABContextInputRequest",
+        "description": "Request body for creating a CMAB assignment or running a CMAB experiment analysis.\n\nWhen you submit context values for a CMAB experiment, these rules apply:\n1. Provide one value for every context defined on the experiment.\n2. Each context_input must reference a valid context_id defined on the experiment.\n3. The order does not matter. Values are matched to contexts by context_id, not by position.\n4. context_inputs may be null only when you retrieve an existing assignment.\n\nExample:\n    If an experiment defines contexts with IDs [\"ctx_1\", \"ctx_2\"], your request must include\n    both context_ids in the context_inputs list, in any order."
+      },
+      "CMABExperimentSpec": {
+        "properties": {
+          "experiment_type": {
+            "type": "string",
+            "const": "cmab_online",
+            "title": "Experiment Type",
+            "default": "cmab_online"
+          },
+          "experiment_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Experiment Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description"
+          },
+          "design_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Url",
+            "description": "Optional URL to a more detailed experiment design doc."
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Date"
+          },
+          "arms": {
+            "items": {
+              "$ref": "#/components/schemas/ArmBandit"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 2,
+            "title": "Arms"
+          },
+          "contexts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Context"
+                },
+                "type": "array",
+                "maxItems": 150
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contexts",
+            "description": "Optional list of contexts that can be used to condition the assignment. Required for Contextual Multi-armed Bandit (CMAB) experiments."
+          },
+          "prior_type": {
+            "$ref": "#/components/schemas/PriorTypes",
+            "description": "The type of prior distribution for the arms.",
+            "default": "beta"
+          },
+          "reward_type": {
+            "$ref": "#/components/schemas/LikelihoodTypes",
+            "description": "The type of outcome observed from the experiment.",
+            "default": "binary"
+          },
+          "enable_autofail": {
+            "type": "boolean",
+            "title": "Enable Autofail",
+            "description": "When true, Evidential records a failure for participants whose outcome does not arrive (via either push or pull) within a specified time window.",
+            "default": false
+          },
+          "autofail_window": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Autofail Window",
+            "description": "The time window in hours after which a participant is considered to have failed if no outcome arrives (via either push or pull). Default is 24 hours. Required if enable_autofail is true.",
+            "default": 24
+          },
+          "autofail_outcome_value": {
+            "type": "number",
+            "title": "Autofail Outcome Value",
+            "description": "The outcome value to assign to participants who are automatically failed. Required if enable_autofail is true.",
+            "default": 0.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_name",
+          "description",
+          "start_date",
+          "end_date",
+          "arms"
+        ],
+        "title": "CMABExperimentSpec",
+        "description": "Describes a Contextual Multi-armed Bandit (CMAB) experiment.\n\nContextual Multi-armed Bandit experiments assign participants to arms in response to API calls from your\napplication, in real time. Outcomes use the push integration: your application reports each one to the outcome\nendpoint."
+      },
+      "Context": {
+        "properties": {
+          "context_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Id",
+            "description": "Unique identifier for the context. Do not set this when you create a new context.",
+            "examples": [
+              "1"
+            ]
+          },
+          "context_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Context Name"
+          },
+          "context_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Description"
+          },
+          "value_type": {
+            "$ref": "#/components/schemas/ContextType",
+            "description": "Type of value the context can take.",
+            "default": "binary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context_name"
+        ],
+        "title": "Context",
+        "description": "A context variable that a Contextual Multi-armed Bandit (CMAB) conditions on."
+      },
+      "ContextInput": {
+        "properties": {
+          "context_id": {
+            "type": "string",
+            "title": "Context Id",
+            "description": "Unique identifier for the context.",
+            "examples": [
+              "1"
+            ]
+          },
+          "context_value": {
+            "type": "number",
+            "title": "Context Value",
+            "description": "Value of the context.",
+            "examples": [
+              2.5
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context_id",
+          "context_value"
+        ],
+        "title": "ContextInput",
+        "description": "A single context value supplied at assignment time."
+      },
+      "ContextType": {
+        "type": "string",
+        "enum": [
+          "binary",
+          "real-valued"
+        ],
+        "title": "ContextType",
+        "description": "Enum for the type of context."
+      },
+      "DesignSpec": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AnyFrequentistDesignSpec"
+          },
+          {
+            "$ref": "#/components/schemas/AnyBanditDesignSpec"
+          }
+        ],
+        "description": "The type of assignment and experiment design.",
+        "discriminator": {
+          "propertyName": "experiment_type",
+          "mapping": {
+            "cmab_online": "#/components/schemas/AnyBanditDesignSpec",
+            "freq_online": "#/components/schemas/AnyFrequentistDesignSpec",
+            "freq_preassigned": "#/components/schemas/AnyFrequentistDesignSpec",
+            "mab_online": "#/components/schemas/AnyBanditDesignSpec",
+            "mab_online_dwh": "#/components/schemas/AnyBanditDesignSpec"
+          }
+        }
+      },
+      "DesignSpecMetric": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Field Name",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "metric_pct_change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Pct Change",
+            "description": "Percent change target relative to the metric_baseline."
+          },
+          "metric_target": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Target",
+            "description": "Absolute target value = metric_baseline * (1 + metric_pct_change)."
+          },
+          "icc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icc",
+            "description": "Intracluster correlation coefficient for cluster-randomized designs."
+          },
+          "avg_cluster_size": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Cluster Size",
+            "description": "Average number of participants per cluster."
+          },
+          "cv": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cv",
+            "description": "Coefficient of variation in cluster sizes (0 = equal sizes)."
+          },
+          "metric_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetricType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inferred from the data warehouse column type."
+          },
+          "metric_baseline": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Baseline",
+            "description": "Mean of the tracked metric."
+          },
+          "metric_stddev": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Stddev",
+            "description": "Standard deviation is set only for MetricType.NUMERIC metrics. Must be set for numeric metrics when available_n > 0."
+          },
+          "available_nonnull_n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available Nonnull N",
+            "description": "The number of participants who meet the filtering criteria and have a non-null value for this metric."
+          },
+          "available_n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available N",
+            "description": "The number of participants who meet the filtering criteria, whether or not this metric's value is NULL. Note: assignments are made from the available_n population. When available_n is greater than available_nonnull_n, some assigned participants may have a missing value for this metric."
+          },
+          "use_one_time_metric": {
+            "type": "boolean",
+            "title": "Use One Time Metric",
+            "description": "Enable one-time metric mode: only assign participants with null values for this metric. Only allowed on the primary (first) metric of an individually-randomized preassigned experiment.",
+            "default": false
+          },
+          "is_one_time_eligible": {
+            "type": "boolean",
+            "title": "Is One Time Eligible",
+            "description": "Set by the power check: True if the metric is eligible for one-time mode (it is the primary metric and its column has both null and non-null values).",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_name"
+        ],
+        "title": "DesignSpecMetric",
+        "description": "Defines a metric to measure in an experiment with its baseline stats.\n\nAdds the fields only the server can derive from the data, so request and response metrics stay\nseparate types (and separate OpenAPI schemas)."
+      },
+      "DesignSpecMetricRequest": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Field Name",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "metric_pct_change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Pct Change",
+            "description": "The smallest percent change, relative to metric_baseline, that you want to be able to detect. Cannot be set together with metric_target."
+          },
+          "metric_target": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Target",
+            "description": "The absolute value you want to be able to detect. Cannot be set together with metric_pct_change."
+          },
+          "icc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icc",
+            "description": "Intracluster correlation coefficient for cluster-randomized designs."
+          },
+          "avg_cluster_size": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Cluster Size",
+            "description": "Average number of participants per cluster."
+          },
+          "cv": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cv",
+            "description": "Coefficient of variation in cluster sizes (0 = equal sizes)."
+          },
+          "metric_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetricType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inferred from the data warehouse column type."
+          },
+          "metric_baseline": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Baseline",
+            "description": "Mean of the tracked metric."
+          },
+          "metric_stddev": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Stddev",
+            "description": "Standard deviation is set only for MetricType.NUMERIC metrics. Must be set for numeric metrics when available_n > 0."
+          },
+          "available_nonnull_n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available Nonnull N",
+            "description": "The number of participants who meet the filtering criteria and have a non-null value for this metric."
+          },
+          "available_n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available N",
+            "description": "The number of participants who meet the filtering criteria, whether or not this metric's value is NULL. Note: assignments are made from the available_n population. When available_n is greater than available_nonnull_n, some assigned participants may have a missing value for this metric."
+          },
+          "use_one_time_metric": {
+            "type": "boolean",
+            "title": "Use One Time Metric",
+            "description": "Enable one-time metric mode: only assign participants with null values for this metric. Only allowed on the primary (first) metric of an individually-randomized preassigned experiment.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_name"
+        ],
+        "title": "DesignSpecMetricRequest",
+        "description": "Defines a request to look up baseline stats for a metric to measure in an experiment.\n\nBaseline stats may optionally be supplied (e.g. copied from a prior power check's\n`MetricPowerAnalysis.metric_spec`), in which case the server reuses them instead of\nre-querying the data warehouse."
+      },
+      "ExperimentConfig": {
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id",
+            "description": "Server-generated ID of the experiment."
+          },
+          "datasource_id": {
+            "type": "string",
+            "title": "Datasource Id"
+          },
+          "spreadsheet_full_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spreadsheet Full Url",
+            "description": "Full URL of the datasource spreadsheet, including the launched experiment's outcomes tab."
+          },
+          "state": {
+            "$ref": "#/components/schemas/ExperimentState",
+            "description": "Current state of this experiment."
+          },
+          "stopped_assignments_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stopped Assignments At",
+            "description": "The date and time when assignments were stopped. Null if the experiment is still accepting assignments. This date can change if the experiment's end date is modified."
+          },
+          "stopped_assignments_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StopAssignmentReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "design_spec": {
+            "$ref": "#/components/schemas/DesignSpec"
+          },
+          "power_analyses": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PowerResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assign_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssignSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "webhooks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Webhooks",
+            "description": "List of webhook IDs associated with this experiment. These webhooks are triggered when the experiment is committed.",
+            "default": []
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "Record any decision(s) made because of this experiment. Will you launch it, and if so when? Regardless of positive or negative results, how do any learnings inform next steps or future hypotheses?",
+            "default": ""
+          },
+          "impact": {
+            "$ref": "#/components/schemas/Impact",
+            "description": "Given the results across your tracked metrics and any other observed effects seen elsewhere, record an overall summary here. Do they agree or reject your hypotheses? Beyond the metrics tracked, did variations affect scalability, cost, feedback, or other aspects?",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "datasource_id",
+          "state",
+          "stopped_assignments_at",
+          "stopped_assignments_reason",
+          "design_spec",
+          "power_analyses",
+          "assign_summary"
+        ],
+        "title": "ExperimentConfig",
+        "description": "Representation of our stored Experiment information."
+      },
+      "ExperimentState": {
+        "type": "string",
+        "enum": [
+          "assigned",
+          "abandoned",
+          "committed"
+        ],
+        "title": "ExperimentState",
+        "description": "Experiment lifecycle states.\n\nExperiments are born in to the ASSIGNED state. The abandon_experiment and commit_experiment APIs transition them to\nthe terminal ABANDONED or COMMITTED states, respectively.\n\nThe name of the ASSIGNED state was chosen when we only supported freq-preassigned experiments. Today it represents\nan experiment in a draft state."
+      },
+      "Filter": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Field Name",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "relation": {
+            "$ref": "#/components/schemas/Relation"
+          },
+          "value": {
+            "$ref": "#/components/schemas/FilterValueTypes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_name",
+          "relation",
+          "value"
+        ],
+        "title": "Filter",
+        "description": "Defines criteria for filtering rows by value.\n\n### Examples\n\n| Relation | Value             | Logical result                                    |\n|----------|-------------------|---------------------------------------------------|\n| INCLUDES | [None]            | Match when `x IS NULL`                            |\n| INCLUDES | [\"a\"]             | Match when `x IN (\"a\")`                           |\n| INCLUDES | [\"a\", None]       | Match when `x IS NULL OR x IN (\"a\")`              |\n| INCLUDES | [\"a\", \"b\"]        | Match when `x IN (\"a\", \"b\")`                      |\n| EXCLUDES | [None]            | Match `x IS NOT NULL`                             |\n| EXCLUDES | [\"a\", None]       | Match `x IS NOT NULL AND x NOT IN (\"a\")`          |\n| EXCLUDES | [\"a\", \"b\"]        | Match `x IS NULL OR (x NOT IN (\"a\", \"b\"))`        |\n| BETWEEN  | [20, 30]          | Match `20 <= x <= 30`                             |\n| BETWEEN  | [20, 30, None]    | Match `20 <= x <= 30` or `x IS NULL`              |\n| BETWEEN  | [None, 30]        | Match `x <= 30`                                   |\n| BETWEEN  | [20, None]        | Match `x >= 20`                                   |\n| BETWEEN  | [None, 30, None]  | Match `x <= 30` or `x IS NULL`                    |\n\nString comparisons are case-sensitive.\n\n### BETWEEN ranges\n\nBETWEEN applies to numeric, DATE, DATETIME and TIMESTAMP fields. Both bounds are inclusive.\n\nThe value has 2 or 3 items:\n- The first 2 items are the lower and upper bounds. Either bound can be None for an open-ended range, but not both.\n- An optional 3rd item, which must be None, also matches null values.\n\nWithout the 3rd item, null values never match.\n\n### Handling of DATE, DATETIME and TIMESTAMP values\n\nDATE, DATETIME or TIMESTAMP-type columns support INCLUDES/EXCLUDES/BETWEEN, similar to numerics.\n\nValues must be expressed as ISO8601 datetime strings compatible with Python's datetime.fromisoformat()\n(https://docs.python.org/3/library/datetime.html#dt.datetime.fromisoformat).\n\nIf a timezone is provided, it must be UTC."
+      },
+      "FilterValueTypes": {
+        "anyOf": [
+          {
+            "items": {
+              "$ref": "#/components/schemas/StrictInt"
+            },
+            "type": "array"
+          },
+          {
+            "items": {
+              "$ref": "#/components/schemas/StrictFloat"
+            },
+            "type": "array"
+          },
+          {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array"
+          },
+          {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array"
+          }
+        ]
+      },
+      "GetExperimentAssignmentsResponse": {
+        "properties": {
+          "balance_check": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BalanceCheck"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Balance test results if available. Online experiments do not have balance checks."
+          },
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id"
+          },
+          "sample_size": {
+            "type": "integer",
+            "title": "Sample Size"
+          },
+          "assignments": {
+            "items": {
+              "$ref": "#/components/schemas/Assignment"
+            },
+            "type": "array",
+            "title": "Assignments"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "sample_size",
+          "assignments"
+        ],
+        "title": "GetExperimentAssignmentsResponse",
+        "description": "Describes assignments for all participants and balance test results if available."
+      },
+      "GetExperimentResponse": {
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id",
+            "description": "Server-generated ID of the experiment."
+          },
+          "datasource_id": {
+            "type": "string",
+            "title": "Datasource Id"
+          },
+          "spreadsheet_full_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spreadsheet Full Url",
+            "description": "Full URL of the datasource spreadsheet, including the launched experiment's outcomes tab."
+          },
+          "state": {
+            "$ref": "#/components/schemas/ExperimentState",
+            "description": "Current state of this experiment."
+          },
+          "stopped_assignments_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stopped Assignments At",
+            "description": "The date and time when assignments were stopped. Null if the experiment is still accepting assignments. This date can change if the experiment's end date is modified."
+          },
+          "stopped_assignments_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StopAssignmentReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "design_spec": {
+            "$ref": "#/components/schemas/DesignSpec"
+          },
+          "power_analyses": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PowerResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assign_summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssignSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "webhooks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Webhooks",
+            "description": "List of webhook IDs associated with this experiment. These webhooks are triggered when the experiment is committed.",
+            "default": []
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "Record any decision(s) made because of this experiment. Will you launch it, and if so when? Regardless of positive or negative results, how do any learnings inform next steps or future hypotheses?",
+            "default": ""
+          },
+          "impact": {
+            "$ref": "#/components/schemas/Impact",
+            "description": "Given the results across your tracked metrics and any other observed effects seen elsewhere, record an overall summary here. Do they agree or reject your hypotheses? Beyond the metrics tracked, did variations affect scalability, cost, feedback, or other aspects?",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "datasource_id",
+          "state",
+          "stopped_assignments_at",
+          "stopped_assignments_reason",
+          "design_spec",
+          "power_analyses",
+          "assign_summary"
+        ],
+        "title": "GetExperimentResponse",
+        "description": "An experiment configuration capturing all info at design time when assignment was made."
+      },
+      "GetParticipantAssignmentResponse": {
+        "properties": {
+          "experiment_id": {
+            "type": "string",
+            "title": "Experiment Id"
+          },
+          "participant_id": {
+            "type": "string",
+            "title": "Participant Id"
+          },
+          "assignment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Assignment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null if no assignment. Strata are not included."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_id",
+          "participant_id",
+          "assignment"
+        ],
+        "title": "GetParticipantAssignmentResponse",
+        "description": "Describes assignment for a single <experiment, participant> pair."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Impact": {
+        "type": "string",
+        "enum": [
+          "high",
+          "medium",
+          "low",
+          "negative",
+          "unclear",
+          ""
+        ]
+      },
+      "LikelihoodTypes": {
+        "type": "string",
+        "enum": [
+          "binary",
+          "real-valued"
+        ],
+        "title": "LikelihoodTypes",
+        "description": "Enum for the likelihood distribution of the reward."
+      },
+      "ListExperimentsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExperimentConfig"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ListExperimentsResponse"
+      },
+      "MABDwhExperimentSpec": {
+        "properties": {
+          "experiment_type": {
+            "type": "string",
+            "const": "mab_online_dwh",
+            "title": "Experiment Type",
+            "default": "mab_online_dwh"
+          },
+          "experiment_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Experiment Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description"
+          },
+          "design_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Url",
+            "description": "Optional URL to a more detailed experiment design doc."
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Date"
+          },
+          "arms": {
+            "items": {
+              "$ref": "#/components/schemas/ArmBandit"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 2,
+            "title": "Arms"
+          },
+          "contexts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Context"
+                },
+                "type": "array",
+                "maxItems": 150
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contexts",
+            "description": "Optional list of contexts that can be used to condition the assignment. Required for Contextual Multi-armed Bandit (CMAB) experiments."
+          },
+          "prior_type": {
+            "$ref": "#/components/schemas/PriorTypes",
+            "description": "The type of prior distribution for the arms.",
+            "default": "beta"
+          },
+          "reward_type": {
+            "$ref": "#/components/schemas/LikelihoodTypes",
+            "description": "The type of outcome observed from the experiment.",
+            "default": "binary"
+          },
+          "enable_autofail": {
+            "type": "boolean",
+            "title": "Enable Autofail",
+            "description": "When true, Evidential records a failure for participants whose outcome does not arrive (via either push or pull) within a specified time window.",
+            "default": false
+          },
+          "autofail_window": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Autofail Window",
+            "description": "The time window in hours after which a participant is considered to have failed if no outcome arrives (via either push or pull). Default is 24 hours. Required if enable_autofail is true.",
+            "default": 24
+          },
+          "autofail_outcome_value": {
+            "type": "number",
+            "title": "Autofail Outcome Value",
+            "description": "The outcome value to assign to participants who are automatically failed. Required if enable_autofail is true.",
+            "default": 0.0
+          },
+          "table_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Table Name",
+            "description": "Datasource table used to resolve target field metadata."
+          },
+          "primary_key": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Primary Key",
+            "description": "Column name in table_name that uniquely identifies each participant.",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "target_field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Target Field Name",
+            "description": "Column name in table_name whose values this bandit optimises. Its data type is resolved from the DWH at create-time and used to validate subsequent outcome reports.",
+            "examples": [
+              "field_name"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_name",
+          "description",
+          "start_date",
+          "end_date",
+          "arms",
+          "table_name",
+          "primary_key",
+          "target_field_name"
+        ],
+        "title": "MABDwhExperimentSpec",
+        "description": "Use this type for a MAB experiment whose outcome (target) column is bound at design time to\na column in a connected data warehouse table.\n\nThe server resolves the target column's data type from the DWH at experiment-create time and\npersists it on the experiment. Outcomes use the pull integration: Evidential reads the target\ncolumn from the DWH and type-checks each value against that stored type. The outcome endpoint\nrejects this experiment type."
+      },
+      "MABExperimentSpec": {
+        "properties": {
+          "experiment_type": {
+            "type": "string",
+            "const": "mab_online",
+            "title": "Experiment Type",
+            "default": "mab_online"
+          },
+          "experiment_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Experiment Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description"
+          },
+          "design_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Url",
+            "description": "Optional URL to a more detailed experiment design doc."
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Date"
+          },
+          "arms": {
+            "items": {
+              "$ref": "#/components/schemas/ArmBandit"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 2,
+            "title": "Arms"
+          },
+          "contexts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Context"
+                },
+                "type": "array",
+                "maxItems": 150
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contexts",
+            "description": "Optional list of contexts that can be used to condition the assignment. Required for Contextual Multi-armed Bandit (CMAB) experiments."
+          },
+          "prior_type": {
+            "$ref": "#/components/schemas/PriorTypes",
+            "description": "The type of prior distribution for the arms.",
+            "default": "beta"
+          },
+          "reward_type": {
+            "$ref": "#/components/schemas/LikelihoodTypes",
+            "description": "The type of outcome observed from the experiment.",
+            "default": "binary"
+          },
+          "enable_autofail": {
+            "type": "boolean",
+            "title": "Enable Autofail",
+            "description": "When true, Evidential records a failure for participants whose outcome does not arrive (via either push or pull) within a specified time window.",
+            "default": false
+          },
+          "autofail_window": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Autofail Window",
+            "description": "The time window in hours after which a participant is considered to have failed if no outcome arrives (via either push or pull). Default is 24 hours. Required if enable_autofail is true.",
+            "default": 24
+          },
+          "autofail_outcome_value": {
+            "type": "number",
+            "title": "Autofail Outcome Value",
+            "description": "The outcome value to assign to participants who are automatically failed. Required if enable_autofail is true.",
+            "default": 0.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_name",
+          "description",
+          "start_date",
+          "end_date",
+          "arms"
+        ],
+        "title": "MABExperimentSpec",
+        "description": "Describes a Multi-armed Bandit (MAB) experiment.\n\nMulti-armed Bandit experiments assign participants to arms in response to API calls from your application, in real\ntime. Outcomes use the push integration: your application reports each one to the outcome endpoint."
+      },
+      "MdeCurvePoint": {
+        "properties": {
+          "desired_n": {
+            "type": "integer",
+            "title": "Desired N",
+            "description": "Sample size in individual participants used for this point. For cluster-randomized designs this is desired_n_clusters times the metric's avg_cluster_size."
+          },
+          "desired_n_clusters": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired N Clusters",
+            "description": "The requested number of clusters for this point. None for individual-randomized requests."
+          },
+          "pct_change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct Change",
+            "description": "The minimum detectable effect (MDE) at this sample size, as a percent change relative to metric_baseline. None when the power calculation fails at this size (e.g. too small to solve)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "desired_n"
+        ],
+        "title": "MdeCurvePoint",
+        "description": "One point of an MDE-vs-sample-size power curve."
+      },
+      "MetricPowerAnalysis": {
+        "properties": {
+          "metric_spec": {
+            "$ref": "#/components/schemas/DesignSpecMetric"
+          },
+          "target_n": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target N",
+            "description": "Minimum sample size needed to meet the design specs."
+          },
+          "sufficient_n": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sufficient N",
+            "description": "Whether there are enough available participants to sample to reach target_n."
+          },
+          "target_possible": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Possible",
+            "description": "When the sample size is too small to reach the desired metric_target, this is the target that is possible given available_n, in the improvement (positive) direction from the baseline. It is the absolute counterpart of pct_change_possible. None when the sample size is large enough to detect the desired change, or (for BINARY metrics) when no value above the baseline is a large enough change to reach the requested power."
+          },
+          "pct_change_possible": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct Change Possible",
+            "description": "When the sample size is too small to reach the desired metric_pct_change, this is the percent change that is possible given available_n. It is the relative counterpart of target_possible. None whenever target_possible is None."
+          },
+          "target_possible_lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Possible Lower",
+            "description": "The detectable metric value below the baseline. (target_possible is the metric value above the baseline.) Both detectable metric values above and below the baseline use the chosen confidence and power, and are always reported together, regardless of the direction of the requested change. For numeric metrics, this is the same distance below the baseline as target_possible is above it. However, for binary metrics, an increase and a decrease that are equally detectable can sit at different distances from the baseline. None when the sample size is large enough to detect the desired change, or (for BINARY metrics) when no value below the baseline is a large enough change to reach the requested power."
+          },
+          "pct_change_possible_lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct Change Possible Lower",
+            "description": "The relative counterpart of target_possible_lower, as a percent change from the baseline (negative for a decrease). A value of -0.10 means a 10% decrease. None whenever target_possible_lower is None."
+          },
+          "pct_change_with_desired_n": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct Change With Desired N",
+            "description": "The minimum detectable effect (MDE) achievable for the desired sample size at the chosen confidence and power, reported in the direction of the requested change (negative when the requested change is a decrease from the baseline). Present only when design_spec.desired_n or design_spec.desired_n_clusters is set (frequentist design specs). When desired_n_clusters is set, the desired sample size is desired_n_clusters times this metric's avg_cluster_size."
+          },
+          "mde_curve": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MdeCurvePoint"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mde Curve",
+            "description": "The MDE for each requested sample size, in the same order as design_spec.desired_ns (or desired_ns_clusters, which takes precedence). Present only when one of those is set. Each point is computed best-effort: a size where the calculation fails yields a null pct_change instead of failing the request."
+          },
+          "msg": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetricPowerAnalysisMessage"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A human-friendly summary of the power analysis results."
+          },
+          "num_clusters_total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Clusters Total",
+            "description": "Total number of clusters needed across all arms."
+          },
+          "clusters_per_arm": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clusters Per Arm",
+            "description": "Number of clusters needed for each arm (one entry per arm)."
+          },
+          "n_per_arm": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Per Arm",
+            "description": "Number of participants for each arm (one entry per arm)."
+          },
+          "design_effect": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Effect",
+            "description": "Design effect (DEFF), the clustering penalty multiplier."
+          },
+          "effective_sample_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Sample Size",
+            "description": "Effective sample size accounting for clustering (total_n / DEFF)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric_spec"
+        ],
+        "title": "MetricPowerAnalysis",
+        "description": "Describes analysis results of a single metric."
+      },
+      "MetricPowerAnalysisMessage": {
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/MetricPowerAnalysisMessageType"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Msg",
+            "description": "Main power analysis result stated in human-friendly English."
+          },
+          "source_msg": {
+            "type": "string",
+            "title": "Source Msg",
+            "description": "Power analysis result formatted as a template string with curly-braced {} named placeholders. Use with the dictionary of values to support localization of messages."
+          },
+          "values": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "integer"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Values"
+          },
+          "high_cluster_variation": {
+            "type": "boolean",
+            "title": "High Cluster Variation",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "msg",
+          "source_msg"
+        ],
+        "title": "MetricPowerAnalysisMessage",
+        "description": "Describes interpretation of power analysis results."
+      },
+      "MetricPowerAnalysisMessageType": {
+        "type": "string",
+        "enum": [
+          "sufficient",
+          "insufficient",
+          "no baseline",
+          "no available n",
+          "zero effect size",
+          "zero variation"
+        ],
+        "title": "MetricPowerAnalysisMessageType",
+        "description": "Classifies metric power analysis results."
+      },
+      "MetricType": {
+        "type": "string",
+        "enum": [
+          "binary",
+          "numeric"
+        ],
+        "title": "MetricType",
+        "description": "Classifies metrics by their value type."
+      },
+      "OnlineAssignmentWithFiltersRequest": {
+        "properties": {
+          "properties": {
+            "items": {
+              "$ref": "#/components/schemas/ParticipantProperty"
+            },
+            "type": "array",
+            "title": "Properties",
+            "description": "Participant properties to match against the experiment's filters."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "properties"
+        ],
+        "title": "OnlineAssignmentWithFiltersRequest",
+        "description": "Request body for callers to supply property values for server-side evaluation of filters participant filters."
+      },
+      "OnlineFrequentistExperimentSpec": {
+        "properties": {
+          "experiment_type": {
+            "type": "string",
+            "const": "freq_online",
+            "title": "Experiment Type",
+            "default": "freq_online"
+          },
+          "experiment_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Experiment Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description"
+          },
+          "design_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Url",
+            "description": "Optional URL to a more detailed experiment design doc."
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Date"
+          },
+          "arms": {
+            "items": {
+              "$ref": "#/components/schemas/Arm"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 2,
+            "title": "Arms"
+          },
+          "table_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Table Name",
+            "description": "Data source table used to resolve participant field metadata."
+          },
+          "primary_key": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Primary Key",
+            "description": "Column name in table_name that uniquely identifies each participant.",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "strata": {
+            "items": {
+              "$ref": "#/components/schemas/Stratum"
+            },
+            "type": "array",
+            "maxItems": 150,
+            "title": "Strata",
+            "description": "Optional fields to use for stratified assignment."
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/DesignSpecMetricRequest"
+            },
+            "type": "array",
+            "maxItems": 150,
+            "minItems": 1,
+            "title": "Metrics",
+            "description": "Primary and optional secondary metrics to target."
+          },
+          "filters": {
+            "items": {
+              "$ref": "#/components/schemas/Filter"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Filters",
+            "description": "Optional filters that narrow the eligible audience to the participants you want in the experiment."
+          },
+          "desired_n": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired N",
+            "description": "Desired number of individual participants. Required when creating individual-randomized preassigned experiments. For cluster-randomized preassigned experiment creation, use desired_n_clusters to control sampling; desired_n remains available for power calculations but is superseded by desired_n_clusters when both are set. When set, the power check also returns the minimum detectable effect for this size, along with the minimum sample size."
+          },
+          "desired_ns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer",
+                  "minimum": 1.0
+                },
+                "type": "array",
+                "maxItems": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Ns",
+            "description": "Optional list of desired individual participant sample sizes. The power check returns the minimum detectable effect for each size (MetricPowerAnalysis.mde_curve), letting clients plot an MDE-vs-sample-size power curve from a single request. Superseded by desired_ns_clusters when both are set. Ignored when creating an experiment."
+          },
+          "power": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Power",
+            "description": "The chance of detecting a real effect when one truly exists (1 - the false negative rate).",
+            "default": 0.8
+          },
+          "alpha": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Alpha",
+            "description": "The chance of a false positive: concluding there is an effect when there is none.",
+            "default": 0.05
+          },
+          "fstat_thresh": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Fstat Thresh",
+            "description": "The p-value threshold for the balance check. When the balance check's p-value is above this threshold, we treat the assignment as \"balanced\".",
+            "default": 0.6
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_name",
+          "description",
+          "start_date",
+          "end_date",
+          "arms",
+          "table_name",
+          "primary_key",
+          "strata",
+          "metrics",
+          "filters"
+        ],
+        "title": "OnlineFrequentistExperimentSpec",
+        "description": "Describes an Online A/B experiment.\n\nOnline experiments assign participants to arms in response to API calls from your application, in real time.\nOutcomes use the pull integration: Evidential reads them from your data source when it takes a snapshot."
+      },
+      "ParticipantProperty": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Field Name",
+            "description": "The name of the property. This must match a field_name defined on the experiment.",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "value": {
+            "$ref": "#/components/schemas/PropertyValueTypes",
+            "description": "The value of the property."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_name",
+          "value"
+        ],
+        "title": "ParticipantProperty",
+        "description": "A single participant property used when applying the experiment's filters.\n\nAll provided values will be compared using the filter criteria defined on the experiment. Omitted values will be\nevaluated as null."
+      },
+      "PowerResponse": {
+        "properties": {
+          "analyses": {
+            "items": {
+              "$ref": "#/components/schemas/MetricPowerAnalysis"
+            },
+            "type": "array",
+            "maxItems": 150,
+            "title": "Analyses"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analyses"
+        ],
+        "title": "PowerResponse"
+      },
+      "PreassignedFrequentistExperimentSpec": {
+        "properties": {
+          "experiment_type": {
+            "type": "string",
+            "const": "freq_preassigned",
+            "title": "Experiment Type",
+            "default": "freq_preassigned"
+          },
+          "experiment_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Experiment Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Description"
+          },
+          "design_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1,
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Design Url",
+            "description": "Optional URL to a more detailed experiment design doc."
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End Date"
+          },
+          "arms": {
+            "items": {
+              "$ref": "#/components/schemas/Arm"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 2,
+            "title": "Arms"
+          },
+          "table_name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Table Name",
+            "description": "Data source table used to resolve participant field metadata."
+          },
+          "primary_key": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Primary Key",
+            "description": "Column name in table_name that uniquely identifies each participant.",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "strata": {
+            "items": {
+              "$ref": "#/components/schemas/Stratum"
+            },
+            "type": "array",
+            "maxItems": 150,
+            "title": "Strata",
+            "description": "Optional fields to use for stratified assignment."
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/DesignSpecMetricRequest"
+            },
+            "type": "array",
+            "maxItems": 150,
+            "minItems": 1,
+            "title": "Metrics",
+            "description": "Primary and optional secondary metrics to target."
+          },
+          "filters": {
+            "items": {
+              "$ref": "#/components/schemas/Filter"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Filters",
+            "description": "Optional filters that narrow the eligible audience to the participants you want in the experiment."
+          },
+          "desired_n": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired N",
+            "description": "Desired number of individual participants. Required when creating individual-randomized preassigned experiments. For cluster-randomized preassigned experiment creation, use desired_n_clusters to control sampling; desired_n remains available for power calculations but is superseded by desired_n_clusters when both are set. When set, the power check also returns the minimum detectable effect for this size, along with the minimum sample size."
+          },
+          "desired_ns": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer",
+                  "minimum": 1.0
+                },
+                "type": "array",
+                "maxItems": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Ns",
+            "description": "Optional list of desired individual participant sample sizes. The power check returns the minimum detectable effect for each size (MetricPowerAnalysis.mde_curve), letting clients plot an MDE-vs-sample-size power curve from a single request. Superseded by desired_ns_clusters when both are set. Ignored when creating an experiment."
+          },
+          "power": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Power",
+            "description": "The chance of detecting a real effect when one truly exists (1 - the false negative rate).",
+            "default": 0.8
+          },
+          "alpha": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Alpha",
+            "description": "The chance of a false positive: concluding there is an effect when there is none.",
+            "default": 0.05
+          },
+          "fstat_thresh": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Fstat Thresh",
+            "description": "The p-value threshold for the balance check. When the balance check's p-value is above this threshold, we treat the assignment as \"balanced\".",
+            "default": 0.6
+          },
+          "cluster_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cluster Key",
+            "description": "Column name in table_name that identifies clusters for a cluster-randomized design. When set, per-metric icc, avg_cluster_size, and cv are either supplied on each metric or computed from this column at power_check time. When None, the design is assumed to be individual-randomized."
+          },
+          "desired_n_clusters": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired N Clusters",
+            "description": "Desired number of clusters to sample when creating a cluster-randomized preassigned experiment. Required and only valid when cluster_key is set. All eligible participants in each sampled cluster are included. In power checks, the minimum detectable effect is computed for this many clusters, converted to a per-metric sample size using each metric's avg_cluster_size; takes precedence over desired_n."
+          },
+          "desired_ns_clusters": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer",
+                  "minimum": 1.0
+                },
+                "type": "array",
+                "maxItems": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Ns Clusters",
+            "description": "Optional list of desired cluster counts. Only valid when cluster_key is set. The power check returns the minimum detectable effect for each count (MetricPowerAnalysis.mde_curve), converted to a per-metric sample size using each metric's avg_cluster_size; takes precedence over desired_ns. Ignored when creating an experiment."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "experiment_name",
+          "description",
+          "start_date",
+          "end_date",
+          "arms",
+          "table_name",
+          "primary_key",
+          "strata",
+          "metrics",
+          "filters"
+        ],
+        "title": "PreassignedFrequentistExperimentSpec",
+        "description": "Describes a Preassigned A/B experiment.\n\nPreassigned experiments create participants from existing users and assign them to arms when the experiment is\ncreated. Outcomes use the pull integration: Evidential reads them from your data source when it takes a snapshot."
+      },
+      "PriorTypes": {
+        "type": "string",
+        "enum": [
+          "beta",
+          "normal"
+        ],
+        "title": "PriorTypes",
+        "description": "Enum for the prior distribution of the arm."
+      },
+      "PropertyValueTypes": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/StrictInt"
+          },
+          {
+            "$ref": "#/components/schemas/StrictFloat"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "Relation": {
+        "type": "string",
+        "enum": [
+          "includes",
+          "excludes",
+          "between"
+        ],
+        "title": "Relation",
+        "description": "Defines operators for filtering values.\n\nINCLUDES matches when the value matches any of the provided values, including null if explicitly\nspecified. This is equivalent to NOT(EXCLUDES(values)).\n\nEXCLUDES matches when the value does not match any of the provided values, including null if\nexplicitly specified. If null is not explicitly excluded, we include nulls in the result.\n\nBETWEEN matches when the value is between the two provided bounds (inclusive). Either bound can be\nnull for an open-ended range. A null value matches only if a 3rd value of null is provided. BETWEEN\napplies to numeric, date and timestamp values."
+      },
+      "StopAssignmentReason": {
+        "type": "string",
+        "enum": [
+          "preassigned",
+          "end_date",
+          "manual",
+          "target_n"
+        ],
+        "title": "StopAssignmentReason",
+        "description": "The reason assignments were stopped."
+      },
+      "Strata": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Field Name",
+            "examples": [
+              "field_name"
+            ]
+          },
+          "strata_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strata Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_name"
+        ],
+        "title": "Strata",
+        "description": "Describes stratification for an experiment participant."
+      },
+      "Stratum": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Field Name",
+            "examples": [
+              "field_name"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field_name"
+        ],
+        "title": "Stratum",
+        "description": "Describes a variable used for stratification."
+      },
+      "StrictFloat": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "StrictInt": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "UpdateBanditArmOutcomeRequest": {
+        "properties": {
+          "outcome": {
+            "type": "number",
+            "title": "Outcome"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "outcome"
+        ],
+        "title": "UpdateBanditArmOutcomeRequest",
+        "description": "Describes the outcome of a bandit experiment."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "DatasourceApiKey": {
+        "type": "apiKey",
+        "description": "The datasource-specific API key. These keys are managed in Settings > Datasources. Datasource keys begin with `xat`.",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Experiment Integration",
+      "description": "## Integrate experiments into your application using Evidential.\n\nEvidential's Experiments API allows you to integrate Evidential experiments with your application or workflows using\na REST API.\n\nTip: This documentation is interactive. Click the \"Authorize\" button at the top of the page to set your data source\nAPI key. Create an API key in [Evidential](https://app.evidential.dev/).\n\nEvidential supports many experimentation and integration strategies. The specific endpoints you will integrate with\ndepend on the type of experiment you are running and your integration strategy.\n\nOutcomes reach Evidential in one of two ways, and the experiment type determines which:\n\n- Push: your application reports each outcome by calling the outcome endpoint.\n- Pull: Evidential reads outcomes from your data source, and your application reports none.\n\nAssignment works the same way for every experiment type. Your application asks Evidential which arm a participant\nbelongs to, so push and pull describe outcomes only.\n\nPreassigned A/B experiments (pull) — assignments are created when the experiment is designed, before the experiment\nstarts:\n\n- `GET /v1/experiments/{experiment_id}/assignments` lists all assignments.\n- `GET /v1/experiments/{experiment_id}/assignments/csv` exports all assignments as CSV.\n- `GET /v1/experiments/{experiment_id}/assignments/{participant_id}` looks up one participant's assignment. For\n  applications that can't store assignments separately, your application can call this method at runtime.\n\nOnline A/B experiments (pull) — assignments are created as participants arrive:\n\n- `GET /v1/experiments/{experiment_id}/assignments/{participant_id}` gets or creates a participant's assignment.\n- `POST /v1/experiments/{experiment_id}/assignments/{participant_id}/assign_with_filters`\n  gets or creates an assignment when the experiment uses server-side filtering.\n\nMulti-armed Bandit (MAB) experiments (push) — assignments are created as participants arrive, and you report each\noutcome:\n\n- `GET /v1/experiments/{experiment_id}/assignments/{participant_id}` gets or creates a participant's assignment.\n- `POST /v1/experiments/{experiment_id}/assignments/{participant_id}/outcome`\n  records the outcome for a participant's arm.\n\nA MAB experiment whose outcome column is bound to a table in your data source (`mab_online_dwh`) uses pull instead.\nYour application calls the assignment endpoint alone, and Evidential reads each outcome from that column.\n\nContextual Multi-armed Bandit (CMAB) experiments (push) — assignments use context values you supply, and you report\neach outcome:\n\n- `POST /v1/experiments/{experiment_id}/assignments/{participant_id}/assign_cmab`\n  gets or creates a participant's assignment from the context values you supply.\n- `POST /v1/experiments/{experiment_id}/assignments/{participant_id}/outcome`\n  records the outcome for a participant's arm.\n\nThese endpoints can be used to synchronize experiment state with your workflows:\n\n- `GET /v1/experiments` lists experiments on the data source.\n- `GET /v1/experiments/{experiment_id}` gets an experiment's design and assignment specs.\n\nAuthentication: Every method in this API requires the `X-API-Key` request header containing your data source API\nkey. Manage your keys under Settings, in the Data Sources section.\n\nError handling: Branch on the HTTP status code, not on the text of the error message. Status codes are stable, but\nmessage text may change. 2xx codes indicate success. 4xx codes usually indicate a problem with your request. 5xx codes\nindicate a server-side error and may be retried.\n\nRetries: Retry only transient failures, meaning network errors and 5xx responses. Use exponential backoff with\njitter, and cap the number of attempts. Do not retry 4xx responses. They will fail again until you change the request\nor until the experiment, data source, or assignment state changes. Assignment requests are safe to retry, because they\nreturn the existing assignment when one was already created.\n"
+    }
+  ]
+}

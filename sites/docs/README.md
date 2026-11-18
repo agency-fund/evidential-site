@@ -15,6 +15,7 @@ Run these from the repository root (or drop the `docs:` prefix inside `sites/doc
 | `task docs:preview`     | Build, then serve `dist/` at http://localhost:4322, as it will be deployed.                                                                        |
 | `task docs:check`       | `astro check`, `nimbus-docs check`, and `nimbus-docs lint`.                                                                                        |
 | `task docs:lint`        | Content lint only; `task docs:lint -- --fix` applies safe fixes.                                                                                   |
+| `task docs:openapi`     | Downloads the live API's spec and regenerates the reference's spec (see below). Commit the result.                                                 |
 | `task docs:outdated`    | Lists Nimbus starter files and components that changed upstream.                                                                                   |
 | `task docs:nimbus -- …` | Runs any `nimbus-docs` command, such as `list`, `add <slug>`, `diff <file>`, or `migrate`.                                                         |
 
@@ -26,7 +27,15 @@ before `task docs:check`, or it reports links to the new pages as broken.
 [AGENT.md](AGENT.md) describes the project structure and is the guide for coding agents. In short:
 
 - `src/content/docs/`: the pages, as MDX. A file's path is its URL; `index.mdx` is the home page.
-- `astro.config.ts`: site settings, the sidebar, and redirects from old MkDocs URLs.
+- `astro.config.ts`: site settings, the sidebar, redirects from old MkDocs URLs, and the API reference's spec and
+  routes.
+- `src/api/`: the API reference's inputs. Nimbus doesn't read remote specs, so `task docs:openapi` saves the live API's
+  spec as `openapi.upstream.json`, and `scripts/polish-openapi.mjs` turns it into `openapi.json`, the spec the reference
+  at `/api` is built from. The script adds `overview.md` as the reference's introduction, splits the operations into
+  sections, dedents descriptions, and fills in missing parameter descriptions; `task docs:start` and `task docs:build`
+  rerun it when its inputs change. A new operation must be added to its `TAGS` list, and if its URL can't be derived,
+  the build says so: pin it in `routes.operations` in `astro.config.ts`.
+- `src/pages/api/[...slug].astro` and `src/components/ui/api-*/`: the reference's route and its components.
 - `src/components/`, `src/layouts/`, `src/styles/`: the Nimbus starter, ours to edit. Components under
   `src/components/ui/` come from the Nimbus registry (`task docs:nimbus -- add <slug>`) and are recorded in
   `nimbus.json`. Keep them identical to upstream unless there's a reason not to, so `task docs:outdated` and

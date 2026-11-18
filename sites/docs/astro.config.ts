@@ -15,6 +15,29 @@ const nimbusConfig = defineNimbusConfig({
   // Shown as the GitHub link in the header.
   github: "https://github.com/agency-fund/evidential-site",
   socialImageAlt: "Evidential documentation preview",
+  // The reference at /api, generated from the live API's spec as adapted by scripts/polish-openapi.mjs (see
+  // `task docs:openapi`).
+  // routes.operations pins URLs, keyed by operationId, for operations whose method and path don't derive a unique
+  // resource/action route. (Comments inside `api` stop `nimbus-docs check` from reading it, so they go here.)
+  api: [
+    {
+      collection: "api",
+      spec: "./src/api/openapi.json",
+      // publishSpec: false,
+      routes: {
+        convention: "resource-action-v2",
+        stripPathPrefixes: ["/v1"],
+        operations: {
+          get_experiment_assignments: "assignments/list",
+          get_experiment_assignments_as_csv: "assignments/export-csv",
+          get_assignment: "assignments/retrieve",
+          get_assignment_filtered: "assignments/assign-with-filters",
+          get_assignment_cmab: "assignments/assign-cmab",
+          update_bandit_arm_with_participant_outcome: "outcomes/record",
+        },
+      },
+    },
+  ],
   // Mirrors the MkDocs navigation. Pages keep their MkDocs URLs, so the groups are listed here rather than mirrored
   // by folders. A new page appears only once it is added below.
   sidebar: {
@@ -46,7 +69,10 @@ const nimbusConfig = defineNimbusConfig({
       {
         label: "For users",
         items: [
-          { label: "Integrating", items: ["integration/overview", "integration/integration"] },
+          {
+            label: "Integrating",
+            items: ["integration/overview", "integration/integration", { label: "API reference", link: "/api/" }],
+          },
           { label: "Analyzing", items: ["analytics/data_analysis", "analytics/data_storage"] },
           {
             label: "What's New",

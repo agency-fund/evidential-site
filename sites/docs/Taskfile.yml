@@ -2,6 +2,7 @@ version: "3"
 
 vars:
   PORT: 4322
+  OPENAPI_URL: https://api.evidential.dev/openapi.json
 
 tasks:
   install:
@@ -11,10 +12,12 @@ tasks:
   start:
     desc: "Run the Astro dev server with hot reload at http://localhost:{{.PORT}} (search needs `task docs:preview`)."
     interactive: true
+    deps: [openapi:polish]
     cmd: pnpm exec astro dev --port {{.PORT}}
 
   build:
     desc: Build the static site into dist/, including the search index, llms.txt, Markdown versions, and share cards.
+    deps: [openapi:polish]
     cmd: pnpm exec astro build
 
   preview:
@@ -33,6 +36,25 @@ tasks:
   lint:
     desc: Lint the content with the authoring rules in astro.config.ts. Pass --fix after -- to apply safe fixes.
     cmd: pnpm exec nimbus-docs lint {{.CLI_ARGS}}
+
+  openapi:
+    desc: Download the live API's spec into src/api/openapi.upstream.json and regenerate src/api/openapi.json. Commit both.
+    cmds:
+      - curl --fail --silent --show-error --location --output src/api/openapi.upstream.json.part {{.OPENAPI_URL}}
+      # Reformatted so updates show up as readable diffs.
+      - jq . src/api/openapi.upstream.json.part > src/api/openapi.upstream.json
+      - rm src/api/openapi.upstream.json.part
+      - task: openapi:polish
+
+  openapi:polish:
+    desc: Regenerate src/api/openapi.json from the upstream spec, src/api/overview.md, and scripts/polish-openapi.mjs.
+    sources:
+      - src/api/openapi.upstream.json
+      - src/api/overview.md
+      - scripts/polish-openapi.mjs
+    generates:
+      - src/api/openapi.json
+    cmd: pnpm exec node scripts/polish-openapi.mjs src/api/openapi.upstream.json src/api/openapi.json
 
   outdated:
     desc: List starter files, components, and package API changes that Nimbus has made upstream since this site was scaffolded.
