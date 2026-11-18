@@ -6,6 +6,7 @@
 
 import { Accordion, AccordionContent, AccordionTrigger } from "./components/ui/accordion";
 import { Aside } from "./components/ui/aside";
+import { Badge } from "./components/ui/badge";
 import { Card } from "./components/ui/card";
 import { CardGrid } from "./components/ui/card-grid";
 import { PackageManagers } from "./components/ui/package-managers";
@@ -17,6 +18,7 @@ export const components = {
   AccordionContent,
   AccordionTrigger,
   Aside,
+  Badge,
   Card,
   CardGrid,
   PackageManagers,

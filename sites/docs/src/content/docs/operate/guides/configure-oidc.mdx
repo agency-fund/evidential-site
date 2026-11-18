@@ -6,8 +6,10 @@ sidebar:
 
 This document describes how to configure Evidential's OpenID Connect (OIDC) integration.
 
-> Note: When using Evidential with an OIDC provider in your development environment, use `task start` instead of
-> `task start-airplane`. See [airplane mode](/develop/guides/develop-offline/) for more details.
+:::note[Use task start, not airplane mode]
+When using Evidential with an OIDC provider in your development environment, use `task start` instead of
+`task start-airplane`. See [airplane mode](/develop/guides/develop-offline/) for more details.
+:::
 
 ## How it works
 
@@ -25,8 +27,10 @@ Invite additional users via the Organization Settings page in the web UI, or via
 `xngin-cli add-user --help` for details). On first login, the user is bound to
 the identity provider's issuer and subject identifier, and only that identity provider can sign them in afterwards.
 
+:::caution[Changing the issuer or client ID signs everyone out]
 Session tokens are bound to the configured issuer and client ID. Changing `XNGIN_OIDC_ISSUER` or
 `XNGIN_OIDC_CLIENT_ID` will invalidate existing sessions.
+:::
 
 ## Compatibility
 
@@ -60,19 +64,21 @@ for details.
 
 Follow these instructions to set up an OIDC profile for Evidential:
 
+<Steps>
+
 1. Log in to the Google Cloud Console.
 
 1. Navigate to [OAuth Overview](https://console.cloud.google.com/auth/overview).
 
 1. If you haven't set up OAuth before, you may be prompted to configure Google Auth Platform. If so, provide the
-    following information:
+   following information:
 
-    | Setting             | Value                       |
-    | ------------------- | --------------------------- |
-    | App name            | My Evidential Instance Name |
-    | User Support Email  | your email address          |
-    | Audience            | Internal                    |
-    | Contact Information | your email address          |
+   | Setting             | Value                       |
+   | ------------------- | --------------------------- |
+   | App name            | My Evidential Instance Name |
+   | User Support Email  | your email address          |
+   | Audience            | Internal                    |
+   | Contact Information | your email address          |
 
 1. Navigate to [Google Auth Platform > Clients](https://console.cloud.google.com/auth/clients).
 
@@ -80,12 +86,12 @@ Follow these instructions to set up an OIDC profile for Evidential:
 
 1. Configure the client as follows:
 
-    | Setting                       | Value                                       |
-    | ----------------------------- | ------------------------------------------- |
-    | Application Type              | Web Application                             |
-    | Name                          | Evidential                                  |
-    | Authorized JavaScript Origins | `http://localhost:3000`                     |
-    | Authorized Redirect URIs      | `http://localhost:3000/` (note: trailing /) |
+   | Setting                       | Value                                       |
+   | ----------------------------- | ------------------------------------------- |
+   | Application Type              | Web Application                             |
+   | Name                          | Evidential                                  |
+   | Authorized JavaScript Origins | `http://localhost:3000`                     |
+   | Authorized Redirect URIs      | `http://localhost:3000/` (note: trailing /) |
 
 1. Click the "Create" button.
 
@@ -93,9 +99,11 @@ Follow these instructions to set up an OIDC profile for Evidential:
 
 1. In your backend repository, add or edit your .env file to include the environment variables below.
 
+</Steps>
+
 #### Environment Variables
 
-```shell
+```shell title=".env"
 XNGIN_OIDC_ISSUER=https://accounts.google.com
 XNGIN_OIDC_CLIENT_ID=[value from previous step]
 XNGIN_OIDC_CLIENT_SECRET=[value from previous step]

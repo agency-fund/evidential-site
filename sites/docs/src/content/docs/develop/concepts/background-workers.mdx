@@ -15,22 +15,6 @@ You can start the worker locally via:
 task start-worker
 ```
 
-<Accordion>
-<AccordionTrigger>Deployment Tips</AccordionTrigger>
-<AccordionContent>
-
-In production, run `xngin-worker` as a long-running process alongside the API server, with `DATABASE_URL` pointing
-at the same database. Run `uv run xngin-worker --help` to see its settings, each of which can also be set by an
-`XNGIN_WORKER_*` environment variable. When deploying it:
-
-- **Restart it whenever it exits.** The worker exits after a set number of jobs (1000 by default), so that a fresh
-    process replaces it. It also exits if its task queue fails.
-- **Give it time to stop.** On SIGTERM or SIGINT, the worker starts no new work and waits for the work in progress to
-    finish. Allow it about two minutes before killing it.
-
-</AccordionContent>
-</Accordion>
-
 ## Experiment Maintenance Jobs
 
 The worker runs three jobs. Each applies to committed experiments of particular types:
@@ -50,10 +34,6 @@ job's next run time is computed from the experiment.
 
 The Task Queue delivers outbound webhooks and facilitates integration with some 3rd parties. For example, we can notify
 a user's infrastructure via HTTP POST when an experiment has been created. These requests may be delivered more than once.
-
-<Accordion>
-<AccordionTrigger>Implementation Details</AccordionTrigger>
-<AccordionContent>
 
 The queue is implemented using the NOTIFY/LISTEN + SKIP LOCKED pattern.
 
@@ -127,7 +107,7 @@ Handlers run inside the worker. To deploy a new handler, register it in
 [src/xngin/apiserver/worker/tq/task_queue_thread.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/worker/tq/task_queue_thread.py).
 Example:
 
-```python
+```python title="src/xngin/apiserver/worker/tq/task_queue_thread.py"
 def webhook_handler(task: Task):
     payload = json.loads(task.payload)
     response = httpx.post(payload["method"], payload["url"])
@@ -138,5 +118,13 @@ def webhook_handler(task: Task):
 queue.register_handler("webhook.outbound", webhook_handler)
 ```
 
-</AccordionContent>
-</Accordion>
+## Deploying the worker
+
+In production, run `xngin-worker` as a long-running process alongside the API server, with `DATABASE_URL` pointing
+at the same database. Run `uv run xngin-worker --help` to see its settings, each of which can also be set by an
+`XNGIN_WORKER_*` environment variable. When deploying it:
+
+- **Restart it whenever it exits.** The worker exits after a set number of jobs (1000 by default), so that a fresh
+  process replaces it. It also exits if its task queue fails.
+- **Give it time to stop.** On SIGTERM or SIGINT, the worker starts no new work and waits for the work in progress to
+  finish. Allow it about two minutes before killing it.

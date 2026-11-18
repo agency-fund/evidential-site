@@ -7,7 +7,7 @@ sidebar:
 This is a collection of random tips about testing. Most of the test configurations you will use are already defined
 in the [Taskfile](https://github.com/agency-fund/evidential-be/blob/main/Taskfile.yml).
 
-## Unit Tests<a name="unit-tests"></a>
+## Unit Tests {#unit-tests}
 
 Run unit tests with:
 
@@ -24,7 +24,7 @@ testing data warehouses named "dwh" and "wide".
 
 [conftest.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/conftest.py) defines fixtures used by many of the tests.
 
-## Google Integration Tests<a name="google-integration-tests"></a>
+## Google Integration Tests {#google-integration-tests}
 
 Some of our pytests have a test marked as 'integration'. These are only usually run in GHA but you can run them locally
 by setting `GOOGLE_APPLICATION_CREDENTIALS` and running:
@@ -33,7 +33,7 @@ by setting `GOOGLE_APPLICATION_CREDENTIALS` and running:
 uv run pytest -m integration
 ```
 
-## BigQuery Integration Tests<a name="bigquery-integration-tests"></a>
+## BigQuery Integration Tests {#bigquery-integration-tests}
 
 Method 1:
 
@@ -56,12 +56,12 @@ Method 2: Trigger via GitHub UI
 1. Select the PR's branch name
 1. Tick the "bq integration" box.
 
-## Showing additional test output<a name="showing-additional-test-output"></a>
+## Showing additional test output {#showing-additional-test-output}
 
 `task test -- -rA` to print out _all_ stdout from your tests; `-rx` for just those failing. (See
 [docs](https://docs.pytest.org/en/latest/how-to/output.html#producing-a-detailed-summary-report) for more info.)
 
-## Loading the testing DWH with a different schema?<a name="loading-the-testing-dwh-with-a-different-schema"></a>
+## Loading the testing DWH with a different schema? {#loading-the-testing-dwh-with-a-different-schema}
 
 Use the CLI command:
 
@@ -73,7 +73,7 @@ uv run xngin-cli create-testing-dwh \
    --schema-name=alt
 ```
 
-### How can I run the unittests against an arbitrary data warehouse?<a name="how-can-i-run-the-unittests-that-use-my-pgbq-instance-as-the-test-dwh"></a>
+### How can I run the unittests against an arbitrary data warehouse? {#how-can-i-run-the-unittests-that-use-my-pgbq-instance-as-the-test-dwh}
 
 Tests that exercise integration with a data warehouse do so via two mechanisms:
 
@@ -84,7 +84,7 @@ Tests that exercise integration with a data warehouse do so via two mechanisms:
 By default, `task test` will run all the tests against Postgres. See the bq-integration GHA job for an example of how
 to run some of the tests against BigQuery.
 
-## Testing environment for BigQuery as the Service Provider<a name="testing-environment-for-bigquery-as-the-service-provider"></a>
+## Testing environment for BigQuery as the Service Provider {#testing-environment-for-bigquery-as-the-service-provider}
 
 You can create a test dataset on a project you've configured with bigquery
 using our xngin-cli tool:
@@ -99,11 +99,8 @@ The tool is also used for interacting with the BQ API directly
 
 These commands use the process defined in Google's
 [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials).
+You do not need the gcloud CLI or related tooling installed.
 
 :::note
 The GHA service account has permissions to access the xngin-development-dc.ds dataset.
-:::
-
-:::note
-You do not need the gcloud CLI or related tooling installed.
 :::
