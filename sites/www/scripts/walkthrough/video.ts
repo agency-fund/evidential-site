@@ -13,7 +13,19 @@ const FPS = 30;
 /** Requests the walkthrough must not make: real analytics would record the demo as visits. */
 export const BLOCKED_HOSTS = /googletagmanager\.com|google-analytics\.com|cloudflareinsights\.com/;
 
-const CAPTION_STYLE = [
+/** The gold click marker every walkthrough shows where the pointer acts. */
+export const CURSOR = {
+  cursor: "pointer",
+  duration: 450,
+  style: {
+    point:
+      "width:34px;height:34px;border-radius:50%;border:3px solid rgba(212,158,0,.95);background:rgba(212,158,0,.18)",
+    title: "display:none",
+  },
+} as const;
+
+/** The caption pill shown along the bottom of every walkthrough. */
+export const CAPTION_STYLE = [
   "position:fixed",
   "left:50%",
   "bottom:28px",
@@ -28,12 +40,12 @@ const CAPTION_STYLE = [
   "white-space:nowrap",
 ].join(";");
 
-function sleep(ms: number): Promise<void> {
+export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /** Scrolls with an ease-in-out curve so viewers can follow along (the page's own smooth scroll is too quick). */
-async function scrollTo(page: Page, target: string | "top" | "bottom", durationMs = 1400): Promise<void> {
+export async function scrollTo(page: Page, target: string | "top" | "bottom", durationMs = 1400): Promise<void> {
   await page.evaluate(
     async ({ target, durationMs }) => {
       const root = document.documentElement;
@@ -69,7 +81,7 @@ async function scrollTo(page: Page, target: string | "top" | "bottom", durationM
   );
 }
 
-async function hoverEach(locators: Locator[], dwellMs: number): Promise<void> {
+export async function hoverEach(locators: Locator[], dwellMs: number): Promise<void> {
   for (const locator of locators) {
     await locator.hover();
     await sleep(dwellMs);
@@ -125,15 +137,7 @@ export async function recordWalkthrough(
     caption = await page.screencast.showOverlay(`<div style="${CAPTION_STYLE}">${text}</div>`);
   };
   try {
-    await page.screencast.showActions({
-      cursor: "pointer",
-      duration: 450,
-      style: {
-        point:
-          "width:34px;height:34px;border-radius:50%;border:3px solid rgba(212,158,0,.95);background:rgba(212,158,0,.18)",
-        title: "display:none",
-      },
-    });
+    await page.screencast.showActions(CURSOR);
 
     // Hero: headline animation, rotating console screenshots, consent banner.
     await page.goto(url, { waitUntil: "domcontentloaded" });

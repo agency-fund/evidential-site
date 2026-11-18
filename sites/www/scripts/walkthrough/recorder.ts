@@ -5,7 +5,17 @@
  */
 import { spawn } from "node:child_process";
 import { rm } from "node:fs/promises";
-import type { Page } from "playwright";
+import { chromium, type Browser, type Page } from "playwright";
+
+/**
+ * Launches the Chromium that walkthroughs record with. Headless Chromium on Linux defaults to full font hinting,
+ * which runs FreeType's auto-hinter on unhinted web fonts like Inter and visibly distorts letter spacing
+ * ("Alr eady"). Render text the way desktop browsers do, in grayscale so subpixel color fringes don't smear in the
+ * compressed video. Record at deviceScaleFactor 1: the frames are encoded at their CSS size.
+ */
+export function launchChromium(): Promise<Browser> {
+  return chromium.launch({ args: ["--font-render-hinting=none", "--disable-lcd-text"] });
+}
 
 export interface Recording {
   /** Seconds since the first frame (0 before recording starts). */

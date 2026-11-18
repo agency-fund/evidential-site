@@ -8,6 +8,12 @@ import path from "node:path";
 import type { Browser } from "playwright";
 import sharp from "sharp";
 
+/** The words around the link in the mockups that show a post: Substack's paragraph and LinkedIn's and Facebook's text. */
+export interface ShareCardText {
+  post: string;
+  caption: string;
+}
+
 interface OpenGraph {
   title: string;
   description: string;
@@ -42,7 +48,7 @@ async function readOpenGraph(distDir: string): Promise<OpenGraph> {
   };
 }
 
-function cardsHtml(og: OpenGraph): string {
+function cardsHtml(og: OpenGraph, text: ShareCardText): string {
   const title = escapeHtml(og.title);
   const description = escapeHtml(og.description);
   const site = escapeHtml(og.siteName);
@@ -50,6 +56,8 @@ function cardsHtml(og: OpenGraph): string {
   const bareDomain = domain.replace(/^www\./, "");
   const link = `https://${domain}`;
   const img = `<img src="${og.image}" alt="">`;
+  const post = escapeHtml(text.post);
+  const caption = escapeHtml(text.caption);
   return `<!doctype html><html><head><style>
   * { box-sizing: border-box; }
   body { margin: 0; padding: 36px; width: 1440px; background: #e9edf1; font-family: Inter, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #111; }
@@ -109,7 +117,7 @@ function cardsHtml(og: OpenGraph): string {
 </div></section>
 
 <section class="panel ss"><div class="label"><span class="dot" style="background:#ff6719"></span>Substack</div><div class="stage">
-  <div class="byline">From a post · 3 min read</div><p>We've been running our program experiments with this tool:</p>
+  <div class="byline">From a post · 3 min read</div><p>${post}</p>
   <div class="embed">${img}<div class="meta"><div class="t clamp2">${title}</div><div class="d clamp2">${description}</div><div class="u">${bareDomain}</div></div></div>
 </div></section>
 
@@ -119,12 +127,12 @@ function cardsHtml(og: OpenGraph): string {
 
 <section class="panel li"><div class="label"><span class="dot" style="background:#0a66c2"></span>LinkedIn</div><div class="stage">
   <div class="post"><div class="author"><div class="avatar">E</div><div><div class="name">${site}</div><div class="sub">Nonprofit · 1h</div></div></div>
-  <div class="text">Experiment rapidly, maximize your impact.</div>${img}<div class="meta"><div class="t clamp2">${title}</div><div class="u">${bareDomain}</div></div></div>
+  <div class="text">${caption}</div>${img}<div class="meta"><div class="t clamp2">${title}</div><div class="u">${bareDomain}</div></div></div>
 </div></section>
 
 <section class="panel fb"><div class="label"><span class="dot" style="background:#1877f2"></span>Facebook</div><div class="stage">
   <div class="post"><div class="author"><div class="avatar">E</div><div><div class="name">${site}</div><div class="sub">Just now · 🌐</div></div></div>
-  <div class="text">Experiment rapidly, maximize your impact.</div>${img}<div class="meta"><div class="u">${bareDomain}</div><div class="t clamp2">${title}</div><div class="d clamp1">${description}</div></div></div>
+  <div class="text">${caption}</div>${img}<div class="meta"><div class="u">${bareDomain}</div><div class="t clamp2">${title}</div><div class="d clamp1">${description}</div></div></div>
 </div></section>
 
 <section class="panel ig"><div class="label"><span class="dot" style="background:#e1306c"></span>Instagram (Direct message)</div><div class="stage">
@@ -137,10 +145,15 @@ function cardsHtml(og: OpenGraph): string {
 </div></body></html>`;
 }
 
-export async function renderShareCards(browser: Browser, distDir: string, outFile: string): Promise<void> {
+export async function renderShareCards(
+  browser: Browser,
+  distDir: string,
+  outFile: string,
+  text: ShareCardText,
+): Promise<void> {
   const og = await readOpenGraph(distDir);
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
-  await page.setContent(cardsHtml(og), { waitUntil: "load" });
+  await page.setContent(cardsHtml(og, text), { waitUntil: "load" });
   const png = await page.screenshot({ fullPage: true });
   await page.close();
   await sharp(png).webp({ quality: 90 }).toFile(outFile);

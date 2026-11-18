@@ -6,14 +6,15 @@
  *   lighthouse.webp         Lighthouse score summary and performance report
  *
  * Usage (from sites/www): node scripts/walkthrough/index.ts [--out <dir>] [--only video,cards,lighthouse]
+ * Writes to sites/www/walkthrough/ by default.
  * Requires ffmpeg with libx264 on PATH and Playwright's Chromium (`pnpm exec playwright install chromium`).
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { chromium } from "playwright";
 import { renderLighthouseReport } from "./lighthouse.ts";
 import { renderShareCards } from "./share-cards.ts";
+import { launchChromium } from "./recorder.ts";
 import { buildSite, serveSite } from "./site.ts";
 import { recordWalkthrough } from "./video.ts";
 
@@ -24,7 +25,7 @@ type Artifact = (typeof ARTIFACTS)[number];
 const siteDir = path.resolve(import.meta.dirname, "../..");
 const { values } = parseArgs({
   options: {
-    out: { type: "string", default: path.resolve(siteDir, "../../walkthrough") },
+    out: { type: "string", default: path.join(siteDir, "walkthrough") },
     only: { type: "string", default: ARTIFACTS.join(",") },
   },
 });
@@ -43,10 +44,7 @@ console.log("Building the site (DEPLOY_ENV=production)…");
 buildSite(siteDir);
 console.log("Starting wrangler dev…");
 const site = await serveSite(siteDir);
-// Headless Chromium on Linux defaults to full font hinting, which runs FreeType's auto-hinter on unhinted web fonts
-// like Inter and visibly distorts letter spacing ("Alr eady"). Render text the way desktop browsers do, in grayscale so
-// subpixel color fringes don't smear in the compressed video.
-const browser = await chromium.launch({ args: ["--font-render-hinting=none", "--disable-lcd-text"] });
+const browser = await launchChromium();
 try {
   if (wanted("video")) {
     const file = path.join(outDir, "walkthrough.mp4");
@@ -56,7 +54,10 @@ try {
   }
   if (wanted("cards")) {
     const file = path.join(outDir, "share-previews.webp");
-    await renderShareCards(browser, path.join(siteDir, "dist"), file);
+    await renderShareCards(browser, path.join(siteDir, "dist"), file, {
+      post: "We've been running our program experiments with this tool:",
+      caption: "Experiment rapidly, maximize your impact.",
+    });
     console.log(`  wrote ${file}`);
   }
   if (wanted("lighthouse")) {

@@ -81,6 +81,23 @@ pnpm exec wrangler r2 object put evidential-media/docs/<file>.mp4 --remote --fil
 
 Object names are cached for a year, so never reuse one.
 
+## Sharing the current state with the team
+
+`task docs:walkthrough` builds the docs, serves `dist/` as a static host would, and writes these files to
+`walkthrough/output/` (gitignored):
+
+| File                  | Contents                                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `walkthrough.mp4`     | 30-second, 1280×1024 H.264 tour: home, a diagram, search, the API reference, and dark mode      |
+| `share-previews.webp` | The home page's link preview in WhatsApp, Substack, Telegram, LinkedIn, Facebook, and Instagram |
+
+It needs `ffmpeg` with libx264. Pass `ONLY=video` or `ONLY=cards` to regenerate one. The tour is in
+`walkthrough/video.ts`, with a target start time per step. The recorder and share cards are www's modules
+(`sites/www/scripts/walkthrough/`), including the Chromium font settings that keep Inter's spacing intact on Linux.
+
+The share cards show the page's social card, drawn by `src/pages/og/_card.ts` after www's: the wordmark, a gold
+eyebrow with the page's section, the title in navy with the gold rule, and a navy band.
+
 ## Known issues carried over from MkDocs
 
 - `legal/terms.mdx` is a copy of the Privacy Policy, as it was on the MkDocs site. It's left out of the sidebar until it

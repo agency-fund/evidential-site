@@ -170,9 +170,15 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.3.5
         version: 4.3.5(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
+      '@types/node':
+        specifier: 26.6.6
+        version: 26.6.6
       pagefind:
         specifier: 1.6.0
         version: 1.6.0
+      playwright:
+        specifier: 1.65.0
+        version: 1.65.0
       tailwindcss:
         specifier: 4.3.5
         version: 4.3.5

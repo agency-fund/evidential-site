@@ -58,7 +58,7 @@ tasks:
         pnpm exec lhci autorun
 
   walkthrough:
-    desc: "Record a 2-minute walkthrough video, share-preview cards, and a Lighthouse report into walkthrough/ at the repo root. Needs ffmpeg. Pass e.g. ONLY=video to make one artifact."
+    desc: "Record a 2-minute walkthrough video, share-preview cards, and a Lighthouse report into walkthrough/. Needs ffmpeg. Pass e.g. ONLY=video to make one artefact."
     cmds:
       - pnpm exec playwright install chromium
       - pnpm exec node scripts/walkthrough/index.ts {{if .ONLY}}--only {{.ONLY}}{{end}}

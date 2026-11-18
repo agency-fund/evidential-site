@@ -68,7 +68,7 @@ are logged.
 ## Sharing the current state with the team
 
 `task www:walkthrough` builds the site as production, serves it with `wrangler dev`, and writes these files to
-`walkthrough/` at the repository root (gitignored):
+`sites/www/walkthrough/` (gitignored):
 
 | File                  | Contents                                                                                                 |
 | --------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -80,7 +80,8 @@ It needs `ffmpeg` with libx264 (`brew install ffmpeg` or `apt install ffmpeg`). 
 `ONLY=lighthouse` (comma-separated) to regenerate just some of them. Analytics requests are blocked, and the contact
 form uses Turnstile test keys and simulated email, so runs never count as visits or send mail.
 
-The script lives in `scripts/walkthrough/`. When you add or change an interactive feature, update the timeline in
+The script lives in `scripts/walkthrough/`; the docs site's walkthrough (`sites/docs/walkthrough/`) reuses its recorder
+and share-card modules, so changes there affect both. When you add or change an interactive feature, update the timeline in
 `video.ts`: each section has a target start time, and the script warns if a section runs behind.
 
 ## Environments
