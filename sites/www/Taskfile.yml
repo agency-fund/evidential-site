@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  # Keep in sync with WORKER in .github/scripts/preview_cleanup.py.
+  # Keep in sync with SITES in .github/scripts/preview_cleanup.py.
   PREVIEW_WORKER: evidential-www-preview
 
 tasks:
@@ -42,6 +42,21 @@ tasks:
   format:
     desc: Format all files with Prettier.
     cmd: pnpm exec prettier --write .
+
+  ci:check:
+    desc: "CI only (www workflow): checks, a production build, link check, and Lighthouse budgets."
+    cmds:
+      - task: check
+      # Build as production so Lighthouse measures what visitors get, including analytics.
+      - task: build:production
+      - task: linkcheck
+      - task: lighthouse
+
+  build:production:
+    internal: true
+    env:
+      DEPLOY_ENV: production
+    cmd: pnpm exec astro build
 
   linkcheck:
     desc: Check internal links and assets in the built site (run `task build` first).

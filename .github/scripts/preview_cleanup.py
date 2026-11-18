@@ -7,9 +7,9 @@
 #   "typer",
 # ]
 # ///
-"""Deletes the Cloudflare Previews that the www workflow creates for pull requests (named pr-<number>).
+"""Deletes the Cloudflare Previews that a site's workflow creates for pull requests (named pr-<number>).
 
-Used by .github/workflows/www-preview-cleanup.yaml. Credentials are read from environment variables
+Used by .github/workflows/preview-cleanup.yaml, once per site (--site www, --site docs). Credentials are read from environment variables
 (CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, GITHUB_TOKEN, GITHUB_REPOSITORY) by default.
 """
 
@@ -21,11 +21,16 @@ from typing import Annotated
 import httpx2
 import typer
 
-# Previews live on their own Worker, apart from production; keep in sync with PREVIEW_WORKER in sites/www/Taskfile.yml.
-WORKER = "evidential-www-preview"
+# Each site's Previews live on their own Worker, apart from production; keep in sync with PREVIEW_WORKER in
+# sites/<site>/Taskfile.yml.
+SITES = {"www": "evidential-www-preview", "docs": "evidential-docs-preview"}
 PR_PREVIEW_NAME = re.compile(r"^pr-(\d+)$")
-# Marks the comment the www workflow posts on each pull request; keep in sync with .github/workflows/www.yaml.
-COMMENT_MARKER = "<!-- www-preview -->"
+
+
+def comment_marker(site: str) -> str:
+    """Marks the comment a site's workflow posts on each pull request; keep in sync with .github/workflows/preview.yaml."""
+    return f"<!-- {site}-preview -->"
+
 CLOUDFLARE_PAGE_SIZE = 50
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
@@ -64,9 +69,9 @@ def previews_to_delete(
 
 
 class Cloudflare:
-    def __init__(self, client: httpx2.Client, account_id: str):
+    def __init__(self, client: httpx2.Client, account_id: str, worker: str):
         self._client = client
-        self._previews_path = f"/accounts/{account_id}/workers/workers/{WORKER}/previews"
+        self._previews_path = f"/accounts/{account_id}/workers/workers/{worker}/previews"
 
     def previews(self) -> list[Preview]:
         previews: list[Preview] = []
@@ -85,9 +90,10 @@ class Cloudflare:
 
 
 class GitHub:
-    def __init__(self, client: httpx2.Client, repository: str):
+    def __init__(self, client: httpx2.Client, repository: str, site: str):
         self._client = client
         self._repository = repository
+        self._site = site
 
     def pull_request_state(self, number: int) -> str | None:
         """Returns "open" or "closed", or None if there is no such pull request."""
@@ -104,8 +110,9 @@ class GitHub:
             response = self._client.get(url)
             response.raise_for_status()
             for comment in response.json():
-                if comment["user"]["login"] == "github-actions[bot]" and comment["body"].startswith(COMMENT_MARKER):
-                    body = f"{COMMENT_MARKER}\n**www preview:** deleted when this pull request was closed."
+                marker = comment_marker(self._site)
+                if comment["user"]["login"] == "github-actions[bot]" and comment["body"].startswith(marker):
+                    body = f"{marker}\n**{self._site} preview:** deleted when this pull request was closed."
                     self._client.patch(
                         f"/repos/{self._repository}/issues/comments/{comment['id']}", json={"body": body}
                     ).raise_for_status()
@@ -114,16 +121,16 @@ class GitHub:
         return False
 
 
-def cloudflare_client(api_token: str, account_id: str) -> Cloudflare:
+def cloudflare_client(api_token: str, account_id: str, worker: str) -> Cloudflare:
     client = httpx2.Client(
         base_url="https://api.cloudflare.com/client/v4",
         headers={"Authorization": f"Bearer {api_token}"},
         timeout=30,
     )
-    return Cloudflare(client, account_id)
+    return Cloudflare(client, account_id, worker)
 
 
-def github_client(token: str, repository: str) -> GitHub:
+def github_client(token: str, repository: str, site: str) -> GitHub:
     client = httpx2.Client(
         base_url="https://api.github.com",
         headers={
@@ -133,7 +140,7 @@ def github_client(token: str, repository: str) -> GitHub:
         },
         timeout=30,
     )
-    return GitHub(client, repository)
+    return GitHub(client, repository, site)
 
 
 @dataclass(frozen=True)
@@ -152,6 +159,7 @@ def delete_all(cloudflare: Cloudflare, previews: list[Preview]) -> None:
 @app.callback()
 def main(
     ctx: typer.Context,
+    site: Annotated[str, typer.Option(help=f"The site whose Previews to delete: {', '.join(SITES)}.")],
     cloudflare_api_token: Annotated[
         str, typer.Option(envvar="CLOUDFLARE_API_TOKEN", show_default=False, help="Cloudflare API token.")
     ],
@@ -166,9 +174,11 @@ def main(
     ],
 ):
     """Deletes the Cloudflare Previews of closed pull requests. Pass credentials via the environment variables."""
+    if site not in SITES:
+        raise typer.BadParameter(f"must be one of: {', '.join(SITES)}", param_hint="--site")
     ctx.obj = Clients(
-        cloudflare=cloudflare_client(cloudflare_api_token, cloudflare_account_id),
-        github=github_client(github_token, github_repository),
+        cloudflare=cloudflare_client(cloudflare_api_token, cloudflare_account_id, SITES[site]),
+        github=github_client(github_token, github_repository, site),
     )
 
 

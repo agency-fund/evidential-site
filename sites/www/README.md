@@ -110,45 +110,47 @@ can't change production. They're public (Cloudflare adds `X-Robots-Tag: noindex`
 from the `previews` block in `wrangler.jsonc`, and never send email or Slack messages.
 
 `.github/workflows/www.yaml` runs on pull requests to `main` and pushes to `main` that touch this site, and on manual
-dispatch:
+dispatch. Its jobs call reusable workflows that the docs site's `docs.yaml` shares, each running the site's own tasks:
 
-- **check**: type checks, tests, a production build, link check, and Lighthouse budgets.
-- **preview-wanted**: decides whether a pull request gets a Preview: only same-repo, non-Dependabot pull requests whose
-  changes include `src/`, `public/`, `worker/*.ts` (not its tests), or `astro.config.mjs`.
-- **preview** (only when **preview-wanted** says so, and after **check** passes):
-  `task www:deploy:preview NAME=pr-<number>` and a PR comment with the URL. It runs the pull request's code with the
-  `preview` environment's token, which can only change `evidential-www-preview`.
-- **production** (`main` only): `task www:ci:deploy:production`.
+- **check** (`site-check.yaml`): `task www:ci:check`: type checks, tests, a production build, link check, and Lighthouse
+  budgets.
+- **preview** (`site-preview.yaml`; same-repo, non-Dependabot pull requests, after **check** passes): only when the
+  pull request changes `src/`, `public/`, `worker/*.ts` (not its tests), or `astro.config.mjs`, runs
+  `task www:deploy:preview NAME=pr-<number>` and comments the URL. It runs the pull request's code with the `preview`
+  environment's token, which can only change the sites' preview Workers.
+- **production** (`site-production.yaml`; `main` only): `task www:ci:deploy:production`.
 
-`.github/workflows/www-preview-cleanup.yaml` deletes a pull request's Preview when it's closed or merged, and sweeps
-weekly for any it missed.
+`.github/workflows/preview-cleanup.yaml` deletes a pull request's Previews, for each site, when it's closed or merged,
+and sweeps weekly for any it missed.
 
 ## Cloudflare resources
 
 Everything lives on the **The Agency Fund** account (`f3fcb6f2a7fba9b85ecb03ce24e0ec48`).
 
-| Resource                                                      | Details                                                                                                                                                                                |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Zone `evidential.dev`                                         | Pre-existing. DNS, Email Routing, and Web Analytics (automatic injection) for the domain.                                                                                              |
-| Worker `evidential-www`                                       | Static assets from `dist/`, plus the contact-form Worker for `/api/*`. Configured by `wrangler.jsonc`.                                                                                 |
-| Custom domain `www.evidential.dev`                            | Production hostname of `evidential-www`, with its certificate. The Worker's production `workers.dev` URL is disabled.                                                                  |
-| Worker `evidential-www-preview`                               | Holds only Previews, so CI's preview token can be scoped to it. Created by the first `task www:deploy:preview`; see [Preview Worker](#preview-worker).                                 |
-| Preview URLs                                                  | `https://<name>-evidential-www-preview.the-agency-fund.workers.dev`, one per Preview, served with `X-Robots-Tag: noindex`.                                                             |
-| Worker secrets                                                | `TURNSTILE_SECRET` (production), plus a `SLACK_WEBHOOK_*` secret for each Slack channel in `worker/notifications.config.ts`.                                                           |
-| Worker bindings                                               | `CONTACT_EMAIL` (Send Email, restricted to `support@evidential.dev`); `CONTACT_RATE_LIMIT` (5 requests a minute per IP; namespace `1001` in production, `1002` in Previews); `ASSETS`. |
-| Observability                                                 | Workers Logs and Traces, fully sampled. The Worker runs only for form submissions.                                                                                                     |
-| Turnstile widget "evidential-www contact form"                | Managed mode for `evidential.dev` and `www.evidential.dev`. The site key is in `astro.config.mjs`; the secret key is the `TURNSTILE_SECRET` Worker secret.                             |
-| Email Routing destination `support@evidential.dev`            | Verified destination address (Workers can only send to verified destinations). The zone's routing rule for `support@evidential.dev` forwards it to the support inbox.                  |
-| Redirect rule `evidential.dev` → `https://www.evidential.dev` | Sends the apex domain to the site, keeping the path and query string.                                                                                                                  |
-| Account API token `github-actions-evidential-www`             | Workers **Editor** on `evidential-www` only, with no zone permissions. Used by GitHub Actions for production.                                                                          |
-| Account API token `github-actions-evidential-www-preview`     | Workers **Editor** on `evidential-www-preview` only. Used by GitHub Actions for Previews, including from pull request code.                                                            |
+| Resource                                                           | Details                                                                                                                                                                                |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Zone `evidential.dev`                                              | Pre-existing. DNS, Email Routing, and Web Analytics (automatic injection) for the domain.                                                                                              |
+| Worker `evidential-www`                                            | Static assets from `dist/`, plus the contact-form Worker for `/api/*`. Configured by `wrangler.jsonc`.                                                                                 |
+| Custom domain `www.evidential.dev`                                 | Production hostname of `evidential-www`, with its certificate. The Worker's production `workers.dev` URL is disabled.                                                                  |
+| Worker `evidential-www-preview`                                    | Holds only Previews, so CI's preview token can be scoped to it. Created by the first `task www:deploy:preview`; see [Preview Worker](#preview-worker).                                 |
+| Preview URLs                                                       | `https://<name>-evidential-www-preview.the-agency-fund.workers.dev`, one per Preview, served with `X-Robots-Tag: noindex`.                                                             |
+| Worker secrets                                                     | `TURNSTILE_SECRET` (production), plus a `SLACK_WEBHOOK_*` secret for each Slack channel in `worker/notifications.config.ts`.                                                           |
+| Worker bindings                                                    | `CONTACT_EMAIL` (Send Email, restricted to `support@evidential.dev`); `CONTACT_RATE_LIMIT` (5 requests a minute per IP; namespace `1001` in production, `1002` in Previews); `ASSETS`. |
+| Observability                                                      | Workers Logs and Traces, fully sampled. The Worker runs only for form submissions.                                                                                                     |
+| Turnstile widget "evidential-www contact form"                     | Managed mode for `evidential.dev` and `www.evidential.dev`. The site key is in `astro.config.mjs`; the secret key is the `TURNSTILE_SECRET` Worker secret.                             |
+| Email Routing destination `support@evidential.dev`                 | Verified destination address (Workers can only send to verified destinations). The zone's routing rule for `support@evidential.dev` forwards it to the support inbox.                  |
+| Redirect rule `evidential.dev` → `https://www.evidential.dev`      | Sends the apex domain to the site, keeping the path and query string.                                                                                                                  |
+| Workers `evidential-docs`, `evidential-docs-preview`               | The docs site and its Previews; see `sites/docs/README.md`.                                                                                                                            |
+| R2 bucket `evidential-media`, custom domain `media.evidential.dev` | Large media the sites link to rather than commit, such as the docs' onboarding video under `docs/`. Public, read-only at the custom domain.                                            |
+| Account API token `github-actions-evidential-www`                  | Workers **Editor** on `evidential-www` and `evidential-docs` only, with no zone permissions. Used by GitHub Actions for production.                                                    |
+| Account API token `github-actions-evidential-www-preview`          | Workers **Editor** on `evidential-www-preview` and `evidential-docs-preview` only. Used by GitHub Actions for Previews, including from pull request code.                              |
 
 On GitHub (`agency-fund/evidential-site`):
 
 | Resource                 | Details                                                                                                                            |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Environment `preview`    | Used by the www workflow's `preview` job and by `www-preview-cleanup.yaml`; any branch.                                            |
-| Environment `production` | Used by the www workflow's `production` job; deployments allowed only from `main`.                                                 |
+| Environment `preview`    | Used by `site-preview.yaml` (www and docs) and `preview-cleanup.yaml`; any branch.                                                 |
+| Environment `production` | Used by `site-production.yaml` (www and docs); deployments allowed only from `main`.                                               |
 | `CLOUDFLARE_ACCOUNT_ID`  | Variable in both environments.                                                                                                     |
 | `CLOUDFLARE_API_TOKEN`   | Secret in each environment: `github-actions-evidential-www-preview` in `preview`, `github-actions-evidential-www` in `production`. |
 
@@ -181,8 +183,8 @@ access because they leave the custom domain unchanged.
 1. Create two Cloudflare tokens in the dashboard: **The Agency Fund › Manage account › Account API tokens › Create
    Token**. Grant each the Workers role **Editor**, scoped to **individual Workers**, and nothing else. (Creating a
    token can't be scripted without an existing token that can create tokens.)
-   - `github-actions-evidential-www`: scoped to `evidential-www`.
-   - `github-actions-evidential-www-preview`: scoped to `evidential-www-preview`. That Worker must exist first; see
+   - `github-actions-evidential-www`: scoped to `evidential-www` and `evidential-docs`.
+   - `github-actions-evidential-www-preview`: scoped to `evidential-www-preview` and `evidential-docs-preview`. That Worker must exist first; see
      [Preview Worker](#preview-worker).
 2. Run `task setup:github` (`scripts/setup-github.sh`) and paste each token at its hidden prompt (Enter keeps the
    current one). It creates the GitHub environments, limits `production` to `main`, sets the variable in both, and
@@ -213,7 +215,7 @@ It takes `workers_dev: false` and `preview_urls: true` from `wrangler.jsonc`, an
    same Preview and comment. Pull requests from forks or Dependabot, and those that change only tooling, tests, docs,
    or dependencies, get checks but no Preview.
 4. Merging to `main` runs **check** and then **production**, which deploys the site.
-5. Closing or merging the pull request deletes its Preview (`.github/workflows/www-preview-cleanup.yaml`, which runs
+5. Closing or merging the pull request deletes its Preview (`.github/workflows/preview-cleanup.yaml`, which runs
    `.github/scripts/preview_cleanup.py`) and updates
    the comment to say so. If a deploy is still running at that moment, the cleanup waits for it to finish, and a deploy
    that starts after the close sees the pull request is closed and skips, so neither can leave a Preview behind. A weekly run of the same workflow, which can also be started manually, deletes any `pr-<number>` Preview

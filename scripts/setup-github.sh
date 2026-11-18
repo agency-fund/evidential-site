@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Provisions the GitHub side of the www deployment pipeline (.github/workflows/www.yaml). Safe to re-run.
+# Provisions the GitHub side of the www and docs deployment pipelines (.github/workflows/{www,docs}.yaml). Safe to
+# re-run.
 #
 #   1. Environments: "preview" (pull request Previews, any branch) and "production" (deploys, main branch only).
 #   2. Variable CLOUDFLARE_ACCOUNT_ID in both environments.
 #   3. Secret CLOUDFLARE_API_TOKEN in each environment, a different token for each: the preview environment's can only
-#      change the evidential-www-preview Worker, because pull request code can read it. Each is read from a hidden
-#      prompt and verified against Cloudflare first, and never appears in command-line arguments or output.
+#      change the preview Workers (evidential-www-preview, evidential-docs-preview), because pull request code can read
+#      it. Each is read from a hidden prompt and verified against Cloudflare first, and never appears in command-line
+#      arguments or output.
 #
 # Create the Cloudflare tokens first; see "GitHub Actions Credentials" in sites/www/README.md.
 #

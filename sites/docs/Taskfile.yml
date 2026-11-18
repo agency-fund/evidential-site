@@ -2,6 +2,8 @@ version: "3"
 
 vars:
   PORT: 4322
+  # Keep in sync with SITES in .github/scripts/preview_cleanup.py.
+  PREVIEW_WORKER: evidential-docs-preview
   OPENAPI_URL: https://api.evidential.dev/openapi.json
 
 tasks:
@@ -19,6 +21,29 @@ tasks:
     desc: Build the static site into dist/, including the search index, llms.txt, Markdown versions, and share cards.
     deps: [openapi:polish]
     cmd: pnpm exec astro build
+
+  ci:check:
+    desc: "CI only (docs workflow): build, then run every check. The link check reads the build, so it runs second."
+    cmds:
+      - task: build
+      - task: check
+
+  deploy:preview:
+    desc: "Build and push a Cloudflare Preview from this machine (needs `wrangler login` or CLOUDFLARE_API_TOKEN). Named after the git branch unless NAME=… is given. Prints the public Preview URL."
+    cmds:
+      - task: build
+      # Previews go to their own Worker, so the token CI uses for them can't touch production.
+      - >-
+        pnpm exec wrangler preview --worker-name {{.PREVIEW_WORKER}}
+        {{if .NAME}}--name {{.NAME}}{{end}}
+        {{if .MESSAGE}}--message "{{.MESSAGE}}"{{end}}
+        {{.CLI_ARGS}}
+
+  ci:deploy:production:
+    desc: "CI only (docs workflow, main branch): build and deploy a new production version of evidential-docs."
+    cmds:
+      - task: build
+      - pnpm exec wrangler deploy
 
   search-index:
     # Builds the site when anything that feeds the search index changed, so `start` can serve a current index.

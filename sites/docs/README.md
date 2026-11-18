@@ -81,6 +81,36 @@ pnpm exec wrangler r2 object put evidential-media/docs/<file>.mp4 --remote --fil
 
 Object names are cached for a year, so never reuse one.
 
+## Deployment
+
+The docs deploy to Cloudflare like www, through the same reusable workflows (`.github/workflows/docs.yaml` calls
+`site-check.yaml`, `site-preview.yaml`, and `site-production.yaml`), and the same GitHub environments and tokens:
+
+- **Pull requests**: `task docs:ci:check` (build, type check, Nimbus check, content lint). Same-repo, non-Dependabot pull
+  requests that change `src/`, `public/`, `astro.config.ts`, or the spec's polish script also get a Preview,
+  `task docs:deploy:preview NAME=pr-<number>`, on the `evidential-docs-preview` Worker, with its URL commented on the
+  pull request. `preview-cleanup.yaml` deletes it when the pull request closes.
+- **`main`**: `task docs:ci:deploy:production` deploys the `evidential-docs` Worker. Until docs.evidential.dev moves from
+  the MkDocs site, it's served only at https://evidential-docs.the-agency-fund.workers.dev (see `wrangler.jsonc`).
+
+Builds fetch the full git history (`fetch-depth: 0`) for pages' "Last updated" dates and the sitemap.
+
+One-time setup, from a workstation logged in with `pnpm exec wrangler login`, before the first pull request or merge:
+
+1. Create both Workers, which the CI tokens can't:
+
+   ```sh
+   pnpm exec wrangler deploy                  # evidential-docs (after `task docs:build`)
+   task docs:deploy:preview NAME=bootstrap    # creates evidential-docs-preview
+   pnpm exec wrangler preview delete --worker-name evidential-docs-preview --name bootstrap
+   ```
+
+2. Add `evidential-docs` to the scope of the `github-actions-evidential-www` token, and `evidential-docs-preview` to
+   `github-actions-evidential-www-preview` (Cloudflare dashboard, **Account API tokens**). See "GitHub Actions
+   Credentials" in `sites/www/README.md`.
+
+To move docs.evidential.dev here later, follow the comment in `wrangler.jsonc`.
+
 ## Sharing the current state with the team
 
 `task docs:walkthrough` builds the docs, serves `dist/` as a static host would, and writes these files to

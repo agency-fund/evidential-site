@@ -1,0 +1,65 @@
+name: docs
+
+on:
+  pull_request:
+    branches: [main]
+    paths: &paths
+      - sites/docs/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - Taskfile.yml
+      - .github/workflows/docs.yaml
+      - .github/workflows/site-*.yaml
+  push:
+    branches: [main]
+    paths: *paths
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    uses: $/.github/workflows/site-check.yaml
+    with:
+      site: docs
+      # "Last updated" dates and the sitemap come from git history.
+      fetch-depth: 0
+
+  preview:
+    needs: check
+    # Fork and Dependabot pull requests can't read the preview environment's token.
+    if: >-
+      github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: $/.github/workflows/site-preview.yaml
+    with:
+      site: docs
+      preview-worker: evidential-docs-preview
+      fetch-depth: 0
+      # Pages, the API reference's spec and overview, components, styles, and site config.
+      preview-filter: |
+        visible:
+          - 'sites/docs/src/**'
+          - 'sites/docs/public/**'
+          - 'sites/docs/astro.config.ts'
+          - 'sites/docs/scripts/polish-openapi.mjs'
+
+  production:
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    uses: $/.github/workflows/site-production.yaml
+    with:
+      site: docs
+      # docs.evidential.dev still serves the MkDocs site; see sites/docs/wrangler.jsonc.
+      url: https://evidential-docs.the-agency-fund.workers.dev
+      fetch-depth: 0

@@ -1,8 +1,9 @@
-name: www preview cleanup
+name: preview cleanup
 
-# Deletes the Cloudflare Preview (pr-<number>) that the www workflow created for a pull request once the pull request
-# is closed or merged. A weekly sweep also deletes any pr-* Preview whose pull request is closed, in case a close event
-# was missed. Previews with other names (e.g. pushed from a workstation) are left alone.
+# Deletes the Cloudflare Previews (pr-<number>) that the www and docs workflows created for a pull request once the
+# pull request is closed or merged, for each site in turn. A weekly sweep also deletes any pr-* Preview whose pull
+# request is closed, in case a close event was missed. Previews with other names (e.g. pushed from a workstation) are
+# left alone.
 on:
   pull_request:
     branches: [main]
@@ -20,6 +21,10 @@ jobs:
     if: >-
       github.event_name != 'pull_request'
       || github.event.pull_request.head.repo.full_name == github.repository
+    strategy:
+      fail-fast: false
+      matrix:
+        site: [www, docs]
     runs-on: ubuntu-26.04-arm
     timeout-minutes: 5
     permissions:
@@ -30,10 +35,10 @@ jobs:
     concurrency:
       group: >-
         ${{ case(
-          github.event_name == 'pull_request', format('www-preview-pr-{0}', github.event.pull_request.number),
-          'www-preview-sweep'
+          github.event_name == 'pull_request', format('{0}-preview-pr-{1}', matrix.site, github.event.pull_request.number),
+          format('{0}-preview-sweep', matrix.site)
         ) }}
-      # Shared with the www workflow's preview job; waits for a running deploy rather than cancelling it.
+      # Shared with site-preview.yaml's deploy job; waits for a running deploy rather than cancelling it.
       cancel-in-progress: false
     steps:
       # Run the script from the default branch, never from the closed pull request's code.
@@ -49,12 +54,14 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           GITHUB_TOKEN: ${{ github.token }}
+          SITE: ${{ matrix.site }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: uv run --locked --script .github/scripts/preview_cleanup.py pull-request-closed "$PR_NUMBER"
+        run: uv run --locked --script .github/scripts/preview_cleanup.py --site "$SITE" pull-request-closed "$PR_NUMBER"
       - name: Delete Previews of all closed pull requests
         if: github.event_name != 'pull_request'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: uv run --locked --script .github/scripts/preview_cleanup.py sweep
+          SITE: ${{ matrix.site }}
+        run: uv run --locked --script .github/scripts/preview_cleanup.py --site "$SITE" sweep
