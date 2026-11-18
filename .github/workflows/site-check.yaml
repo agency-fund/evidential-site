@@ -46,4 +46,6 @@ jobs:
         with:
           name: ${{ inputs.site }}-check-reports
           path: ${{ inputs.artifact-path }}
+          # Report directories such as www's .lighthouseci/ are hidden, which upload-artifact skips by default.
+          include-hidden-files: true
           retention-days: 14

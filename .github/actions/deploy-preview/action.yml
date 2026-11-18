@@ -44,7 +44,9 @@ runs:
         SITE: ${{ inputs.site }}
         WORKER: ${{ inputs.preview-worker }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        # The job checks out refs/pull/<number>/merge: the pull request's head merged into its base branch.
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        BASE_REF: ${{ github.base_ref }}
       run: |
         set -euo pipefail
         # The job runs inside a concurrency group shared with preview-cleanup.yaml: if the pull request closed while
@@ -54,7 +56,7 @@ runs:
           echo "Pull request #${PR_NUMBER} is ${state}; not deploying its Preview."
           exit 0
         fi
-        task "${SITE}:deploy:preview" NAME="pr-${PR_NUMBER}" MESSAGE="PR #${PR_NUMBER} @ ${HEAD_SHA}" | tee deploy.log
+        task "${SITE}:deploy:preview" NAME="pr-${PR_NUMBER}" MESSAGE="PR #${PR_NUMBER}: ${HEAD_SHA} merged into ${BASE_REF}" | tee deploy.log
         url=$(grep -oE "https://pr-${PR_NUMBER}-${WORKER}\.[a-z0-9-]+\.workers\.dev" deploy.log | head -1)
         test -n "${url}"
         echo "url=${url}" >> "${GITHUB_OUTPUT}"
@@ -68,12 +70,13 @@ runs:
         NOTE: ${{ inputs.note }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        BASE_REF: ${{ github.base_ref }}
         URL: ${{ steps.deploy.outputs.url }}
       run: |
         set -euo pipefail
         # Keep the marker in sync with comment_marker() in .github/scripts/preview_cleanup.py.
         marker="<!-- ${SITE}-preview -->"
-        body=$(printf '%s\n**%s preview:** %s\n\nBuilt from %s. %s' "${marker}" "${SITE}" "${URL}" "${HEAD_SHA}" "${NOTE}")
+        body=$(printf '%s\n**%s preview:** %s\n\nBuilt from %s merged into %s. %s' "${marker}" "${SITE}" "${URL}" "${HEAD_SHA}" "${BASE_REF}" "${NOTE}")
         id=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
           --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"${marker}\"))) | .id" | head -1)
         if [ -n "${id}" ]; then
