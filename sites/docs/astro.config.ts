@@ -54,7 +54,7 @@ const nimbusConfig = defineNimbusConfig({
       "quickstart",
       { label: "Guides", collapsed: false, autogenerate: { directory: "guides" } },
       { label: "Concepts", collapsed: false, autogenerate: { directory: "concepts" } },
-      { label: "API reference", link: "/api/" },
+      { label: "API", link: "/api/" },
       { label: "What's New", autogenerate: { directory: "news" } },
       { label: "Develop Evidential", autogenerate: { directory: "develop" } },
       { label: "Operate Evidential", autogenerate: { directory: "operate" } },

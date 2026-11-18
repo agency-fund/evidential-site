@@ -50,7 +50,7 @@ const sections =
         // A page outside every collection (the 404) is in neither tab.
         { label: "Docs", href: "/", isActive: activeApi === undefined && collection !== undefined },
         ...apiHrefs.map((api) => ({
-          label: apiHrefs.length === 1 ? "API reference" : (api.entry.label ?? api.entry.collection),
+          label: apiHrefs.length === 1 ? "API" : (api.entry.label ?? api.entry.collection),
           href: api.href,
           isActive: api === activeApi,
         })),
