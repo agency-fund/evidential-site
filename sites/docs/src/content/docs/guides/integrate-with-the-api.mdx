@@ -65,9 +65,9 @@ sequenceDiagram
 1. **Create an API key**
 
    Configuring an API Key (per Datasource; visit its details page) is required to make requests to Evidential's
-   backend to fetch experiment and assignment information. All API requests should have the custom headers
-   `Datasource-ID:` and the generated `X-API-Key:` attached. These IDs are available via copy-to-clipboard buttons
-   in the UI.
+   backend to fetch experiment and assignment information. All API requests need the generated `X-API-Key:` header.
+   Listing a data source's experiments also needs the `Datasource-ID:` header. Both values are available via
+   copy-to-clipboard buttons in the UI.
 
 1. **Commit the experiment**
 
@@ -95,9 +95,9 @@ sequenceDiagram
 
    It is recommended that the client system fetch the newly committed experiment's information to facilitate
    execution on the client's side. It is expected that at a minimum, the experiment's start and end date could be
-   used to signal when to enable the experiment and later shut it off. Furthermore, for an Online experiment,
-   filters used to target eligible participants could be used to determine for whom to issue an assignment
-   request.
+   used to signal when to enable the experiment and later shut it off. For an Online experiment with filters, send
+   the participant's properties to the `assign_with_filters` endpoint so Evidential can check eligibility. See
+   [how filters work](/concepts/experiment-design-types/#how-filters-work-preassigned-vs-online).
 
 1. **Look up assignments in bulk**
 
@@ -122,6 +122,10 @@ sequenceDiagram
    into the experiment, and then make the Evidential request for each (vs e.g. routing 100% of your users into an
    Evidential experiment in which 90% are in a Control arm and 10% in Treatment).
    :::
+
+   - For *Multi-armed Bandit* and *Contextual Multi-armed Bandit* experiments, report each participant's result to the
+     `outcome` endpoint. *Contextual* bandits assign through the `assign_cmab` endpoint, which takes the participant's
+     context values. *DWH-connected* bandits read results from your data warehouse and reject outcome reports.
 
 </Steps>
 
