@@ -9,7 +9,7 @@
 #      it. Each is read from a hidden prompt and verified against Cloudflare first, and never appears in command-line
 #      arguments or output.
 #
-# Create the Cloudflare tokens first; see "GitHub Actions Credentials" in sites/www/README.md.
+# Create the Cloudflare tokens first; see "Requirements" in sites/www/README.md.
 #
 # Usage: scripts/setup-github.sh [--skip-token]
 #   --skip-token  Only create environments and variables, e.g. before the Cloudflare tokens exist.

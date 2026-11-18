@@ -1,6 +1,6 @@
 /**
  * Every URL docs.evidential.dev has served, mapped to where that content lives now. When this site takes over the
- * hostname from the MkDocs site (agency-fund/evidential-docs), links, bookmarks, and search results must keep working.
+ * hostname from the MkDocs site, links, bookmarks, and search results must keep working.
  *
  * - PAGE_REDIRECTS feeds Astro's `redirects` (astro.config.ts), so they work in dev and preview and the
  *   nimbus/internal-link and nimbus/redirected-link lint rules know them. A static build writes them as

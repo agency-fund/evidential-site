@@ -9,20 +9,20 @@ files.
 Most copy lives in YAML under `src/content/`. Entries render in file order, and each file's schema is in
 `src/content.config.ts`. A build fails with a clear error if a field is missing or misspelled.
 
-| To change…                              | Edit                                                |
-| --------------------------------------- | --------------------------------------------------- |
-| Partner logos (marquee, quotes, cards)  | `src/content/partners.yaml`, `src/assets/partners/` |
-| Headline stats (experiments, orgs)      | `src/content/stats.yaml`                            |
-| Testimonials                            | `src/content/testimonials.yaml`                     |
-| Partner experiment results              | `src/content/partner-tests.yaml`                    |
+| To change…                             | Edit                                                |
+| -------------------------------------- | --------------------------------------------------- |
+| Partner logos (marquee, quotes, cards) | `src/content/partners.yaml`, `src/assets/partners/` |
+| Headline stats (experiments, orgs)     | `src/content/stats.yaml`                            |
+| Testimonials                           | `src/content/testimonials.yaml`                     |
+| Partner experiment results             | `src/content/partner-tests.yaml`                    |
 | "Built for how nonprofits work" points | `src/content/why.yaml`                              |
-| Comparison table                        | `src/content/comparison.yaml`                       |
-| Five steps                              | `src/content/steps.yaml`                            |
-| Feature picker and screenshot crops     | `src/content/features.yaml`                         |
-| "Where are you starting from?" options  | `src/content/readiness.yaml`                        |
-| Contact form choices and messages       | `src/contact.ts` (shared with the Worker)           |
-| Where form submissions are delivered    | `worker/notifications.config.ts`                    |
-| Nav, footer links, URLs, page metadata  | `src/site.ts`, `src/components/Footer.astro`        |
+| Comparison table                       | `src/content/comparison.yaml`                       |
+| Five steps                             | `src/content/steps.yaml`                            |
+| Feature picker and screenshot crops    | `src/content/features.yaml`                         |
+| "Where are you starting from?" options | `src/content/readiness.yaml`                        |
+| Contact form choices and messages      | `src/contact.ts` (shared with the Worker)           |
+| Where form submissions are delivered   | `worker/notifications.config.ts`                    |
+| Nav, footer links, URLs, page metadata | `src/site.ts`, `src/components/Footer.astro`        |
 
 Each section of the page is one component in `src/components/`, with its markup, scoped styles, and behavior in the
 same file. Design tokens (colors, type scale, spacing) are in `src/styles/tokens.css`. Images in `src/assets/` are
@@ -96,17 +96,14 @@ and share-card modules, so changes there affect both. When you add or change an 
 
 ## Deployment
 
-| Command                         | Effect                                                                                                                                                                                                                                                                                         |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `task www:deploy:preview`       | Builds and pushes a [Preview](https://developers.cloudflare.com/workers/previews/) named after the current git branch (or `NAME=…`) on the `evidential-www-preview` Worker and prints its URL, `https://<name>-evidential-www-preview.the-agency-fund.workers.dev`. Doesn't affect production. |
-| `task www:launch`               | The one-time first production deploy; see [First Deploy](#first-deploy).                                                                                                                                                                                                                       |
-| `task www:ci:deploy:production` | CI only: builds and deploys a new production version from `main`.                                                                                                                                                                                                                              |
+Production is the `evidential-www` Worker, served only at the `www.evidential.dev` custom domain. Pull requests get
+[Previews](https://developers.cloudflare.com/workers/previews/) on a separate Worker, `evidential-www-preview`, at
+`https://<name>-evidential-www-preview.the-agency-fund.workers.dev`. `task www:deploy:preview` pushes one from a
+workstation, named after the current git branch (or `NAME=…`). Production deploys come only from CI on `main`
+(`task www:ci:deploy:production`). Workstations authenticate with `pnpm exec wrangler login`; CI uses each GitHub
+environment's `CLOUDFLARE_API_TOKEN` secret.
 
-Local runs authenticate with `pnpm exec wrangler login`; CI uses each GitHub environment's `CLOUDFLARE_API_TOKEN`
-secret.
-
-Previews live on their own Worker, `evidential-www-preview`, not on the production Worker, so the token that pushes them
-can't change production. They're public (Cloudflare adds `X-Robots-Tag: noindex` on workers.dev), take their settings
+Keeping Previews off the production Worker means the token that pushes them can't change production. They're public (Cloudflare adds `X-Robots-Tag: noindex` on workers.dev), take their settings
 from the `previews` block in `wrangler.jsonc`, and never send email or Slack messages.
 
 `.github/workflows/www.yaml` runs on pull requests to `main` and pushes to `main` that touch this site, and on manual
@@ -132,7 +129,7 @@ Everything lives on the **The Agency Fund** account (`f3fcb6f2a7fba9b85ecb03ce24
 | Zone `evidential.dev`                                              | Pre-existing. DNS, Email Routing, and Web Analytics (automatic injection) for the domain.                                                                                              |
 | Worker `evidential-www`                                            | Static assets from `dist/`, plus the contact-form Worker for `/api/*`. Configured by `wrangler.jsonc`.                                                                                 |
 | Custom domain `www.evidential.dev`                                 | Production hostname of `evidential-www`, with its certificate. The Worker's production `workers.dev` URL is disabled.                                                                  |
-| Worker `evidential-www-preview`                                    | Holds only Previews, so CI's preview token can be scoped to it. Created by the first `task www:deploy:preview`; see [Preview Worker](#preview-worker).                                 |
+| Worker `evidential-www-preview`                                    | Holds only Previews, so CI's preview token can be scoped to it. Created by the first `task www:deploy:preview`; see [Requirements](#requirements).                                     |
 | Preview URLs                                                       | `https://<name>-evidential-www-preview.the-agency-fund.workers.dev`, one per Preview, served with `X-Robots-Tag: noindex`.                                                             |
 | Worker secrets                                                     | `TURNSTILE_SECRET` (production), plus a `SLACK_WEBHOOK_*` secret for each Slack channel in `worker/notifications.config.ts`.                                                           |
 | Worker bindings                                                    | `CONTACT_EMAIL` (Send Email, restricted to `support@evidential.dev`); `CONTACT_RATE_LIMIT` (5 requests a minute per IP; namespace `1001` in production, `1002` in Previews); `ASSETS`. |
@@ -157,93 +154,29 @@ On GitHub (`agency-fund/evidential-site`):
 Pull request code can read the `preview` token, which is why it's scoped to the Preview Worker alone. Never put the
 production token in `preview`.
 
-# Playbook
+## Requirements
 
-## First Deploy
+These aren't visible in the configuration files, so reproducing the setup has to account for them:
 
-Switches `www.evidential.dev` from the old origin to this site. Run it from a workstation, not CI: attaching the custom
-domain needs _Zone › Workers Routes: Write_ on evidential.dev, which the CI token deliberately doesn't have.
-
-1. Log in: `pnpm exec wrangler login`, as a member of The Agency Fund account.
-2. Copy the secret key of the "evidential-www contact form" widget from the Turnstile dashboard.
-3. Run `task www:launch`. Type `launch` to confirm, then paste the secret key at the hidden prompt. It builds the
-   production site and runs `wrangler deploy` with `TURNSTILE_SECRET` uploaded alongside: production secrets live on a
-   Worker version, and there is none before this deploy. The deploy attaches the `www.evidential.dev` custom domain.
-4. Check `https://www.evidential.dev`: the page loads, and a contact-form submission arrives at
-   `support@evidential.dev`. If it doesn't, look for `contact.notification_failed` in the Worker's logs.
-5. Add the apex redirect: in the zone's **Rules › Redirect Rules**, create a rule matching hostname
-   `evidential.dev` that redirects (301) to `concat("https://www.evidential.dev", http.request.uri.path)`, preserving
-   the query string. Keep the apex DNS record proxied so the rule applies.
-
-Later deploys keep the secret. They come from CI ([Production Deploys](#production-deploys)), and need only Editor
-access because they leave the custom domain unchanged.
-
-## GitHub Actions Credentials
-
-1. Create two Cloudflare tokens in the dashboard: **The Agency Fund › Manage account › Account API tokens › Create
-   Token**. Grant each the Workers role **Editor**, scoped to **individual Workers**, and nothing else. (Creating a
-   token can't be scripted without an existing token that can create tokens.)
-   - `github-actions-evidential-www`: scoped to `evidential-www` and `evidential-docs`.
-   - `github-actions-evidential-www-preview`: scoped to `evidential-www-preview` and `evidential-docs-preview`. That Worker must exist first; see
-     [Preview Worker](#preview-worker).
-2. Run `task setup:github` (`scripts/setup-github.sh`) and paste each token at its hidden prompt (Enter keeps the
-   current one). It creates the GitHub environments, limits `production` to `main`, sets the variable in both, and
-   verifies each token with Cloudflare before storing it in its environment. It's safe to re-run.
-
-Cloudflare notes that custom domains don't yet support per-Worker roles. If a CI production deploy fails on
-authorization, widen the role to **Editor** for the whole Workers product, still with no zone permissions. Never add
-_Zone › Workers Routes: Write_: it would let CI attach any Worker to any hostname on evidential.dev.
-
-## Preview Worker
-
-`evidential-www-preview` is created by the first Preview pushed to it, which needs an account that can create Workers.
-Do that once from a workstation, before creating its token:
-
-```sh
-pnpm exec wrangler login
-task www:deploy:preview NAME=bootstrap
-pnpm exec wrangler preview delete --worker-name evidential-www-preview --name bootstrap
-```
-
-It takes `workers_dev: false` and `preview_urls: true` from `wrangler.jsonc`, and never gets a production version.
-
-## PR Lifecycle & Automatic Preview Environments
-
-1. Push a branch to `agency-fund/evidential-site` and open a pull request against `main`.
-2. The **check** job runs type checks, tests, the link check, and Lighthouse budgets.
-3. If checks pass, the **preview** job pushes a Preview named `pr-<number>` and comments its URL on the pull request. Each later push to the branch updates the
-   same Preview and comment. Pull requests from forks or Dependabot, and those that change only tooling, tests, docs,
-   or dependencies, get checks but no Preview.
-4. Merging to `main` runs **check** and then **production**, which deploys the site.
-5. Closing or merging the pull request deletes its Preview (`.github/workflows/preview-cleanup.yaml`, which runs
-   `.github/scripts/preview_cleanup.py`) and updates
-   the comment to say so. If a deploy is still running at that moment, the cleanup waits for it to finish, and a deploy
-   that starts after the close sees the pull request is closed and skips, so neither can leave a Preview behind. A weekly run of the same workflow, which can also be started manually, deletes any `pr-<number>` Preview
-   whose pull request is closed. Previews with other names, such as ones pushed from a workstation, are left alone;
-   delete those with `pnpm exec wrangler preview delete --worker-name evidential-www-preview --name <name>`.
-
-A brand-new Preview can return Cloudflare's plain-text 404 for up to a minute while its hostname propagates.
-
-## Previews From a Workstation
-
-`task www:deploy:preview` builds the site as a Preview and pushes it under the current branch name, or under
-`NAME=<name>`. Use it to share work before opening a pull request.
-
-## Production Deploys
-
-Every merge to `main` that touches the site deploys automatically. To redeploy without a change, run the **www**
-workflow manually from the Actions tab on `main`. Avoid deploying production from a workstation; that's what the
-`ci:` prefix on `www:ci:deploy:production` signals.
-
-## Rolling Back
-
-`pnpm exec wrangler rollback` returns production to the previous version immediately, and needs only Editor access.
-Then revert the offending change on `main`, so the next deploy doesn't reintroduce it.
-
-## Rotating Secrets
-
-- **Turnstile secret:** rotate it in the Turnstile dashboard, then run `pnpm exec wrangler secret put
-TURNSTILE_SECRET` and paste the new value. This deploys a new version with the secret immediately.
-- **Slack webhook:** regenerate it in Slack, then run `pnpm exec wrangler secret put SLACK_WEBHOOK_<NAME>`.
-- **GitHub Actions tokens:** create a new token as in [GitHub Actions Credentials](#github-actions-credentials), run
-  `task setup:github` and paste it at its environment's prompt, then delete the old token in the Cloudflare dashboard.
+- **Custom domain**: attaching `www.evidential.dev` needs _Zone › Workers Routes: Write_ on evidential.dev. CI
+  deliberately lacks it, since it would let CI attach any Worker to any hostname on the zone, so the first production
+  deploy came from a workstation (`task www:launch`). CI then uploads and deploys versions
+  (`wrangler versions upload`, then `wrangler versions deploy`), which need only Workers Editor and never touch the
+  domain. Changes to `routes` or `workers_dev` in `wrangler.jsonc` take a `wrangler deploy` from a workstation. The
+  custom domain owns the zone's `www` DNS record.
+- **Production secrets** live on a Worker version, and `wrangler deploy` refuses to run until every secret in
+  `secrets.required` is set. The first deploy therefore uploads `TURNSTILE_SECRET` with it (`task www:launch`
+  prompts for it); later versions inherit it.
+- **Workers must exist before CI deploys to them**, since the CI tokens can't create Workers. The preview Worker is
+  created by the first `wrangler preview` pushed to it, which takes `workers_dev: false` and `preview_urls: true` from
+  `wrangler.jsonc` and never gets a production version.
+- **Tokens** are created in the Cloudflare dashboard, since creating one by API needs a token that can create tokens.
+  Each gets the Workers role **Editor** scoped to individual Workers, and nothing else. Custom domains don't yet
+  support per-Worker roles, so if a production deploy fails on authorization, the fallback is **Editor** for all of
+  Workers, still with no zone permissions. `task setup:github` (`scripts/setup-github.sh`) creates the GitHub
+  environments, limits `production` to `main`, and stores each token after verifying it with Cloudflare.
+- **Apex redirect**: a Redirect Rule on the zone sends `evidential.dev` to
+  `concat("https://www.evidential.dev", http.request.uri.path)` (301, query string preserved). It only applies while
+  the apex DNS record is proxied.
+- **Email**: the Worker can only send to Email Routing destination addresses verified on the account; see
+  [Contact form notifications](#contact-form-notifications).

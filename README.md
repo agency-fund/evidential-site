@@ -12,8 +12,7 @@ own `Taskfile.yml` and GitHub Actions workflow:
 
 ## Getting started
 
-Requirements: [pnpm](https://pnpm.io) (it downloads the pinned Node.js version itself), [Task](https://taskfile.dev),
-and [prek](https://prek.j178.dev).
+Requirements: [pnpm](https://pnpm.io), [Task](https://taskfile.dev), and [prek](https://prek.j178.dev).
 
 ```sh
 task setup        # install dependencies and git hooks
