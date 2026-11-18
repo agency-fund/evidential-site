@@ -1,0 +1,83 @@
+name: Deploy a pull request's Preview
+description: >-
+  Pushes a pull request's Preview of a site (task <site>:deploy:preview NAME=pr-<number>) and comments its URL on the
+  pull request. Run it after checking out the pull request, in a job that declares the preview environment, which
+  holds the token.
+inputs:
+  site:
+    description: The site's directory under sites/ and its Task namespace, such as www or docs.
+    required: true
+  preview-worker:
+    description: The Worker that holds the site's Previews; it appears in their URLs.
+    required: true
+  note:
+    description: A sentence the Preview's comment adds after the URL.
+    default: Previews are not indexed.
+  cloudflare-api-token:
+    description: The preview environment's CLOUDFLARE_API_TOKEN.
+    required: true
+  cloudflare-account-id:
+    description: The Cloudflare account that holds the preview Workers.
+    required: true
+outputs:
+  url:
+    description: The Preview's URL, or empty if the pull request was closed and nothing was deployed.
+    value: ${{ steps.deploy.outputs.url }}
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+      with:
+        cache: true
+        require-lockfile: true
+    - uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e # v2.2.0
+      with:
+        version: 3.x
+        repo-token: ${{ github.token }}
+    - id: deploy
+      shell: bash
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.cloudflare-api-token }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ inputs.cloudflare-account-id }}
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        SITE: ${{ inputs.site }}
+        WORKER: ${{ inputs.preview-worker }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      run: |
+        set -euo pipefail
+        # The job runs inside a concurrency group shared with preview-cleanup.yaml: if the pull request closed while
+        # it waited, deploying would recreate the Preview that cleanup just deleted.
+        state=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq .state)
+        if [[ "${state}" != open ]]; then
+          echo "Pull request #${PR_NUMBER} is ${state}; not deploying its Preview."
+          exit 0
+        fi
+        task "${SITE}:deploy:preview" NAME="pr-${PR_NUMBER}" MESSAGE="PR #${PR_NUMBER} @ ${HEAD_SHA}" | tee deploy.log
+        url=$(grep -oE "https://pr-${PR_NUMBER}-${WORKER}\.[a-z0-9-]+\.workers\.dev" deploy.log | head -1)
+        test -n "${url}"
+        echo "url=${url}" >> "${GITHUB_OUTPUT}"
+    - name: Comment preview URL on the PR
+      if: steps.deploy.outputs.url != ''
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        SITE: ${{ inputs.site }}
+        NOTE: ${{ inputs.note }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        URL: ${{ steps.deploy.outputs.url }}
+      run: |
+        set -euo pipefail
+        # Keep the marker in sync with comment_marker() in .github/scripts/preview_cleanup.py.
+        marker="<!-- ${SITE}-preview -->"
+        body=$(printf '%s\n**%s preview:** %s\n\nBuilt from %s. %s' "${marker}" "${SITE}" "${URL}" "${HEAD_SHA}" "${NOTE}")
+        id=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
+          --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"${marker}\"))) | .id" | head -1)
+        if [ -n "${id}" ]; then
+          gh api -X PATCH "repos/${REPO}/issues/comments/${id}" -f body="${body}" > /dev/null
+        else
+          gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" -f body="${body}" > /dev/null
+        fi

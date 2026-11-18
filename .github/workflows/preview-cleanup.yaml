@@ -38,7 +38,7 @@ jobs:
           github.event_name == 'pull_request', format('{0}-preview-pr-{1}', matrix.site, github.event.pull_request.number),
           format('{0}-preview-sweep', matrix.site)
         ) }}
-      # Shared with site-preview.yaml's deploy job; waits for a running deploy rather than cancelling it.
+      # Shared with the preview jobs in www.yaml and docs.yaml; waits for a running deploy rather than cancelling it.
       cancel-in-progress: false
     steps:
       # Run the script from the default branch, never from the closed pull request's code.

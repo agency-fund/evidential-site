@@ -93,8 +93,8 @@ Object names are cached for a year, so never reuse one.
 
 ## Deployment
 
-The docs share www's deployment setup: the same reusable workflows, GitHub environments, and Cloudflare tokens (see
-"Deployment" and "Cloudflare resources" in `sites/www/README.md`). What's specific to the docs:
+The docs share www's deployment setup: the same check workflow, deploy actions, GitHub environments, and Cloudflare
+tokens (see "Deployment" and "Cloudflare resources" in `sites/www/README.md`). What's specific to the docs:
 
 - **Production**: Worker `evidential-docs`, configured by `wrangler.jsonc`. It has no Worker code: Workers Static
   Assets serves `dist/` with Nimbus's 404 page, applying the 301s in `dist/_redirects` (generated from
