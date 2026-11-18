@@ -1,6 +1,6 @@
 /**
  * The Evidential wordmark, as on www.evidential.dev (sites/www/src/assets/logos/evidential.svg): the lettering
- * ("ink") and the mark's blue, navy, and gold parts. Wordmark.astro draws it in the header with CSS colours, and the
+ * ("ink") and the mark's blue, navy, and gold parts. Wordmark.astro draws it in the header with CSS colors, and the
  * social cards (src/pages/og/_card.ts) with the brand's hex values.
  */
 export type WordmarkPart = "ink" | "blue" | "navy" | "gold";
@@ -33,7 +33,7 @@ export const wordmark = {
   ] satisfies { part: WordmarkPart; d: string }[],
 };
 
-/** The brand's colours for each part, as on www (sites/www/src/styles/tokens.css). */
+/** The brand's colors for each part, as on www (sites/www/src/styles/tokens.css). */
 export const WORDMARK_COLORS: Record<WordmarkPart, string> = {
   ink: "#212e38",
   blue: "#264d96",

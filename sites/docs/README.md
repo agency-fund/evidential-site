@@ -53,11 +53,11 @@ server runs reach search after `task docs:build`, with no restart.
   `nimbus.json`. Keep them identical to upstream unless there's a reason not to, so `task docs:outdated` and
   `nimbus-docs diff` stay useful.
 - `src/components/wordmark.ts`: the Evidential wordmark, from www's logo. `Wordmark.astro` draws it in the header,
-  and the share cards (`src/pages/og/_card.ts`) draw it in the brand's colours.
+  and the share cards (`src/pages/og/_card.ts`) draw it in the brand's colors.
 
 ## Design system
 
-`src/styles/evidential.css` gives the docs www.evidential.dev's look: its navy, gold and cool greys
+`src/styles/evidential.css` gives the docs www.evidential.dev's look: its navy, gold and cool grays
 (`sites/www/src/styles/tokens.css`), Inter with IBM Plex Mono, bold navy headings, www's link and table styles, and
 a navy-based dark mode. Gold is the single accent: the rule under each page title, the current page in the sidebar,
 and cautions.

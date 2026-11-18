@@ -1,7 +1,7 @@
 /*
  * The Evidential design system for docs.evidential.dev.
  *
- * It matches www.evidential.dev: the same navy, gold, and cool greys (sites/www/src/styles/tokens.css), Inter with
+ * It matches www.evidential.dev: the same navy, gold, and cool grays (sites/www/src/styles/tokens.css), Inter with
  * IBM Plex Mono, navy headings set tight, and the gold rule that underlines the marketing site's headline, here under
  * every page title. Gold is the one accent: the title rule, the current page in the sidebar, and cautions.
  *
@@ -309,7 +309,7 @@ h1[style*="--nb-h1-size"]::after {
   background: var(--nb-muted);
 }
 
-/* Callouts: a coloured edge and tint per type, in the palette's status colours. */
+/* Callouts: a colored edge and tint per type, in the palette's status colors. */
 [data-slot="aside"] {
   border: 1px solid color-mix(in srgb, var(--ev-callout) 22%, transparent);
   border-inline-start: 3px solid var(--ev-callout);

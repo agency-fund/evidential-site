@@ -106,7 +106,7 @@ tasks:
     cmd: pnpm exec node scripts/polish-openapi.mjs src/api/openapi.upstream.json src/api/openapi.json
 
   walkthrough:
-    desc: "Record a 30-second tour video and share-preview cards into walkthrough/output/. Needs ffmpeg. Pass e.g. ONLY=video to make one artefact."
+    desc: "Record a 30-second tour video and share-preview cards into walkthrough/output/. Needs ffmpeg. Pass e.g. ONLY=video to make one artifact."
     cmds:
       - pnpm exec playwright install chromium
       - pnpm exec node walkthrough/index.ts {{if .ONLY}}--only {{.ONLY}}{{end}}

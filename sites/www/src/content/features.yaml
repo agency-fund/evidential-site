@@ -7,7 +7,7 @@
   summary: Is B better than A? Assignment and power handled for you.
   useWhen: you have a few versions of a message and want to know which one works.
   screen: experiments
-  alt: Experiment cards labelled A/B and bandit experiment types
+  alt: Experiment cards labeled A/B and bandit experiment types
   crop: { width: 193.85, left: -82.05, top: -45.19 }
 - id: bayesian
   title: Bayesian designs

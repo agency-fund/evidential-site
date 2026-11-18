@@ -14,7 +14,7 @@ cd "$(dirname "$0")/.."
 echo "This builds the production site and deploys it to www.evidential.dev, replacing the current www site."
 read -r -p "Type 'launch' to continue: " confirm
 if [[ "$confirm" != "launch" ]]; then
-  echo "Cancelled."
+  echo "Canceled."
   exit 1
 fi
 

@@ -34,7 +34,7 @@ const outDir = path.resolve(values.out);
 const only = new Set(values.only.split(",").map((name) => name.trim()));
 for (const name of only) {
   if (!(ARTIFACTS as readonly string[]).includes(name))
-    throw new Error(`Unknown artefact "${name}"`);
+    throw new Error(`Unknown artifact "${name}"`);
 }
 const wanted = (name: Artifact) => only.has(name);
 

@@ -15,7 +15,7 @@ Most copy lives in YAML under `src/content/`. Entries render in file order, and 
 | Headline stats (experiments, orgs)      | `src/content/stats.yaml`                            |
 | Testimonials                            | `src/content/testimonials.yaml`                     |
 | Partner experiment results              | `src/content/partner-tests.yaml`                    |
-| "Built for how non-profits work" points | `src/content/why.yaml`                              |
+| "Built for how nonprofits work" points | `src/content/why.yaml`                              |
 | Comparison table                        | `src/content/comparison.yaml`                       |
 | Five steps                              | `src/content/steps.yaml`                            |
 | Feature picker and screenshot crops     | `src/content/features.yaml`                         |

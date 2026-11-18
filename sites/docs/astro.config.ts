@@ -46,7 +46,7 @@ const nimbusConfig = defineNimbusConfig({
   // in its folder, and a folder's index.mdx is its landing page. The group holding the current page always opens.
   sidebar: {
     defaultCollapsed: true,
-    // Each section's index.mdx is its first entry, labelled Overview.
+    // Each section's index.mdx is its first entry, labeled Overview.
     indexDisplay: "overview-leaf",
     overviewLabel: true,
     items: [

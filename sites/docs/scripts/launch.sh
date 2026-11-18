@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 echo "This builds the production site and deploys it to docs.evidential.dev, replacing the MkDocs site."
 read -r -p "Type 'launch' to continue: " confirm
 if [[ "$confirm" != "launch" ]]; then
-  echo "Cancelled."
+  echo "Canceled."
   exit 1
 fi
 
