@@ -4,6 +4,7 @@ import nimbus, {
   defineConfig as defineNimbusConfig,
 } from "@cloudflare/nimbus-docs";
 import { tableScroll } from "@cloudflare/nimbus-docs/markdown";
+import devSearchIndex from "./src/integrations/dev-search-index";
 
 const nimbusConfig = defineNimbusConfig({
   // Canonical origin (no trailing slash): canonical URLs, absolute OG image URLs, robots.txt, sitemap, and /llms.txt.
@@ -116,6 +117,8 @@ export default defineConfig({
     defaultStrategy: "hover",
   },
   integrations: [
+    // Serves the last build's search index to `astro dev`; see the file for why.
+    devSearchIndex(),
     nimbus(nimbusConfig, {
       // Authoring rules are opt-in by design — your repo, your taste. The
       // two below are the load-bearing pair: frontmatter has to validate

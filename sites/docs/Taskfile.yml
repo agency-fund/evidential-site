@@ -10,15 +10,26 @@ tasks:
     cmd: pnpm install --frozen-lockfile
 
   start:
-    desc: "Run the Astro dev server with hot reload at http://localhost:{{.PORT}} (search needs `task docs:preview`)."
+    desc: "Run the Astro dev server with hot reload at http://localhost:{{.PORT}}. Search uses the last build's index; rerun `task docs:build` to refresh it."
     interactive: true
-    deps: [openapi:polish]
+    deps: [openapi:polish, search-index]
     cmd: pnpm exec astro dev --port {{.PORT}}
 
   build:
     desc: Build the static site into dist/, including the search index, llms.txt, Markdown versions, and share cards.
     deps: [openapi:polish]
     cmd: pnpm exec astro build
+
+  search-index:
+    # Builds the site when anything that feeds the search index changed, so `start` can serve a current index.
+    internal: true
+    sources:
+      - astro.config.ts
+      - src/**/*
+    generates:
+      - dist/pagefind/pagefind-entry.json
+    cmds:
+      - task: build
 
   preview:
     desc: "Build, then serve dist/ at http://localhost:{{.PORT}}, as the site will be deployed."

@@ -10,7 +10,7 @@ Run these from the repository root (or drop the `docs:` prefix inside `sites/doc
 
 | Command                 | What it does                                                                                                                                       |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `task docs:start`       | Dev server with hot reload at http://localhost:4322 (www uses 4321, so both can run). |
+| `task docs:start`       | Dev server with hot reload at http://localhost:4322 (www uses 4321, so both can run). Builds first if content changed, so search works; see below. |
 | `task docs:build`       | Static build into `dist/`: pages, search index, `llms.txt`, Markdown versions, and share cards.                                                    |
 | `task docs:preview`     | Build, then serve `dist/` at http://localhost:4322, as it will be deployed.                                                                        |
 | `task docs:check`       | `astro check`, `nimbus-docs check`, and `nimbus-docs lint`.                                                                                        |
@@ -21,6 +21,11 @@ Run these from the repository root (or drop the `docs:` prefix inside `sites/doc
 
 `nimbus-docs check` reads the link index from the last build, so after adding or moving pages, run `task docs:build`
 before `task docs:check`, or it reports links to the new pages as broken.
+
+Search is built by Pagefind from the production build, so the dev server has no index of its own.
+`src/integrations/dev-search-index.ts` serves the last build's index (`dist/pagefind/`) to `task docs:start`, which
+builds first whenever anything under `src/` or `astro.config.ts` changed since the last build. Edits made while the dev
+server runs reach search after `task docs:build`, with no restart.
 
 ## Layout
 
