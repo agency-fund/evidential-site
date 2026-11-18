@@ -1,0 +1,2 @@
+# Nimbus build scratch (node_modules/, dist/, .astro/ and .env files are ignored at the repo root).
+.nimbus/

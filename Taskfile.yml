@@ -4,7 +4,9 @@ includes:
   www:
     taskfile: sites/www/Taskfile.yml
     dir: sites/www
-  # docs: sites/docs/Taskfile.yml will be included here once docs.evidential.dev moves into this repo.
+  docs:
+    taskfile: sites/docs/Taskfile.yml
+    dir: sites/docs
 
 tasks:
   setup:
@@ -26,3 +28,4 @@ tasks:
     desc: Run every site's checks.
     cmds:
       - task: www:check
+      - task: docs:check

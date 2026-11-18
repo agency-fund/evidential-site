@@ -1,0 +1,22 @@
+---
+/**
+ * The Evidential wordmark in the header, drawn from wordmark.ts. The lettering takes the text colour; the mark's blues
+ * and gold come from --ev-mark-* in src/styles/evidential.css, so dark mode can lighten them.
+ */
+import { wordmark, type WordmarkPart } from "./wordmark";
+
+interface Props {
+  class?: string;
+}
+const { class: cls = "h-6 w-auto" } = Astro.props;
+const fills: Record<WordmarkPart, string> = {
+  ink: "currentColor",
+  blue: "var(--ev-mark-blue)",
+  navy: "var(--ev-mark-navy)",
+  gold: "var(--ev-mark-gold)",
+};
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox={wordmark.viewBox} class={cls} aria-hidden="true">
+  {wordmark.paths.map(({ part, d }) => <path fill={fills[part]} d={d} />)}
+</svg>

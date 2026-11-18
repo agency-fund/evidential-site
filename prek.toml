@@ -15,7 +15,8 @@ hooks = [
   { id = "destroyed-symlinks" },
   { id = "detect-private-key" },
   { id = "end-of-file-fixer", exclude = '^sites/www/(public/.*\.(ico|png)|worker/worker-configuration\.d\.ts)$' },
-  { id = "trailing-whitespace", exclude = '^sites/www/worker/worker-configuration\.d\.ts$' },
+  # Nimbus starter and registry files stay byte-identical to upstream, so its upgrade tooling sees them as unedited.
+  { id = "trailing-whitespace", exclude = '^sites/www/worker/worker-configuration\.d\.ts$|^sites/docs/src/(components/ui|styles)/' },
   { id = "check-added-large-files", args = ["--maxkb=300"] }
 ]
 

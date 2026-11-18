@@ -1,0 +1,44 @@
+version: "3"
+
+vars:
+  PORT: 4322
+
+tasks:
+  install:
+    desc: Install dependencies from the lockfile.
+    cmd: pnpm install --frozen-lockfile
+
+  start:
+    desc: "Run the Astro dev server with hot reload at http://localhost:{{.PORT}} (search needs `task docs:preview`)."
+    interactive: true
+    cmd: pnpm exec astro dev --port {{.PORT}}
+
+  build:
+    desc: Build the static site into dist/, including the search index, llms.txt, Markdown versions, and share cards.
+    cmd: pnpm exec astro build
+
+  preview:
+    desc: "Build, then serve dist/ at http://localhost:{{.PORT}}, as the site will be deployed."
+    interactive: true
+    deps: [build]
+    cmd: pnpm exec astro preview --port {{.PORT}}
+
+  check:
+    desc: Type-check the site, check its Nimbus setup and config, and lint the content.
+    cmds:
+      - pnpm exec astro check
+      - pnpm exec nimbus-docs check
+      - pnpm exec nimbus-docs lint
+
+  lint:
+    desc: Lint the content with the authoring rules in astro.config.ts. Pass --fix after -- to apply safe fixes.
+    cmd: pnpm exec nimbus-docs lint {{.CLI_ARGS}}
+
+  outdated:
+    desc: List starter files, components, and package API changes that Nimbus has made upstream since this site was scaffolded.
+    cmd: pnpm exec nimbus-docs outdated
+
+  nimbus:
+    desc: "Run any nimbus-docs command, e.g. `task docs:nimbus -- list --type ui` or `task docs:nimbus -- add tabs`."
+    interactive: true
+    cmd: pnpm exec nimbus-docs {{.CLI_ARGS}}
