@@ -1,11 +1,15 @@
 ---
 import "@fontsource-variable/inter";
-import "@fontsource-variable/jetbrains-mono";
+// IBM Plex Mono, as on www.evidential.dev.
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
 // The body font starts downloading with the page instead of after the CSS.
 import interLatin from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "../styles/globals.css";
 import "../styles/prose.css";
 import "../styles/mermaid.css";
+// The Evidential design system, layered over the Nimbus theme in globals.css and prose.css.
+import "../styles/evidential.css";
 import { ClientRouter } from "astro:transitions";
 import { config } from "virtual:nimbus/config";
 import {

@@ -43,6 +43,17 @@ before `task docs:check`, or it reports links to the new pages as broken.
 - `src/components/Wordmark.astro`: the Evidential wordmark in the header, from www's logo. `src/components/logo.ts`
   is the single-colour mark on share cards.
 
+## Design system
+
+`src/styles/evidential.css` gives the docs www.evidential.dev's look: its navy, gold and cool greys
+(`sites/www/src/styles/tokens.css`), Inter with IBM Plex Mono, bold navy headings, www's link and table styles, and
+a navy-based dark mode. Gold is the single accent: the rule under each page title, the current page in the sidebar,
+and cautions.
+
+It only overrides Nimbus's `--nb-*` tokens and styles a few documented hooks, so `src/styles/globals.css` and
+`prose.css` stay as Nimbus ships them and `task docs:outdated` can still update them. Change the look there, and keep
+the palette in step with `sites/www` when either changes.
+
 ## Writing pages
 
 - Frontmatter needs a `title`; the page heading comes from it, so don't repeat it as a `#` heading.

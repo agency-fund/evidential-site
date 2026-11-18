@@ -1,0 +1,395 @@
+/*
+ * The Evidential design system for docs.evidential.dev.
+ *
+ * It matches www.evidential.dev: the same navy, gold, and cool greys (sites/www/src/styles/tokens.css), Inter with
+ * IBM Plex Mono, navy headings set tight, and the gold rule that underlines the marketing site's headline, here under
+ * every page title. Gold is the one accent: the title rule, the current page in the sidebar, and cautions.
+ *
+ * This file only overrides. The Nimbus theme in globals.css and prose.css stays as Nimbus ships it, so
+ * `task docs:outdated` and `nimbus-docs diff` keep working; anything here wins because it loads after them and sits
+ * outside Tailwind's layers. Keep selectors to the hooks Nimbus documents: --nb-* tokens, data-slot and data-nb-*
+ * attributes, .docs-content (pages), and .nb-md (API descriptions).
+ */
+
+/* ---- Palette, from sites/www/src/styles/tokens.css ---- */
+:root {
+  --ev-navy-900: #000f1a;
+  --ev-navy-800: #00152b;
+  --ev-navy-700: #002344;
+  --ev-navy-600: #003366;
+  --ev-navy-500: #0a4a8a;
+  --ev-navy-400: #2f6fae;
+  --ev-navy-300: #7aa8d0;
+  --ev-navy-200: #a8cceb;
+  --ev-navy-100: #d6e6f5;
+  --ev-navy-50: #eef5fb;
+  --ev-gold-700: #8a6700;
+  --ev-gold-500: #d49e00;
+  --ev-gold-400: #ffbe00;
+  --ev-gold-100: #fbf1d6;
+  --ev-gold-50: #fdf8ec;
+  --ev-grey-600: #4d565f;
+  --ev-grey-500: #6b7883;
+  --ev-grey-300: #c7ced5;
+  --ev-grey-200: #e2e7ec;
+  --ev-grey-100: #eff2f5;
+  --ev-grey-50: #f7f9fb;
+  --ev-success-600: #0f7b52;
+  --ev-success-100: #e2f3ec;
+  --ev-danger-600: #a8321f;
+  --ev-danger-100: #fae9e5;
+
+  /* The wordmark's mark (Wordmark.astro). */
+  --ev-mark-blue: #264d96;
+  --ev-mark-navy: #1c2f62;
+  --ev-mark-gold: #d49e00;
+
+  /* Roles */
+  --ev-heading: var(--ev-navy-600);
+  --ev-link: var(--ev-navy-500);
+  --ev-link-hover: var(--ev-navy-600);
+  --ev-rule: var(--ev-gold-500);
+}
+
+[data-mode="dark"] {
+  --ev-mark-blue: #7aa8d0;
+  --ev-mark-navy: #a8cceb;
+  --ev-mark-gold: #ffbe00;
+
+  --ev-heading: #f2f7fc;
+  --ev-link: var(--ev-navy-200);
+  --ev-link-hover: #ffffff;
+  --ev-rule: var(--ev-gold-400);
+}
+
+/* ---- Nimbus tokens ---- */
+:root {
+  --nb-background: #ffffff;
+  --nb-foreground: var(--ev-navy-900);
+  --nb-card: #ffffff;
+  --nb-muted: var(--ev-grey-50);
+  --nb-muted-foreground: var(--ev-grey-600);
+  --nb-accent: var(--ev-grey-100);
+  --nb-accent-foreground: var(--ev-navy-900);
+
+  --nb-primary: var(--ev-navy-600);
+  --nb-primary-foreground: #ffffff;
+  --nb-primary-hover: var(--ev-navy-500);
+
+  --nb-brand: var(--ev-navy-600);
+  --nb-brand-wash: var(--ev-navy-50);
+
+  --nb-border: var(--ev-grey-200);
+  --nb-border-strong: var(--ev-grey-300);
+  --nb-selected: var(--ev-navy-100);
+  --nb-code-tint: var(--ev-navy-50);
+  --nb-ring: color-mix(in srgb, var(--ev-navy-400) 45%, transparent);
+
+  --nb-info: var(--ev-navy-500);
+  --nb-info-foreground: var(--ev-navy-600);
+  --nb-info-muted: var(--ev-navy-50);
+  --nb-success: var(--ev-success-600);
+  --nb-success-foreground: var(--ev-success-600);
+  --nb-success-muted: var(--ev-success-100);
+  --nb-warning: var(--ev-gold-500);
+  --nb-warning-foreground: var(--ev-gold-700);
+  --nb-warning-muted: var(--ev-gold-50);
+  --nb-danger: var(--ev-danger-600);
+  --nb-danger-foreground: var(--ev-danger-600);
+  --nb-danger-muted: var(--ev-danger-100);
+
+  --nb-m-post: var(--ev-navy-500);
+  --nb-m-post-tint: var(--ev-navy-50);
+  --nb-m-post-line: color-mix(in srgb, var(--ev-navy-400) 30%, transparent);
+  --nb-m-put: var(--ev-gold-700);
+
+  --nb-font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --nb-font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* www's headings: bold and tight, rather than Nimbus's light display weights. */
+  --nb-h1-size: 2.5rem;
+  --nb-h1-leading: 2.875rem;
+  --nb-h1-weight: 700;
+  --nb-h1-tracking: -0.025em;
+  --nb-h2-size: 1.625rem;
+  --nb-h2-leading: 2.125rem;
+  --nb-h2-weight: 700;
+  --nb-h2-tracking: -0.015em;
+  --nb-h3-weight: 650;
+  --nb-h4-weight: 650;
+
+  /* www's control radius. */
+  --nb-radius: 0.375rem;
+  --nb-radius-sm: 0.1875rem;
+
+  --nb-shadow-sm: 0 1px 2px rgb(0 15 26 / 0.06);
+  --nb-shadow: 0 1px 3px rgb(0 15 26 / 0.08), 0 1px 2px rgb(0 15 26 / 0.04);
+  --nb-shadow-lg: 0 12px 32px rgb(0 15 26 / 0.12);
+}
+
+[data-mode="dark"] {
+  --nb-background: var(--ev-navy-900);
+  --nb-foreground: #e6eef6;
+  --nb-card: var(--ev-navy-800);
+  --nb-muted: #00111f;
+  --nb-muted-foreground: #9fb3c6;
+  --nb-accent: var(--ev-navy-700);
+  --nb-accent-foreground: #ffffff;
+
+  --nb-primary: var(--ev-navy-200);
+  --nb-primary-foreground: var(--ev-navy-900);
+  --nb-primary-hover: var(--ev-navy-100);
+
+  --nb-brand: var(--ev-navy-200);
+  --nb-brand-wash: rgb(168 204 235 / 0.1);
+
+  --nb-border: #0c2a45;
+  --nb-border-strong: #1a3d5e;
+  --nb-selected: #123a60;
+  --nb-code-tint: rgb(168 204 235 / 0.08);
+  --nb-ring: rgb(122 168 208 / 0.5);
+
+  --nb-info: var(--ev-navy-200);
+  --nb-info-foreground: var(--ev-navy-200);
+  --nb-info-muted: rgb(122 168 208 / 0.12);
+  --nb-success: #6fd3a8;
+  --nb-success-foreground: #6fd3a8;
+  --nb-success-muted: rgb(15 123 82 / 0.22);
+  --nb-warning: var(--ev-gold-400);
+  --nb-warning-foreground: var(--ev-gold-400);
+  --nb-warning-muted: rgb(212 158 0 / 0.14);
+  --nb-danger: #f0907d;
+  --nb-danger-foreground: #f0907d;
+  --nb-danger-muted: rgb(168 50 31 / 0.22);
+
+  --nb-m-post: var(--ev-navy-200);
+  --nb-m-post-tint: rgb(122 168 208 / 0.14);
+  --nb-m-put: var(--ev-gold-400);
+}
+
+::selection {
+  background: var(--ev-navy-100);
+  color: var(--ev-navy-900);
+}
+
+/* ---- Header ---- */
+
+/* The marketing site's header sits on a navy "Built by" band; here a navy rule carries the same edge. */
+header:has(> div > div > [data-slot="brand"], > div a[href] > svg[viewBox="0 0 379.5 87"]) {
+  border-bottom: 3px solid var(--ev-navy-600);
+}
+[data-mode="dark"] header:has(> div a[href] > svg[viewBox="0 0 379.5 87"]) {
+  border-bottom-color: var(--ev-navy-700);
+}
+
+/* Section tabs (Docs, API reference): navy text, a gold underline for the current one. */
+nav[aria-label="Sections"] a[aria-current="page"] {
+  background: transparent;
+  color: var(--ev-heading);
+  text-decoration: underline 2px var(--ev-rule);
+  text-underline-offset: 5px;
+}
+
+/* ---- Page titles: the gold rule ----
+ * Docs and API pages both size their <h1> from --nb-h1-size in a style attribute, which is the hook used here. */
+h1[style*="--nb-h1-size"] {
+  position: relative;
+  padding-bottom: 0.875rem;
+  color: var(--ev-heading);
+}
+h1[style*="--nb-h1-size"]::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  width: 3.5rem;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ev-rule), color-mix(in srgb, var(--ev-rule) 55%, transparent));
+}
+[data-slot="page-header"] {
+  margin-bottom: 0.5rem;
+}
+
+/* The table of contents marks the current section in navy, with a gold rail. */
+[data-nb-toc-link][aria-current="true"] {
+  color: var(--ev-heading);
+}
+[data-nb-toc-rail-active] {
+  stroke: var(--ev-rule);
+}
+
+/* ---- Sidebar: gold marks where you are ---- */
+:is([data-nb-sidebar], [data-nb-api-nav]) li > a[aria-current="page"] {
+  background: var(--nb-brand-wash);
+  color: var(--ev-heading);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--ev-rule);
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+:is([data-nb-sidebar], [data-nb-api-nav]) details > summary[data-nb-active] {
+  color: var(--ev-heading);
+}
+/* Top-level groups read as www's eyebrows. */
+[data-nb-sidebar] > ul > li > details > summary {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ev-grey-500);
+  margin-top: 0.75rem;
+}
+[data-mode="dark"] [data-nb-sidebar] > ul > li > details > summary {
+  color: #7f97ad;
+}
+[data-nb-sidebar] > ul > li:first-child > details > summary {
+  margin-top: 0;
+}
+
+/* ---- Page content ---- */
+.docs-content :where(h2, h3, h4) {
+  color: var(--ev-heading);
+}
+.docs-content :where(h3) {
+  letter-spacing: -0.01em;
+}
+
+/* www's links: underlined, thickening on hover. */
+:is(.docs-content, .nb-md) :where(a:not([class])) {
+  color: var(--ev-link);
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    color 140ms cubic-bezier(0.2, 0, 0, 1),
+    text-decoration-color 140ms cubic-bezier(0.2, 0, 0, 1);
+}
+:is(.docs-content, .nb-md) :where(a:not([class]):hover) {
+  color: var(--ev-link-hover);
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+/* Inline code: a navy tint, so it reads as code without shouting. */
+:is(.docs-content, .nb-md) :where(code:not([class])):not(:where(pre *)) {
+  background: var(--nb-code-tint);
+  color: var(--ev-navy-700);
+  border: 0;
+  border-radius: var(--nb-radius-sm);
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+}
+[data-mode="dark"] :is(.docs-content, .nb-md) :where(code:not([class])):not(:where(pre *)) {
+  color: var(--ev-navy-100);
+}
+
+/* Tables: www's comparison table, with a navy header row. */
+.docs-content :where(table:not([class])) {
+  border: 1px solid var(--nb-border);
+  border-radius: var(--nb-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+.docs-content :where(th:not([class])) {
+  background: var(--ev-navy-600);
+  color: #ffffff;
+  font-weight: 600;
+}
+[data-mode="dark"] .docs-content :where(th:not([class])) {
+  background: var(--ev-navy-700);
+}
+.docs-content :where(tbody:not([class]) tr:not([class]):nth-child(even) td:not([class])) {
+  background: var(--nb-muted);
+}
+
+/* Callouts: a coloured edge and tint per type, in the palette's status colours. */
+[data-slot="aside"] {
+  border: 1px solid color-mix(in srgb, var(--ev-callout) 22%, transparent);
+  border-inline-start: 3px solid var(--ev-callout);
+  border-radius: var(--nb-radius);
+  background: color-mix(in srgb, var(--ev-callout) 7%, var(--nb-background));
+}
+[data-slot="aside"] [data-slot="aside-icon"],
+[data-slot="aside"] [data-slot="aside-title"] {
+  color: var(--ev-callout-ink);
+}
+[data-slot="aside"]:is([data-type="note"], [data-type="info"]) {
+  --ev-callout: var(--ev-navy-500);
+  --ev-callout-ink: var(--ev-navy-600);
+}
+[data-slot="aside"][data-type="tip"] {
+  --ev-callout: var(--ev-success-600);
+  --ev-callout-ink: var(--ev-success-600);
+}
+[data-slot="aside"]:is([data-type="caution"], [data-type="warning"], [data-type="important"]) {
+  --ev-callout: var(--ev-gold-500);
+  --ev-callout-ink: var(--ev-gold-700);
+}
+[data-slot="aside"][data-type="danger"] {
+  --ev-callout: var(--ev-danger-600);
+  --ev-callout-ink: var(--ev-danger-600);
+}
+[data-mode="dark"] [data-slot="aside"] {
+  --ev-callout-ink: color-mix(in srgb, var(--ev-callout) 55%, #ffffff);
+  background: color-mix(in srgb, var(--ev-callout) 12%, var(--nb-background));
+}
+[data-mode="dark"] [data-slot="aside"]:is([data-type="note"], [data-type="info"]) {
+  --ev-callout: var(--ev-navy-300);
+}
+
+/* Code blocks: a hairline frame, as www frames its product screenshots. */
+.docs-content .nb-code-figure,
+.docs-content :where(pre.astro-code) {
+  border-radius: var(--nb-radius);
+}
+
+/* ---- API reference ---- */
+
+/* The API home's introduction renders as full prose, not muted fine print. */
+.nb-md-intro {
+  color: var(--nb-foreground);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.nb-md-intro :where(h2) {
+  margin: 2.25rem 0 0.75rem;
+  color: var(--ev-heading);
+  font-size: 1.375rem;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.nb-md-intro :where(h3) {
+  margin: 1.75rem 0 0.5rem;
+  color: var(--ev-heading);
+  font-size: 1.125rem;
+  font-weight: 650;
+}
+.nb-md-intro :where(p, ul, ol, pre) {
+  margin: 0 0 1rem;
+}
+.nb-md-intro :where(ul) {
+  padding-inline-start: 1.25rem;
+  list-style: disc;
+}
+.nb-md-intro :where(li) {
+  margin: 0.375rem 0;
+}
+.nb-md-intro :where(pre) {
+  overflow-x: auto;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--nb-border);
+  border-radius: var(--nb-radius);
+  background: var(--nb-muted);
+  font-family: var(--nb-font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.nb-md-intro :where(pre code) {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
