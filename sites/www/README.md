@@ -107,15 +107,19 @@ Keeping Previews off the production Worker means the token that pushes them can'
 from the `previews` block in `wrangler.jsonc`, and never send email or Slack messages.
 
 `.github/workflows/www.yaml` runs on pull requests to `main` and pushes to `main` that touch this site, and on manual
-dispatch. Its jobs call reusable workflows that the docs site's `docs.yaml` shares, each running the site's own tasks:
+dispatch. Its steps are shared with the docs site's `docs.yaml`, each running the site's own tasks:
 
-- **check** (`site-check.yaml`): `task www:ci:check`: type checks, tests, a production build, link check, and Lighthouse
-  budgets.
-- **preview** (`site-preview.yaml`; same-repo, non-Dependabot pull requests, after **check** passes): only when the
-  pull request changes `src/`, `public/`, `worker/*.ts` (not its tests), or `astro.config.mjs`, runs
-  `task www:deploy:preview NAME=pr-<number>` and comments the URL. It runs the pull request's code with the `preview`
-  environment's token, which can only change the sites' preview Workers.
-- **production** (`site-production.yaml`; `main` only): `task www:ci:deploy:production`.
+- **check** (reusable workflow `site-check.yaml`): `task www:ci:check`: type checks, tests, a production build, link
+  check, and Lighthouse budgets.
+- **preview-wanted** and **preview** (composite action `deploy-preview`; same-repo, non-Dependabot pull requests,
+  after **check** passes): only when the pull request changes `src/`, `public/`, `worker/*.ts` (not its tests), or
+  `astro.config.mjs`, runs `task www:deploy:preview NAME=pr-<number>` and comments the URL. It runs the pull request's
+  code with the `preview` environment's token, which can only change the sites' preview Workers.
+- **production** (composite action `deploy-production`; `main` only): `task www:ci:deploy:production`.
+
+The jobs that hold a token declare its environment themselves and pass the token to the composite action
+(`.github/actions/`) as an input. Reusable workflows can't read environment secrets unless the caller inherits every
+secret, so they're used only for the checks, which need none.
 
 `.github/workflows/preview-cleanup.yaml` deletes a pull request's Previews, for each site, when it's closed or merged,
 and sweeps weekly for any it missed.
@@ -146,8 +150,8 @@ On GitHub (`agency-fund/evidential-site`):
 
 | Resource                 | Details                                                                                                                            |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Environment `preview`    | Used by `site-preview.yaml` (www and docs) and `preview-cleanup.yaml`; any branch.                                                 |
-| Environment `production` | Used by `site-production.yaml` (www and docs); deployments allowed only from `main`.                                               |
+| Environment `preview`    | Used by the **preview** jobs (www and docs) and `preview-cleanup.yaml`; any branch.                                                |
+| Environment `production` | Used by the **production** jobs (www and docs); deployments allowed only from `main`.                                              |
 | `CLOUDFLARE_ACCOUNT_ID`  | Variable in both environments.                                                                                                     |
 | `CLOUDFLARE_API_TOKEN`   | Secret in each environment: `github-actions-evidential-www-preview` in `preview`, `github-actions-evidential-www` in `production`. |
 

@@ -10,7 +10,8 @@ on:
       - pnpm-workspace.yaml
       - Taskfile.yml
       - .github/workflows/docs.yaml
-      - .github/workflows/site-*.yaml
+      - .github/workflows/site-check.yaml
+      - .github/actions/deploy-*/**
   push:
     branches: [main]
     paths: *paths
@@ -31,34 +32,86 @@ jobs:
       # "Last updated" dates and the sitemap come from git history.
       fetch-depth: 0
 
-  preview:
+  preview-wanted:
     needs: check
     # Fork and Dependabot pull requests can't read the preview environment's token.
     if: >-
       github.event_name == 'pull_request'
       && github.event.pull_request.head.repo.full_name == github.repository
       && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      wanted: ${{ steps.filter.outputs.visible }}
+    steps:
+      # Only pull requests that change files readers see get a Preview; tooling, tests, docs, and dependency-only changes
+      # don't. On pull_request events, paths-filter lists the changed files through the API; no checkout needed.
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          # Pages, the API reference's spec and overview, components, styles, and site config.
+          filters: |
+            visible:
+              - 'sites/docs/src/**'
+              - 'sites/docs/public/**'
+              - 'sites/docs/astro.config.ts'
+              - 'sites/docs/scripts/polish-openapi.mjs'
+
+  preview:
+    needs: preview-wanted
+    if: needs.preview-wanted.outputs.wanted == 'true'
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 15
     permissions:
       contents: read
       pull-requests: write
-    uses: $/.github/workflows/site-preview.yaml
-    with:
-      site: docs
-      preview-worker: evidential-docs-preview
-      fetch-depth: 0
-      # Pages, the API reference's spec and overview, components, styles, and site config.
-      preview-filter: |
-        visible:
-          - 'sites/docs/src/**'
-          - 'sites/docs/public/**'
-          - 'sites/docs/astro.config.ts'
-          - 'sites/docs/scripts/polish-openapi.mjs'
+    # This job runs the pull request's code with the preview environment's token. That token can only change the sites'
+    # preview Workers, which hold nothing but Previews; the production token is in the main-only production
+    # environment.
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    # Shared with preview-cleanup.yaml. Neither cancels the other: a cleanup waits for a running deploy and then
+    # deletes its Preview, and a deploy queued behind a cleanup sees the closed pull request and skips. A newer push's
+    # deploy replaces an older one that hasn't started yet.
+    concurrency:
+      group: docs-preview-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: $/.github/actions/deploy-preview
+        id: deploy
+        with:
+          site: docs
+          preview-worker: evidential-docs-preview
+          cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
 
   production:
     needs: check
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    uses: $/.github/workflows/site-production.yaml
-    with:
-      site: docs
+    runs-on: ubuntu-26.04-arm
+    timeout-minutes: 15
+    environment:
+      name: production
       url: https://docs.evidential.dev
-      fetch-depth: 0
+    # Deploys run one at a time and are never canceled midway.
+    concurrency:
+      group: docs-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: $/.github/actions/deploy-production
+        with:
+          site: docs
+          cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          cloudflare-account-id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
