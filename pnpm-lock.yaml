@@ -117,7 +117,7 @@ importers:
     dependencies:
       '@cloudflare/nimbus-docs':
         specifier: 0.20.0
-        version: 0.20.0(@resvg/resvg-js@2.6.2)(@scalar/openapi-parser@0.28.12)(@types/node@26.6.6)(astro@7.4.11(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(esbuild@0.28.2)(jiti@2.7.0)(openapi-sampler@1.7.4)(satori@0.63.2)(supports-color@10.2.2)
+        version: 0.20.0(@resvg/resvg-js@2.6.2)(@scalar/openapi-parser@0.29.21)(@types/node@26.6.6)(astro@7.4.11(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(esbuild@0.28.2)(jiti@2.7.0)(openapi-sampler@1.7.10)(satori@0.63.2)(supports-color@10.2.2)
       '@fontsource-variable/inter':
         specifier: 5.3.0
         version: 5.3.0
@@ -131,8 +131,8 @@ importers:
         specifier: 2.6.2
         version: 2.6.2
       '@scalar/openapi-parser':
-        specifier: 0.28.12
-        version: 0.28.12
+        specifier: 0.29.21
+        version: 0.29.21
       astro:
         specifier: 7.4.11
         version: 7.4.11(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
@@ -143,8 +143,8 @@ importers:
         specifier: 12.3.0
         version: 12.3.0
       openapi-sampler:
-        specifier: 1.7.4
-        version: 1.7.4
+        specifier: 1.7.10
+        version: 1.7.10
       satori:
         specifier: 0.63.2
         version: 0.63.2
@@ -1498,32 +1498,44 @@ packages:
   '@rolldown/pluginutils@1.1.0':
     resolution: {integrity: sha512-K+NU2HDCEem4sClgHH4ZZXwdJeNFkJo+hRk479DIwdIviAPN2hFJH1KHHwg8CxHQXvi0M5XY4deTXINfIiSG6w==}
 
-  '@scalar/helpers@0.10.0':
-    resolution: {integrity: sha512-IAfnpIZnXY6ni+zyFMwWHBa5b/7yr4mCSvoTGR84oS9q4Quy2wjgafnr7CyfL65ney3iilBZHigZYLYqdqCu3Q==}
-    engines: {node: '>=22'}
-
   '@scalar/helpers@0.16.4':
     resolution: {integrity: sha512-9eILWzUcAkHEuYMMvijpSIy69t+Vkq+NudLB/7lgARFTWqXfQpIxW1L3VH7ogKyRie5+E4CNZ3PSvlw6IIfLGw==}
     engines: {node: '>=22'}
 
-  '@scalar/json-magic@0.12.20':
-    resolution: {integrity: sha512-5JawJ1L3+ddDoKefkXsklKs6CmmTIcPDmkJPpAkbRi9QQiU9MUONQ4VSi2z3ij+8Ka4neNhsXBNG4itPjurBLg==}
+  '@scalar/helpers@0.17.1':
+    resolution: {integrity: sha512-zkVpcxCzaQfZ0GrPPbqXZUH4N2sHubFyW+aIRln7Ovv1P6jAN3we3O0/LD5qCRAROalA14pEqplp6eOtc7BWlA==}
     engines: {node: '>=22'}
 
   '@scalar/json-magic@0.16.1':
     resolution: {integrity: sha512-yWQJUrkufUsShizF+rGKO4BoZ/ijMpnrgwRjtCA2cYqjxkQOYaQCd+WVF+b3ihmXE7amr768pLItFCx5UV/ObQ==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-parser@0.28.12':
-    resolution: {integrity: sha512-s9XgyuWOJ2hQuojulgVm86upBF6vG8IQ8XSCpZxemm6Z2qVncNw2qsZKZ3+6eJOqCQEgJLmvgHSlXpRKq1si9Q==}
+  '@scalar/json-magic@0.19.0':
+    resolution: {integrity: sha512-o/0FhpT5dw1VInLmxXrzZ8p+ptx77R3yUOdwkJasAcBfKCHdvBNZPyB2qzJV4qclbGio/IVj6uh05XxmzLo36w==}
+    engines: {node: '>=22.19.0'}
+
+  '@scalar/json-schema-validator@0.1.19':
+    resolution: {integrity: sha512-dSEgij9KhA2EWoJQtqzxwWzxUiGi6sGjvzoed+fLalIU7JVMbvtKzUXvUFG7L4R5Yjh3DVK483F/jGfpn7T4qQ==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-types@0.9.4':
-    resolution: {integrity: sha512-eUSIjZEBLEF2i2pvcNdzXhzlKx6qt+hZsNklLmCyzPBoXWxHcQaEClgMFavXDRRvJDdi6LkyjqGUqqf0XgRgFg==}
+  '@scalar/openapi-parser@0.29.21':
+    resolution: {integrity: sha512-W7bltAuSGQLQ4vljdUOBFdVIXQlOK15rXLIFfHndmvHLWZ6QfA7Kt67gQFb2Aec+ET28Yru5Z9Bv59gsVB4iiQ==}
     engines: {node: '>=22'}
 
-  '@scalar/openapi-upgrader@0.2.13':
-    resolution: {integrity: sha512-bPTkDsthDXj/3bgO7RDmRra1OfwxG/uQio6LP0h9Z8NCCgoZQ4E+V7S6bwF/9TWxbMRlb9djRNpbXCTh/L3C5g==}
+  '@scalar/openapi-types@0.9.9':
+    resolution: {integrity: sha512-Z2NfKMNhtWJaEiYVU1pzVS+BT53ygotVA6y9reCx0jTcwqml9WPrNPumgjlgoZnBdP9pZU3+u86RNwwVAyArvA==}
+    engines: {node: '>=22'}
+
+  '@scalar/openapi-upgrader@0.4.8':
+    resolution: {integrity: sha512-HsOVdONiIwUm2Rwx6t8XY0uFqBRJrUmXWSi5aA3lhT5j1kwGVAbH3c3NC42Ku87/EC3KHVD1TwTosr8XULsjPQ==}
+    engines: {node: '>=22'}
+
+  '@scalar/openapi-validator@0.1.19':
+    resolution: {integrity: sha512-sUVk2/GO3OOrldTbnrB9VAiNmtmXoIAdEfZ+frEqw1LZmrWkJxOF0at3JPDdQPLhL+DRyYu10RzlpYrCM7D1eg==}
+    engines: {node: '>=22'}
+
+  '@scalar/types@0.28.0':
+    resolution: {integrity: sha512-+VQQYE8ef8BCHHmHhdzQnt8dpKZwsiUurDq8d5hvExeXGP9OwtGlsGTzSOlPtMdEFswIaq43ZfjDoaqnS0EECQ==}
     engines: {node: '>=22'}
 
   '@sentry/bundler-plugins@11.12.0':
@@ -3092,10 +3104,6 @@ packages:
   jsonc-parser@3.3.1:
     resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
 
-  jsonpointer@5.0.1:
-    resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
-    engines: {node: '>=0.10.0'}
-
   katex@0.18.10:
     resolution: {integrity: sha512-/B6p9eY9DX7aHBfpkHdpirDTZ5QH9xTwL9y837PWuzuv41O5jFdqNQwVQEQsimY0/iVNkwBY4+4hMfhQ7d4Dbw==}
     hasBin: true
@@ -3112,10 +3120,6 @@ packages:
 
   layout-base@2.0.1:
     resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
-
-  leven@4.1.0:
-    resolution: {integrity: sha512-KZ9W9nWDT7rF7Dazg8xyLHGLrmpgq2nVNFUckhqdW3szVP6YhCpp/RAnpmVExA9JvrMynjwSLVrEj3AepHR6ew==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   lighthouse-logger@1.2.0:
     resolution: {integrity: sha512-wzUvdIeJZhRsG6gpZfmSCfysaxNEr43i+QT+Hie94wvHDKFLi4n7C2GqZ4sTC+PH5b5iktmXJvU87rWvhP3lHw==}
@@ -3515,6 +3519,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@5.1.16:
+    resolution: {integrity: sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
@@ -3728,8 +3737,8 @@ packages:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
 
-  openapi-sampler@1.7.4:
-    resolution: {integrity: sha512-CKS/rd5ucPCuEDbJnjGDXZTsuGWcmv53aCmQx7soZlPEONUGN4af0/dY5+THRFZraSEjeA78nlfzdFswC/N5SA==}
+  openapi-sampler@1.7.10:
+    resolution: {integrity: sha512-WhPgO1qywzBbC0oLDSykd/V782yQFeTRFrCCJXgJGOCC8YG7DSrvOdJ++LqE61d1v4cqZ9aG0G80HNl1guU6zg==}
 
   ora@5.4.1:
     resolution: {integrity: sha512-5b6Y85tPxZZ7QytO+BQzysW31HJku27cRIlkbAXaNx+BdcVi+LlRFmVXzeF6a7JCwJpyw5c4b+YSVImQIrBpuQ==}
@@ -4343,6 +4352,10 @@ packages:
   undici@7.30.1:
     resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
     engines: {node: '>=20.18.1'}
+
+  undici@8.12.3:
+    resolution: {integrity: sha512-+fdndUTwBP86cVjihTp21hZHo7d6oj1c/47XPA3lL8mM0XHs+C4EkcjmgRsFnFk2f/UONGDy9ItBItmXsLOQHw==}
+    engines: {node: '>=22.19.0'}
 
   undici@8.12.4:
     resolution: {integrity: sha512-8Mx+uNKKER2bA4AdtedkqRbwUCIJFr2nJckXRe5yrDqzePqwLP7VNcctN8/XdmDSbF7mS+jJKIszlL+vbam1VA==}
@@ -5128,7 +5141,7 @@ snapshots:
 
   '@cloudflare/kv-asset-handler@0.5.0': {}
 
-  '@cloudflare/nimbus-docs@0.20.0(@resvg/resvg-js@2.6.2)(@scalar/openapi-parser@0.28.12)(@types/node@26.6.6)(astro@7.4.11(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(esbuild@0.28.2)(jiti@2.7.0)(openapi-sampler@1.7.4)(satori@0.63.2)(supports-color@10.2.2)':
+  '@cloudflare/nimbus-docs@0.20.0(@resvg/resvg-js@2.6.2)(@scalar/openapi-parser@0.29.21)(@types/node@26.6.6)(astro@7.4.11(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(esbuild@0.28.2)(jiti@2.7.0)(openapi-sampler@1.7.10)(satori@0.63.2)(supports-color@10.2.2)':
     dependencies:
       '@astrojs/markdown-satteri': 0.4.9
       '@astrojs/mdx': 8.1.5(@astrojs/markdown-satteri@0.4.9)(astro@7.4.11(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -5170,8 +5183,8 @@ snapshots:
       yaml: 2.9.1
     optionalDependencies:
       '@resvg/resvg-js': 2.6.2
-      '@scalar/openapi-parser': 0.28.12
-      openapi-sampler: 1.7.4
+      '@scalar/openapi-parser': 0.29.21
+      openapi-sampler: 1.7.10
       satori: 0.63.2
     transitivePeerDependencies:
       - '@astrojs/markdown-remark'
@@ -5889,15 +5902,9 @@ snapshots:
 
   '@rolldown/pluginutils@1.1.0': {}
 
-  '@scalar/helpers@0.10.0': {}
-
   '@scalar/helpers@0.16.4': {}
 
-  '@scalar/json-magic@0.12.20':
-    dependencies:
-      '@scalar/helpers': 0.10.0
-      pathe: 2.0.3
-      yaml: 2.9.1
+  '@scalar/helpers@0.17.1': {}
 
   '@scalar/json-magic@0.16.1':
     dependencies:
@@ -5906,24 +5913,52 @@ snapshots:
       undici: 7.30.1
       yaml: 2.9.1
 
-  '@scalar/openapi-parser@0.28.12':
+  '@scalar/json-magic@0.19.0':
     dependencies:
-      '@scalar/helpers': 0.10.0
-      '@scalar/json-magic': 0.12.20
-      '@scalar/openapi-types': 0.9.4
-      '@scalar/openapi-upgrader': 0.2.13
+      '@scalar/helpers': 0.17.1
+      pathe: 2.0.3
+      undici: 8.12.3
+      yaml: 2.9.1
+
+  '@scalar/json-schema-validator@0.1.19':
+    dependencies:
+      '@scalar/helpers': 0.17.1
+      '@scalar/types': 0.28.0
       ajv: 8.20.0
       ajv-draft-04: 1.0.0(ajv@8.20.0)
       ajv-formats: 3.0.1(ajv@8.20.0)
-      jsonpointer: 5.0.1
-      leven: 4.1.0
       yaml: 2.9.1
 
-  '@scalar/openapi-types@0.9.4': {}
-
-  '@scalar/openapi-upgrader@0.2.13':
+  '@scalar/openapi-parser@0.29.21':
     dependencies:
-      '@scalar/openapi-types': 0.9.4
+      '@scalar/helpers': 0.17.1
+      '@scalar/json-magic': 0.19.0
+      '@scalar/openapi-types': 0.9.9
+      '@scalar/openapi-upgrader': 0.4.8
+      '@scalar/openapi-validator': 0.1.19
+      '@scalar/types': 0.28.0
+      yaml: 2.9.1
+
+  '@scalar/openapi-types@0.9.9': {}
+
+  '@scalar/openapi-upgrader@0.4.8':
+    dependencies:
+      '@scalar/helpers': 0.17.1
+      '@scalar/openapi-types': 0.9.9
+
+  '@scalar/openapi-validator@0.1.19':
+    dependencies:
+      '@scalar/helpers': 0.17.1
+      '@scalar/json-schema-validator': 0.1.19
+      '@scalar/types': 0.28.0
+      yaml: 2.9.1
+
+  '@scalar/types@0.28.0':
+    dependencies:
+      '@scalar/helpers': 0.17.1
+      nanoid: 5.1.16
+      type-fest: 5.10.0
+      zod: 4.6.7
 
   '@sentry/bundler-plugins@11.12.0':
     dependencies:
@@ -7649,8 +7684,6 @@ snapshots:
 
   jsonc-parser@3.3.1: {}
 
-  jsonpointer@5.0.1: {}
-
   katex@0.18.10:
     dependencies:
       commander: 15.1.0
@@ -7662,8 +7695,6 @@ snapshots:
   layout-base@1.0.2: {}
 
   layout-base@2.0.1: {}
-
-  leven@4.1.0: {}
 
   lighthouse-logger@1.2.0(supports-color@10.2.2):
     dependencies:
@@ -8276,6 +8307,8 @@ snapshots:
 
   nanoid@3.3.20: {}
 
+  nanoid@5.1.16: {}
+
   negotiator@0.6.3: {}
 
   negotiator@0.6.4: {}
@@ -8351,7 +8384,7 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  openapi-sampler@1.7.4:
+  openapi-sampler@1.7.10:
     dependencies:
       '@types/json-schema': 7.0.15
       fast-xml-parser: 5.12.0
@@ -9059,6 +9092,8 @@ snapshots:
   undici-types@8.9.0: {}
 
   undici@7.30.1: {}
+
+  undici@8.12.3: {}
 
   undici@8.12.4: {}
 
