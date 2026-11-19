@@ -62,7 +62,7 @@ Follow the steps below to get a local development environment running.
 1. Run the unit tests:
 
    ```shell
-   task test-airplane
+   task test
    ```
 
 1. Get familiar with the task runner. Most of the commands you will run are defined in Taskfile.yml. Run:
@@ -74,11 +74,15 @@ Follow the steps below to get a local development environment running.
 1. Start the backend server:
 
    ```shell
-   task start-airplane
+   task start
    ```
 
    This will start the server at `http://localhost:8000`. It stores its state in a local Postgres instance, running in
    Docker, on `localhost:5499`.
+
+   The server includes a development sign-in page: when you log in to the frontend, pick one of the test users
+   defined in `src/xngin/apiserver/routers/devidp_config.yaml`. The first user to log in to an empty database becomes
+   an administrator.
 
 1. Visit the local interactive OpenAPI docs page: `http://localhost:8000/docs`
 
@@ -110,7 +114,7 @@ Follow the steps below to get a local development environment running.
 1. Start the frontend server:
 
    ```shell
-   task start-airplane
+   task start
    ```
 
 </Steps>

@@ -6,9 +6,9 @@ sidebar:
 
 This document describes how to configure Evidential's OpenID Connect (OIDC) integration.
 
-:::note[Use task start, not airplane mode]
-When using Evidential with an OIDC provider in your development environment, use `task start` instead of
-`task start-airplane`. See [airplane mode](/develop/guides/develop-offline/) for more details.
+:::note[Signing in during development]
+In development, `task start` logs in through a built-in development identity provider, which lets you pick a test user
+without a password. To use another provider, set the `XNGIN_OIDC_*` variables in your `.env` file.
 :::
 
 ## How it works
@@ -19,13 +19,25 @@ an encrypted session token to the SPA, which it uses as a bearer token when invo
 
 The SPA acquires the OIDC parameters by requesting configuration data from `/v1/a/oidc/config`.
 
-Evidential requires users to be invited before they can log in, with one exception: when the database contains no users,
-the first user to sign in through the configured identity provider is created automatically with administrator privileges.
-During initial setup, sign in with the account you intend to use as the first administrator.
+When the database contains no users, the first user to sign in through the configured identity provider is created
+automatically with administrator privileges. During initial setup, sign in with the account you intend to use as the
+first administrator.
 
-Invite additional users via the Organization Settings page in the web UI, or via the command line (run
-`xngin-cli add-user --help` for details). On first login, the user is bound to
-the identity provider's issuer and subject identifier, and only that identity provider can sign them in afterwards.
+After that, the sign-up policy decides who else can sign in. Administrators set it under **Sign-Up Policy** on the
+**Evidential Settings** page, which they reach from the user menu:
+
+- **Invited users only** (the default): only people who have been invited can sign in. Invite them via the Organization
+    Settings page in the web UI, or via the command line (run `xngin-cli add-user --help` for details).
+- **Invited users and users in the configured domains**: invited users can sign in, and anyone whose verified email
+    address is at a domain listed under **Domain Settings** with **Allow sign-up** switched on gets an account when they
+    first sign in. Domains must match exactly: allowing `example.org` does not allow `research.example.org`.
+- **Anyone**: anyone who can sign in through the identity provider gets an account when they first sign in.
+
+People who sign up this way are not members of any organization. They are asked to create one when they first arrive,
+or a member can add them to an existing one.
+
+On first login, the user is bound to the identity provider's issuer and subject identifier, and only that identity
+provider can sign them in afterwards.
 
 :::caution[Changing the issuer or client ID signs everyone out]
 Session tokens are bound to the configured issuer and client ID. Changing `XNGIN_OIDC_ISSUER` or
@@ -161,7 +173,7 @@ Rauthy signs tokens with EdDSA by default, so set the client's ID token algorith
 ## Troubleshooting
 
 - **The backend fails to start with `XNGIN_OIDC_... environment variable is not set.`** Every variable marked
-    required above must be set unless the backend runs in airplane mode.
+    required above must be set.
 - **`Discovery document issuer '...' does not match XNGIN_OIDC_ISSUER '...'.`** The issuer must match the `issuer`
     field of the identity provider's discovery document exactly, including any path (such as Okta's
     `/oauth2/default`).
