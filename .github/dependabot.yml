@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     # Let new releases age before adopting them (pnpm-workspace.yaml enforces a similar minimumReleaseAge).
     cooldown:
       default-days: 7
@@ -13,7 +13,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     # Let new releases age before adopting them (pnpm-workspace.yaml enforces a similar minimumReleaseAge).
     cooldown:
       default-days: 7
