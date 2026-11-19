@@ -28,7 +28,7 @@ export const PAGE_REDIRECTS: Record<string, string> = {
   "/development/getting-started-dev/": "/develop/setup/",
   "/development/reading-list/": "/develop/reading-list/",
   "/development/contributing-dev/": "/develop/guides/contribute-code/",
-  "/development/airplane-mode/": "/develop/guides/develop-offline/",
+  "/development/airplane-mode/": "/develop/setup/",
   "/development/testing/": "/develop/guides/run-tests/",
   "/development/updating-testing-dwh/": "/develop/guides/update-the-testing-warehouse/",
   "/development/migration/": "/develop/guides/manage-database-migrations/",
@@ -48,6 +48,10 @@ export const PAGE_REDIRECTS: Record<string, string> = {
   "/blog/experiment-results-history/": "/news/experiment-results-history/",
   "/blog/multi-armed-and-contextual-bandits/": "/news/multi-armed-and-contextual-bandits/",
   "/development/contributing-docs/": "/develop/guides/contribute-to-the-docs/",
+
+  // Pages that were removed, sent to the page that replaced them.
+  // Airplane mode was removed; development now signs in through the backend's development identity provider.
+  "/develop/guides/develop-offline/": "/develop/setup/",
 
   // Section folders that have no page of their own.
   "/development/": "/develop/",
