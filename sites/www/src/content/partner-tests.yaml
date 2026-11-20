@@ -17,7 +17,7 @@
     treatment: { label: Interactive buttons, value: 225, lift: "+125%" }
     population: About 2,400 new mothers
     winner: Interactive buttons won
-    note: Responses indexed to the control group (= 100), derived from the reported +125%. [Add source and period.]
+    note: Responses indexed to the control group (= 100), derived from the reported +125%.
 - id: udhyam-reminders
   partner: udhyam
   logoHeight: 30
