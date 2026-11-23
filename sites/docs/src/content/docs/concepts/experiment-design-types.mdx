@@ -86,39 +86,22 @@ experiment's filters.
 
 The two frequentist designs apply the same filters in different ways.
 
-**Preassigned A/B** applies filters to your participant table:
+**Preassigned A/B** applies filters to your participant table in the **power check** (so sample size estimates reflect
+only matching participants) and when you **create the experiment** (to decide who can be selected). Eligibility is
+decided once, from the data in your warehouse at that moment: people who match later aren't added, participants who
+stop matching stay in the experiment, and changing filters requires a new experiment.
 
-- in the **power check**, so sample size estimates reflect only participants who match, and
-- when you **create the experiment**, to decide who can be selected.
+**Online A/B** can't look up a new participant in your warehouse when they arrive. Instead, your app sends the
+participant's details along with the assignment request, and Evidential checks them against your filters:
 
-Who's eligible is decided once, from the data in your warehouse at that moment.
+- If the details match, the participant is assigned an arm. Once enrolled, they aren't removed if their details change.
+- If they don't match, no arm is returned and the participant isn't enrolled.
 
-**Online A/B** can't look up a new participant in your warehouse at the moment they arrive. Instead, your app sends the
-participant's details along with the assignment request, and Evidential checks those details against your filters:
-
-- If the details match, the participant is assigned an arm.
-- If they don't, no arm is returned and the participant isn't enrolled.
-
-To have filters applied, your app must use the assignment request that includes participant details. The
-**Integration Guide** for each experiment shows this request under **Example API Calls**. A request without
-participant details assigns the participant regardless of your filters.
+To have filters applied, your app must use the assignment request that includes participant details (shown under
+**Example API Calls** in the experiment's **Integration Guide**) and send a value for every filtered column—a missing
+value counts as empty. A request without participant details assigns the participant regardless of your filters.
 
 #### Limitations
-
-**Preassigned A/B**
-
-- Eligibility is fixed when you create the experiment. People who match your filters later aren't added, and
-  participants who stop matching stay in the experiment.
-- To change filters, create a new experiment.
-
-**Online A/B**
-
-- Filters only apply when your app sends participant details. Without them, every participant is assigned.
-- Send a value for every filtered column. A missing value counts as empty.
-- Eligibility is checked when a participant is first assigned. Once enrolled, a participant isn't removed if their
-  details change.
-
-**Both designs**
 
 - Filters can only use columns in the experiment's participant table.
 - Filters always combine with "and". You can't create "this or that" conditions across different columns.
@@ -126,7 +109,7 @@ participant details assigns the participant regardless of your filters.
 - **Between** works only with numbers and dates, and includes both end values. You can leave one end open, such as
   "on or after January 1".
 - Empty values (NULL, not blank text) are handled explicitly. **Is one of** and **between** leave them out unless you
-  add **OR NULL**. **Is not one of** keeps them unless you add **OR NULL**.
+  add **OR NULL**. **Is not one of** keeps them by default; add **OR NULL** to exclude them too.
 - Dates and times are in UTC.
 
 ## Bayesian Designs
@@ -140,6 +123,8 @@ Every bandit:
   such as a rating or time spent.
 - **Starts from priors**, which you can set for each arm or have Evidential derive from starting weights.
 - **Shows results as estimates** for each arm, which update as results arrive. There's no power check.
+- **Stops new assignments at the end date.** Participants who arrive after it aren't assigned an arm; those who already
+  have one keep it.
 
 :::note[Use an A/B test to measure effects]
 Bandits are built to find and serve the best option, not to measure the size of a difference. If you need a reliable

@@ -39,10 +39,11 @@ You only need to do this once for your organization.
    In Evidential, go to **Integrations** and click **Add API Key** in the **Turn.io API Key** section. Evidential
    loads your journeys and creates a **Webhook ID** and **Webhook Auth Token** for Turn.io.
 
-1. **Install the app in Turn.io**
+1. **Install and connect the app in Turn.io**
 
    On the Evidential **Integrations** page, download the Evidential Turn.io App. In Turn.io, go to **Apps > Installed
-   Apps > Upload app**, upload the .zip file, and click **Install app**.
+   Apps > Upload app**, upload the .zip file, and click **Install app**. Then open the app's **Settings** page in
+   Turn.io and paste in the **Webhook ID** and **Webhook Auth Token**.
 
 </Steps>
 
@@ -57,16 +58,12 @@ Do this for each experiment you run in Turn.io.
    In Evidential, open your experiment and click **Integration Guide**. Under **Configure integration for third-party
    tools**, choose a journey for each arm and click **Save**.
 
-1. **Get an API key**
+1. **Copy the Experiment ID (and set an API key, if needed)**
 
-   In the same Integration Guide, copy the **Experiment ID**. If the app doesn't have an Evidential API key yet, click
-   **Add API Key** and copy the key right away, because it isn't shown again. One key works for every experiment on the
-   same data source.
-
-1. **Configure the app**
-
-   In Turn.io, open the Evidential app's **Settings** page. Paste in the Evidential API key, Webhook ID, and Webhook
-   Auth Token.
+   In the same Integration Guide, copy the **Experiment ID**. Only needed the first time (or when switching data
+   sources): if the app doesn't have an Evidential API key for this data source yet, click **Add API Key**, copy the
+   key right away (it isn't shown again), and paste it into the Evidential app's **Settings** page in Turn.io. One key
+   works for every experiment on the same data source.
 
 1. **Route contacts to the experiment**
 
@@ -80,6 +77,9 @@ Do this for each experiment you run in Turn.io.
    your data warehouse.
 
 1. **Publish the app and your journeys**
+
+   Publish the Evidential app (if you changed its settings) and your updated journeys in Turn.io so contacts can enter
+   the experiment.
 
 </Steps>
 
@@ -101,9 +101,9 @@ If a contact enters again, Evidential returns the same arm.
   before the step that calls the app.
 - **Contextual bandits aren't supported.** The app doesn't send context values when it asks for an assignment, so it
   can't run a **Contextual Multi-armed Bandit**.
-- **Journey changes sync automatically.** When you add, rename, or delete journeys in Turn.io, the app tells
-  Evidential the next time it runs or its settings are saved. Saving a different Turn.io API key in Evidential also
-  refreshes the list.
+- **Journey changes sync automatically.** When you add, rename, or delete journeys in Turn.io, the app notifies
+  Evidential automatically (checked at most once every 5 minutes while running, or immediately when you save the app's
+  settings). Saving a different Turn.io API key in Evidential also refreshes the list.
 - **Fix out-of-date links.** If a linked journey is deleted, the **Integration Guide** button turns red and the
   affected arms show a warning. Choose a new journey for each flagged arm and click **Save**.
 - **One Turn.io workspace per organization.** Each organization can connect one Turn.io API token.
