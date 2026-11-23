@@ -4,7 +4,8 @@ sidebar:
   order: 1
 ---
 
-This document describes how to configure Evidential's OpenID Connect (OIDC) integration.
+This document describes how to configure Evidential's OpenID Connect (OIDC) integration. For a non-technical overview of
+accounts, sign-in, and permissions, see [Accounts and access](/concepts/accounts-and-access/).
 
 :::note[Signing in during development]
 In development, `task start` logs in through a built-in development identity provider, which lets you pick a test user
@@ -12,8 +13,6 @@ without a password. To use another provider, set the `XNGIN_OIDC_*` variables in
 :::
 
 ## How it works
-
-For a non-technical overview of accounts, sign-up, and permissions, see [Accounts and access](/concepts/accounts-and-access/).
 
 Evidential implements an OIDC Relying Party (RP) using the authorization code flow with PKCE. The SPA initiates the PKCE
 and the backend does the final token exchange. The ID token issued by the IDP is verified cryptographically and we issue
@@ -25,18 +24,10 @@ When the database contains no users, the first user to sign in through the confi
 automatically with administrator privileges. During initial setup, sign in with the account you intend to use as the
 first administrator.
 
-After that, the sign-up policy decides who else can sign in. Administrators set it under **Sign-Up Policy** on the
-**Evidential Settings** page, which they reach from the user menu:
-
-- **Invited users only** (the default): only people who have been invited can sign in. Invite them via the Organization
-    Settings page in the web UI, or via the command line (run `xngin-cli add-user --help` for details).
-- **Invited users and users in the configured domains**: invited users can sign in, and anyone whose verified email
-    address is at a domain listed under **Domain Settings** with **Allow sign-up** switched on gets an account when they
-    first sign in. Domains must match exactly: allowing `example.org` does not allow `research.example.org`.
-- **Anyone**: anyone who can sign in through the identity provider gets an account when they first sign in.
-
-People who sign up this way are not members of any organization. They are asked to create one when they first arrive,
-or a member can add them to an existing one.
+After that, the [sign-up policy](/concepts/accounts-and-access/#who-gets-an-account) decides who else can sign in. By
+default only invited users can sign in; invite them from the Organization Settings or Manage Users pages in the web UI,
+or via the command line (`xngin-cli add-user --help`). Administrators can widen sign-up to verified email addresses in
+configured domains or to anyone the identity provider authenticates from **Evidential Settings** in the user menu.
 
 On first login, the user is bound to the identity provider's issuer and subject identifier, and only that identity
 provider can sign them in afterwards.
