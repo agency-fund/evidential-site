@@ -13,6 +13,8 @@ without a password. To use another provider, set the `XNGIN_OIDC_*` variables in
 
 ## How it works
 
+For a non-technical overview of accounts, sign-up, and permissions, see [Accounts and access](/concepts/accounts-and-access/).
+
 Evidential implements an OIDC Relying Party (RP) using the authorization code flow with PKCE. The SPA initiates the PKCE
 and the backend does the final token exchange. The ID token issued by the IDP is verified cryptographically and we issue
 an encrypted session token to the SPA, which it uses as a bearer token when invoking Evidential APIs.
@@ -39,6 +41,12 @@ or a member can add them to an existing one.
 On first login, the user is bound to the identity provider's issuer and subject identifier, and only that identity
 provider can sign them in afterwards.
 
+:::caution[Switching identity providers locks out existing users]
+Because each user is bound to the issuer and subject identifier from their first sign-in, users who signed in before you
+switch to a different identity provider can't sign in through the new one. Users who were invited but never signed in
+are not affected.
+:::
+
 :::caution[Changing the issuer or client ID signs everyone out]
 Session tokens are bound to the configured issuer and client ID. Changing `XNGIN_OIDC_ISSUER` or
 `XNGIN_OIDC_CLIENT_ID` will invalidate existing sessions.
@@ -60,6 +68,7 @@ This has been tested with Google, Okta, Authentik, Keycloak, and Rauthy.
 | `XNGIN_OIDC_REDIRECT_URI`  | yes      | The URL the identity provider redirects to after login: the public URL of the frontend, such as `http://localhost:3000/`. Must be an absolute URL without a fragment, using `https://` outside development. Register the same value with the identity provider.                                                                   |
 | `XNGIN_OIDC_CLIENT_SECRET` | no       | The client secret. Leave it unset for public clients, which authenticate with PKCE alone.                                                                                                                                                                                                                                         |
 | `XNGIN_OIDC_CLAIM_MAP`     | no       | Comma-separated `claim:field` pairs that copy ID token claims onto the session principal. The only supported field is `hd`. Example: `hd:hd`.                                                                                                                                                                                     |
+| `CORS_ALLOWED_ORIGINS`     | outside development | Comma-separated list of frontend origins allowed to call the API from a browser, such as `https://app.example.com`. Outside development, the backend refuses to start without it. In development it defaults to allowing every origin. |
 
 The backend always requests the `openid` and `email` scopes; they are not configurable.
 
@@ -183,6 +192,9 @@ Rauthy signs tokens with EdDSA by default, so set the client's ID token algorith
     instead.
 - **`JWKS response does not contain any usable RS256 public signing keys.`** The provider's JWKS has no RSA public
     key with a key ID, so ID tokens cannot be verified.
+- **The backend fails to start with `CORS_ALLOWED_ORIGINS environment variable is not set.`** Outside development, set
+    it to the origin of your frontend, such as `https://app.example.com`. If sign-in fails in the browser with a CORS
+    error, check that the frontend's origin is in the list exactly, including the scheme and any port.
 - **The identity provider reports a redirect URI mismatch.** `XNGIN_OIDC_REDIRECT_URI` must be registered with the
     identity provider character for character, including the trailing slash. If your development environment uses a
     different port number, change both.
