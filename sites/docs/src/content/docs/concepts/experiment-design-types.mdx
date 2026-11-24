@@ -20,21 +20,22 @@ warehouse, and how outcomes reach Evidential:
 Push and pull describe **outcomes only**. Your app always pulls assignments from Evidential (or downloads them as a CSV
 for Preassigned A/B).
 
-## At a Glance
+## Choosing a Design
 
-| Design                             | Participants are assigned          | Data warehouse | Outcomes                    |
-| ---------------------------------- | ---------------------------------- | -------------- | --------------------------- |
-| Preassigned A/B                    | All at once, before the start date | Required       | Pull (from your warehouse)  |
-| Online A/B                         | One at a time, as they arrive      | Required       | Pull (from your warehouse)  |
-| Multi-armed Bandit                 | One at a time, as they arrive      | Not needed     | Push (via API)              |
-| Multi-armed Bandit (DWH-connected) | One at a time, as they arrive      | Required       | Pull (from your warehouse)  |
-| Contextual Multi-armed Bandit      | One at a time, as they arrive      | Not needed     | Push (via API)              |
+| If you want to…                                         | Design                                                                     | Assignment                    | Outcomes               |
+| ------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------- | ---------------------- |
+| Assign a known list of participants before you start    | [Preassigned A/B](#preassigned-ab)                                         | All at once, before start     | Pull&nbsp;(warehouse)  |
+| Assign whole groups, such as schools or villages        | [Preassigned A/B (Cluster-Randomized)](#preassigned-ab-cluster-randomized) | By group, before start        | Pull&nbsp;(warehouse)  |
+| Measure an effect on participants arriving over time    | [Online A/B](#online-ab)                                                   | One at a time, as they arrive | Pull&nbsp;(warehouse)  |
+| Find and serve the best option without a warehouse      | [Multi-armed Bandit](#multi-armed-bandit)                                  | One at a time, as they arrive | Push&nbsp;(API&nbsp;only) |
+| Find and serve the best option using warehouse outcomes | [Multi-armed Bandit (DWH-connected)](#multi-armed-bandit-dwh-connected)    | One at a time, as they arrive | Pull&nbsp;(warehouse)  |
+| Serve the best option for each kind of participant      | [Contextual Multi-armed Bandit](#contextual-multi-armed-bandit)            | One at a time, as they arrive | Push&nbsp;(API&nbsp;only) |
 
 ### Supported Data Sources
 
 Evidential connects to **BigQuery**, **Redshift**, and **Postgres**. Bandits that don't use a data warehouse run on
 your organization's **API Only** data source. If you use a source that isn't listed here yet,
-[contact us](/contact/) to for support or [file a feature request](https://github.com/agency-fund/evidential-be/issues).
+[contact us](/contact/) for support or [file a feature request](https://github.com/agency-fund/evidential-be/issues).
 
 ## Frequentist Designs
 
@@ -65,10 +66,10 @@ Evidential selects participants and assigns every one of them to an arm when you
 Choose Preassigned A/B when you know your participants ahead of time, or need the full list of who's in which arm
 before the start date.
 
-#### Cluster-Randomized A/B
+### Preassigned A/B (Cluster-Randomized)
 
-If your intervention reaches whole groups at once—such as schools, clinics, or villages—you can assign **clusters**
-instead of individuals.
+A Preassigned A/B experiment that assigns whole **clusters**—such as schools, clinics, or villages—instead of
+individuals.
 
 - **How to enable it.** In the experiment wizard, set the optional **Cluster key** to the column that identifies each
   group and choose how many clusters to include.
@@ -185,16 +186,7 @@ of day.
 - **No example calls.** The Integration Guide doesn't include example API calls for this design. See the
   [API reference](/api/) instead.
 
-## Choosing a Design
-
-| If you want to…                                                          | Use                                   |
-| ------------------------------------------------------------------------ | ------------------------------------- |
-| Assign a known list of participants before you start                     | Preassigned A/B                       |
-| Assign whole groups, such as schools or villages                         | Preassigned A/B (cluster-randomized)  |
-| Measure the effect of a change on participants who arrive over time      | Online A/B                            |
-| Find and serve the best option, with your app pushing outcomes via API   | Multi-armed Bandit                    |
-| Find and serve the best option, with outcomes pulled from your warehouse | Multi-armed Bandit (DWH-connected)    |
-| Find the best option for each kind of participant                        | Contextual Multi-armed Bandit         |
+## Next Steps
 
 To connect your app to an experiment, see
 [Integrate Evidential with your application](/guides/integrate-with-the-api/). To run experiments in WhatsApp with
