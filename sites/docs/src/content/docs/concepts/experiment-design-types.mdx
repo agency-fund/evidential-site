@@ -12,22 +12,29 @@ Evidential offers two families of experiment design:
   best. Use it to find and serve the best option while the experiment runs.
 
 Within each family, the design you pick decides when participants are assigned, what Evidential needs from your data
-warehouse, and how results reach Evidential.
+warehouse, and how outcomes reach Evidential:
+
+- **Pull:** Evidential reads outcomes from your data warehouse (on each snapshot or on a regular schedule).
+- **Push:** Your app sends each participant's outcome to Evidential via the API.
+
+Push and pull describe **outcomes only**. Your app always pulls assignments from Evidential (or downloads them as a CSV
+for Preassigned A/B).
 
 ## At a Glance
 
-| Design                             | Participants are assigned          | Data warehouse | Results come from            |
-| ---------------------------------- | ---------------------------------- | -------------- | ---------------------------- |
-| Preassigned A/B                    | All at once, before the start date | Required       | Your data warehouse          |
-| Online A/B                         | One at a time, as they arrive      | Required       | Your data warehouse          |
-| Multi-armed Bandit                 | One at a time, as they arrive      | Not needed     | Your app reports each result |
-| Multi-armed Bandit (DWH-connected) | One at a time, as they arrive      | Required       | Your data warehouse          |
-| Contextual Multi-armed Bandit      | One at a time, as they arrive      | Not needed     | Your app reports each result |
+| Design                             | Participants are assigned          | Data warehouse | Outcomes                    |
+| ---------------------------------- | ---------------------------------- | -------------- | --------------------------- |
+| Preassigned A/B                    | All at once, before the start date | Required       | Pull (from your warehouse)  |
+| Online A/B                         | One at a time, as they arrive      | Required       | Pull (from your warehouse)  |
+| Multi-armed Bandit                 | One at a time, as they arrive      | Not needed     | Push (via API)              |
+| Multi-armed Bandit (DWH-connected) | One at a time, as they arrive      | Required       | Pull (from your warehouse)  |
+| Contextual Multi-armed Bandit      | One at a time, as they arrive      | Not needed     | Push (via API)              |
 
 ### Supported Data Sources
 
 Evidential connects to **BigQuery**, **Redshift**, and **Postgres**. Bandits that don't use a data warehouse run on
-your organization's **API Only** data source.
+your organization's **API Only** data source. If you use a source that isn't listed here yet,
+[contact us](/contact/) to for support or [file a feature request](https://github.com/agency-fund/evidential-be/issues).
 
 ## Frequentist Designs
 
@@ -39,9 +46,9 @@ Every frequentist design:
 - **Uses a participant table.** You point Evidential at a table or view in your data warehouse that lists your
   participants, one per row, with a column that uniquely identifies each one. Potential metrics, filters, and
   strata are also all drawn from columns in this table that describe each participant.
-- **Reads results from your warehouse.** Evidential collects metric values for assigned participants directly from
-  your data warehouse and compares each arm against the baseline arm. (Your app doesn't send outcomes
-  to Evidential via the API.)
+- **Pulls outcomes from your warehouse.** Evidential reads metric values for assigned participants directly from your
+  data warehouse on each snapshot and compares each arm against the baseline arm. (Your app doesn't push outcomes to
+  Evidential via the API.)
 
 ### Preassigned A/B
 
@@ -67,7 +74,7 @@ before the start date.
 Evidential assigns each participant the first time your app asks for their assignment, using the split you set.
 There's no list of participants up front.
 
-- **Your participant table is still required.** Evidential uses it to define your metrics and read results, but
+- **Your participant table is still required.** Evidential uses it to define your metrics and pull outcomes, but
   doesn't select participants from it.
 - **No power check.** Online A/B doesn't include sample size planning.
 - **Participants are assigned independently**, so there are no strata or group assignment.
@@ -137,23 +144,23 @@ estimate of an effect, use an A/B test.
 ### Multi-armed Bandit
 
 The standard bandit. It doesn't need a data warehouse: your app requests an assignment for each participant and
-reports each participant's result back to Evidential. To set it up, choose **Multi-armed Bandit** in the experiment
-wizard, then **No data warehouse** on the data source step.
+pushes each participant's outcome back to Evidential via the API. To set it up, choose **Multi-armed Bandit** in the
+experiment wizard, then **No data warehouse** on the data source step.
 
-**Autofail** is available for this design. If a participant has no result after a time window you set, Evidential
-records a default result you choose for them, such as a "no" for a binary outcome. Once recorded, the result can't be
+**Autofail** is available for this design. If a participant has no outcome after a time window you set, Evidential
+records a default outcome you choose for them, such as a "no" for a binary outcome. Once recorded, the outcome can't be
 replaced.
 
 ### Multi-armed Bandit (DWH-connected)
 
-A Multi-armed Bandit whose results come from your data warehouse instead of from your app. In the experiment wizard,
-choose **Multi-armed Bandit**, then on the data source step pick a data source, a table, the column that identifies
-participants (**Unique ID**), and a **Target column** that holds each participant's result.
+A Multi-armed Bandit that pulls outcomes from your data warehouse instead of having your app push them. In the
+experiment wizard, choose **Multi-armed Bandit**, then on the data source step pick a data source, a table, the column
+that identifies participants (**Unique ID**), and a **Target column** that holds each participant's outcome.
 
-- **Your app requests assignments, but doesn't report results.** Evidential reads the target column on a regular
+- **Your app requests assignments, but doesn't push outcomes.** Evidential pulls the target column on a regular
   schedule. The participant IDs your app uses must match the values in the column that identifies participants.
-- **Results can arrive late.** Empty values are checked again on later reads, for about a week after the end date.
-  Results that are still empty after that stay empty.
+- **Outcomes can arrive late.** Empty values are checked again on later pulls, for about a week after the end date.
+  Outcomes that are still empty after that stay empty.
 - **The target column sets the outcome type.** A true/false column is a binary outcome. A numeric column is
   real-valued.
 - **Autofail isn't available** for this design.
@@ -165,21 +172,21 @@ request, your app sends context: information about the participant or their situ
 of day.
 
 - **At least one context is required.** Each context is either binary or real-valued.
-- **Your app reports each result**, as with the standard Multi-armed Bandit. Autofail is available.
+- **Your app pushes each outcome** via the API, as with the standard Multi-armed Bandit. Autofail is available.
 - **Results depend on context.** To see an arm's estimated performance, you choose context values.
 - **No example calls.** The Integration Guide doesn't include example API calls for this design. See the
   [API reference](/api/) instead.
 
 ## Choosing a Design
 
-| If you want to…                                                        | Use                                   |
-| ---------------------------------------------------------------------- | ------------------------------------- |
-| Assign a known list of participants before you start                   | Preassigned A/B                       |
-| Assign whole groups, such as schools or villages                       | Preassigned A/B with group assignment |
-| Measure the effect of a change on participants who arrive over time    | Online A/B                            |
-| Find and serve the best option, with your app reporting results        | Multi-armed Bandit                    |
-| Find and serve the best option, with results already in your warehouse | Multi-armed Bandit (DWH-connected)    |
-| Find the best option for each kind of participant                      | Contextual Multi-armed Bandit         |
+| If you want to…                                                          | Use                                   |
+| ------------------------------------------------------------------------ | ------------------------------------- |
+| Assign a known list of participants before you start                     | Preassigned A/B                       |
+| Assign whole groups, such as schools or villages                         | Preassigned A/B with group assignment |
+| Measure the effect of a change on participants who arrive over time      | Online A/B                            |
+| Find and serve the best option, with your app pushing outcomes via API   | Multi-armed Bandit                    |
+| Find and serve the best option, with outcomes pulled from your warehouse | Multi-armed Bandit (DWH-connected)    |
+| Find the best option for each kind of participant                        | Contextual Multi-armed Bandit         |
 
 To connect your app to an experiment, see
 [Integrate Evidential with your application](/guides/integrate-with-the-api/). To run experiments in WhatsApp with
