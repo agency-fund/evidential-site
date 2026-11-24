@@ -1,7 +1,7 @@
 # Headline numbers in the "Nonprofits learn faster with Evidential" section. These are updated by hand.
 # Source of truth: Metabase (experiments_run, active organizations).
 - id: experiments
-  value: 74
+  value: 67
   label: Experiments run
 - id: organizations
   value: 15
