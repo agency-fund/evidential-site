@@ -2,7 +2,7 @@
 title: "Accounts and access"
 description: How people sign in to Evidential, who gets an account, and what each person can see and do.
 sidebar:
-  order: 5
+  order: 4
 ---
 
 Evidential doesn't manage passwords. People sign in with the account they already use at work, such as Google, Okta, or
@@ -29,7 +29,9 @@ An administrator can widen this under **Sign-Up Policy** on the **Evidential Set
 People who sign up on their own (without an invite) start without any organization. They're asked to create one, or a
 member can add them to an existing one.
 
+:::note[First-time setup]
 The first person to sign in to a new Evidential installation becomes its first administrator.
+:::
 
 ## What Members Can See and Do
 
@@ -41,8 +43,11 @@ are no finer-grained roles, such as read-only members.
 
 ## Administrators
 
-Administrators (labeled **Privileged** in the app) have installation-wide access. Keep this list small. Administrators
-can:
+:::caution[Keep the administrator list small]
+Administrators (labeled **Privileged** in the app) have installation-wide access.
+:::
+
+Administrators can:
 
 - See every organization on the installation and manage its members, webhooks, and settings, even if they aren't a
     member of it. To work with an organization's data sources or experiments, they add themselves as a member first.

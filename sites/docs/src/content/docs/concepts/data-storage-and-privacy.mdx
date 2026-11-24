@@ -1,7 +1,7 @@
 ---
 title: "Data storage and privacy"
 sidebar:
-  order: 4
+  order: 5
 ---
 
 Evidential is built with **privacy by design** — it stores **only what’s essential** to make experiments work, mostly aggregated, while your full dataset stays in your own environment.
@@ -28,7 +28,8 @@ Certain experiment features store granular, participant-level fields that could 
 :::caution[Keep PII and sensitive data out of experiment fields]
 Avoid using raw personal or sensitive information in participant IDs, filters, strata, cluster keys, or bandit context
 values. If any fields are considered PII or otherwise sensitive but are still required for an experiment, we recommend
-hashing their values as part of your data transformations when preparing data in your data warehouse.
+hashing their values before use, such as during data preparation in your data warehouse, and don't
+filter on columns with PII such as names or emails.
 :::
 
 ## What We Don’t Store

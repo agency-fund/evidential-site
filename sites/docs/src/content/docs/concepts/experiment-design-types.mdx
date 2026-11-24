@@ -24,6 +24,8 @@ warehouse, and how results reach Evidential.
 | Multi-armed Bandit (DWH-connected) | One at a time, as they arrive      | Required       | Your data warehouse          |
 | Contextual Multi-armed Bandit      | One at a time, as they arrive      | Not needed     | Your app reports each result |
 
+### Supported Data Sources
+
 Evidential connects to **BigQuery**, **Redshift**, and **Postgres**. Bandits that don't use a data warehouse run on
 your organization's **API Only** data source.
 
@@ -35,10 +37,11 @@ compare the arms to see whether the change made a difference.
 Every frequentist design:
 
 - **Uses a participant table.** You point Evidential at a table or view in your data warehouse that lists your
-  participants, with one column that uniquely identifies each one. Metrics, filters, and strata are all columns in
-  this table.
+  participants, one per row, with a column that uniquely identifies each one. Potential metrics, filters, and
+  strata are also all drawn from columns in this table that describe each participant.
 - **Reads results from your warehouse.** Evidential collects metric values for assigned participants directly from
-  your data warehouse and compares each arm against the baseline arm. Your app doesn't report results.
+  your data warehouse and compares each arm against the baseline arm. (Your app doesn't send outcomes
+  to Evidential via the API.)
 
 ### Preassigned A/B
 
