@@ -4,7 +4,8 @@ sidebar:
   order: 1
 ---
 
-This document describes how to configure Evidential's OpenID Connect (OIDC) integration.
+This document describes how to configure Evidential's OpenID Connect (OIDC) integration. For a non-technical overview of
+accounts, sign-in, and permissions, see [Accounts and access](/concepts/accounts-and-access/).
 
 :::note[Signing in during development]
 In development, `task start` logs in through a built-in development identity provider, which lets you pick a test user
@@ -23,21 +24,19 @@ When the database contains no users, the first user to sign in through the confi
 automatically with administrator privileges. During initial setup, sign in with the account you intend to use as the
 first administrator.
 
-After that, the sign-up policy decides who else can sign in. Administrators set it under **Sign-Up Policy** on the
-**Evidential Settings** page, which they reach from the user menu:
-
-- **Invited users only** (the default): only people who have been invited can sign in. Invite them via the Organization
-    Settings page in the web UI, or via the command line (run `xngin-cli add-user --help` for details).
-- **Invited users and users in the configured domains**: invited users can sign in, and anyone whose verified email
-    address is at a domain listed under **Domain Settings** with **Allow sign-up** switched on gets an account when they
-    first sign in. Domains must match exactly: allowing `example.org` does not allow `research.example.org`.
-- **Anyone**: anyone who can sign in through the identity provider gets an account when they first sign in.
-
-People who sign up this way are not members of any organization. They are asked to create one when they first arrive,
-or a member can add them to an existing one.
+After that, the [sign-up policy](/concepts/accounts-and-access/#who-gets-an-account) decides who else can sign in. By
+default only invited users can sign in; invite them from the Organization Settings or Manage Users pages in the web UI,
+or via the command line (`xngin-cli add-user --help`). Administrators can widen sign-up to verified email addresses in
+configured domains or to anyone the identity provider authenticates from **Evidential Settings** in the user menu.
 
 On first login, the user is bound to the identity provider's issuer and subject identifier, and only that identity
 provider can sign them in afterwards.
+
+:::caution[Switching identity providers locks out existing users]
+Because each user is bound to the issuer and subject identifier from their first sign-in, users who signed in before you
+switch to a different identity provider can't sign in through the new one. Users who were invited but never signed in
+are not affected.
+:::
 
 :::caution[Changing the issuer or client ID signs everyone out]
 Session tokens are bound to the configured issuer and client ID. Changing `XNGIN_OIDC_ISSUER` or
@@ -60,6 +59,7 @@ This has been tested with Google, Okta, Authentik, Keycloak, and Rauthy.
 | `XNGIN_OIDC_REDIRECT_URI`  | yes      | The URL the identity provider redirects to after login: the public URL of the frontend, such as `http://localhost:3000/`. Must be an absolute URL without a fragment, using `https://` outside development. Register the same value with the identity provider.                                                                   |
 | `XNGIN_OIDC_CLIENT_SECRET` | no       | The client secret. Leave it unset for public clients, which authenticate with PKCE alone.                                                                                                                                                                                                                                         |
 | `XNGIN_OIDC_CLAIM_MAP`     | no       | Comma-separated `claim:field` pairs that copy ID token claims onto the session principal. The only supported field is `hd`. Example: `hd:hd`.                                                                                                                                                                                     |
+| `CORS_ALLOWED_ORIGINS`     | outside development | Comma-separated list of frontend origins allowed to call the API from a browser, such as `https://app.example.com`. Outside development, the backend refuses to start without it. In development it defaults to allowing every origin. |
 
 The backend always requests the `openid` and `email` scopes; they are not configurable.
 
@@ -183,6 +183,9 @@ Rauthy signs tokens with EdDSA by default, so set the client's ID token algorith
     instead.
 - **`JWKS response does not contain any usable RS256 public signing keys.`** The provider's JWKS has no RSA public
     key with a key ID, so ID tokens cannot be verified.
+- **The backend fails to start with `CORS_ALLOWED_ORIGINS environment variable is not set.`** Outside development, set
+    it to the origin of your frontend, such as `https://app.example.com`. If sign-in fails in the browser with a CORS
+    error, check that the frontend's origin is in the list exactly, including the scheme and any port.
 - **The identity provider reports a redirect URI mismatch.** `XNGIN_OIDC_REDIRECT_URI` must be registered with the
     identity provider character for character, including the trailing slash. If your development environment uses a
     different port number, change both.

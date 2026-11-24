@@ -1,36 +1,40 @@
 ---
 title: "Data storage and privacy"
 sidebar:
-  order: 3
+  order: 5
 ---
 
-Evidential is built with **privacy by design** — it stores **only what’s essential** to make experiments work, mostly aggregated, while raw data always stays in your own environment.
+Evidential is built with **privacy by design** — it stores **only what’s essential** to make experiments work, mostly aggregated, while your full dataset stays in your own environment.
 
 What we store:
 
-## Aggregated Data
+## Account, Configuration, and Aggregated Data
 
-We mostly store only **anonymized and aggregated** information in a **PostgreSQL application database**, such as:
+In its **PostgreSQL application database**, Evidential stores:
 
-- **Experiment specifications** — name, hypothesis, start/end dates, configuration details
+- **Account details** — user email addresses for login and access control
+- **Experiment specifications** — name, hypothesis, start/end dates, and configuration details (including configured filter values)
 - **Experiment results** — regular snapshots of aggregated experiment metrics
 
 ## Granular Data
 
-There are two types of user-led actions that can expose granular data containing PII:
+Certain experiment features store granular, participant-level fields that could contain PII if passed in raw form:
 
 - **Participant IDs** — used to track assignment and outcomes.
 - **Unique values of columns used as filters** — stored to enable autocomplete. Avoid using columns with PII (e.g., names, emails) as filters.
+- **Strata values and cluster keys** — stored alongside assignments for stratified or cluster-randomized experiments.
+- **Bandit outcomes and context values** — for multi-armed and contextual bandits, Evidential stores each participant's recorded outcome and (for contextual bandits) the context values sent via the API.
 
-:::caution[Keep personal data out of participant IDs and filter columns]
-Evidential stores the participant IDs used in experiments and the unique values of columns used as filters. Make sure
-IDs contain no raw personal information, or hash them before use, and don't filter on columns with PII such as names
-or emails.
+:::caution[Keep PII and sensitive data out of experiment fields]
+Avoid using raw personal or sensitive information in participant IDs, filters, strata, cluster keys, or bandit context
+values. If any fields are considered PII or otherwise sensitive but are still required for an experiment, we recommend
+hashing their values before use, such as during data preparation in your data warehouse, and don't
+filter on columns with PII such as names or emails.
 :::
 
 ## What We Don’t Store
 
-Evidential **doesn't store or copy raw-level data**. All analysis queries run **directly in your database**.
+Evidential **doesn't store or copy your raw warehouse tables**. Analysis queries run **directly in your data warehouse**, and only the metadata, aggregated results, and participant-level fields listed above are saved in Evidential's application database.
 
 ## Learn More
 

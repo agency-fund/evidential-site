@@ -1,0 +1,75 @@
+---
+title: "Accounts and access"
+description: How people sign in to Evidential, who gets an account, and what each person can see and do.
+sidebar:
+  order: 4
+---
+
+Evidential doesn't manage passwords. People sign in with the account they already use at work, such as Google, Okta, or
+another single sign-on service. That service, called the **identity provider**, confirms who someone is. Password rules,
+two-step verification, and closing accounts when someone leaves stay with your organization's existing IT setup.
+
+Signing in through the identity provider doesn't by itself give someone access. Evidential keeps its own record of who
+has an account and what they can see.
+
+## Who Gets an Account
+
+By default, only people who have been invited can sign in. You invite someone by adding their email address as a member
+of an organization, or an administrator can add them from **Manage Users**. Their account is created then, and they can
+sign in with that email address.
+
+An administrator can widen this under **Sign-Up Policy** on the **Evidential Settings** page:
+
+- **Invited users only**: the default.
+- **Invited users and users in the configured domains**: anyone whose email address is at a domain listed under
+    **Domain Settings** with **Allow sign-up** turned on, such as `example.org`, gets an account the first time they
+    sign in. Domains must match exactly, so allowing `example.org` doesn't allow `research.example.org`.
+- **Anyone**: anyone who can sign in through the identity provider gets an account.
+
+People who sign up on their own (without an invite) start without any organization. They're asked to create one, or a
+member can add them to an existing one.
+
+:::note[First-time setup]
+The first person to sign in to a new Evidential installation becomes its first administrator.
+:::
+
+## What Members Can See and Do
+
+Data sources, experiments, API keys, and webhooks all belong to an organization. Members see the organizations they
+belong to and nothing else.
+
+Within an organization, every regular member has the same access. Any member can add other members or remove them. There
+are no finer-grained roles, such as read-only members.
+
+## Administrators
+
+:::caution[Keep the administrator list small]
+Administrators (labeled **Privileged** in the app) have installation-wide access.
+:::
+
+Administrators can:
+
+- See every organization on the installation and manage its members, webhooks, and settings, even if they aren't a
+    member of it. To work with an organization's data sources or experiments, they add themselves as a member first.
+- Manage users from the **Manage Users** page: invite users, add or remove them from organizations, grant or remove
+    administrator access, and delete accounts.
+- Change the sign-up policy and domain settings.
+
+Evidential won't let you remove or delete the last administrator, so your team can't be locked out.
+
+## Sessions
+
+Sessions last up to 12 hours, after which you'll need to sign in again. Signing out ends your sessions on every device,
+not just the current one.
+
+## Access for Your Applications
+
+Your applications don't sign in as a person. Software that assigns participants or reports outcomes uses an
+[API key](/guides/integrate-with-the-api/), which belongs to one data source rather than to a person. Deleting a member's
+account doesn't revoke API keys they created, so delete those keys separately when you no longer need them.
+
+## Learn More
+
+- [Configure sign-in with OIDC](/operate/guides/configure-oidc/) explains how to connect an identity provider when you run
+    your own Evidential installation.
+- [Data storage and privacy](/concepts/data-storage-and-privacy/) explains what Evidential stores.
