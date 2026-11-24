@@ -59,15 +59,23 @@ Evidential selects participants and assigns every one of them to an arm when you
 - **Power check.** Before you launch, Evidential uses your data to estimate how many participants you need to detect
   the effect you care about, and shows how that changes with sample size.
 - **Balanced arms.** You can pick strata, such as region or age group, so each arm gets a similar mix of participants.
-- **Group assignment.** If your intervention reaches whole groups at once, such as a school or a village, you can
-  assign groups instead of individuals. In the wizard, this is the optional **Cluster key**: choose the column that
-  identifies each group and how many groups to include. Everyone who matches your filters in a selected group joins
-  the same arm, and participants with no group are left out. Group assignment can't be combined with strata.
 - **Getting assignments.** Download the full list as a CSV, fetch it through the API, or look up one participant at a
   time.
 
 Choose Preassigned A/B when you know your participants ahead of time, or need the full list of who's in which arm
 before the start date.
+
+#### Cluster-Randomized A/B
+
+If your intervention reaches whole groups at once—such as schools, clinics, or villages—you can assign **clusters**
+instead of individuals.
+
+- **How to enable it.** In the experiment wizard, set the optional **Cluster key** to the column that identifies each
+  group and choose how many clusters to include.
+- **Who gets assigned.** Everyone who matches your filters in a selected cluster joins the same arm; participants
+  without a cluster value are left out.
+- **Power and analysis.** Sample size planning and treatment effect analysis automatically account for clustering.
+- **No strata.** Cluster-randomized designs can't be combined with strata.
 
 ### Online A/B
 
@@ -182,7 +190,7 @@ of day.
 | If you want to…                                                          | Use                                   |
 | ------------------------------------------------------------------------ | ------------------------------------- |
 | Assign a known list of participants before you start                     | Preassigned A/B                       |
-| Assign whole groups, such as schools or villages                         | Preassigned A/B with group assignment |
+| Assign whole groups, such as schools or villages                         | Preassigned A/B (cluster-randomized)  |
 | Measure the effect of a change on participants who arrive over time      | Online A/B                            |
 | Find and serve the best option, with your app pushing outcomes via API   | Multi-armed Bandit                    |
 | Find and serve the best option, with outcomes pulled from your warehouse | Multi-armed Bandit (DWH-connected)    |
