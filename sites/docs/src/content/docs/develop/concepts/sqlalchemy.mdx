@@ -37,7 +37,7 @@ with Session(engine) as session:
     )  # New DB query happens here!
 ```
 
-By setting it to false, the behavior changes. Objects after the commit are no-longer invalidated. This means that if
+By setting it to false, the behavior changes. Objects after the commit are no longer invalidated. This means that if
 you are reading any database-generated values from newly inserted or updated objects, you must explicitly refresh the
 object. Here's how:
 

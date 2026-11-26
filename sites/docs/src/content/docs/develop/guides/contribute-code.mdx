@@ -49,8 +49,8 @@ Your ideas, code, and feedback are essential to its success.
 1. **Set up your development environment**
 
    Follow [Set up a development environment](/develop/setup/) to install prerequisites,
-   run the test suite, and start a local server. Don’t skip the last step there — installing the
-   git hooks (`uv run prek install`) keeps formatting and lint issues from ever
+   run the test suite, and start a local server. Don’t skip installing the git hooks early in
+   that guide (`prek install` in each repo) — it keeps formatting and lint issues from ever
    reaching your pull request.
 
 1. **Make your changes**
@@ -77,6 +77,7 @@ Your ideas, code, and feedback are essential to its success.
 
    ```bash
    task lint
+   task test
    ```
 
    GitHub Actions runs the same checks on every pull request, so running them locally first
@@ -99,7 +100,7 @@ Your ideas, code, and feedback are essential to its success.
 
 ## Request a feature
 
-If you don't feel like contributing, simply request a feature by [contacting us](/contact/)
+If you don't feel like contributing, simply request a feature by [contacting us](/contact/).
 
 ## Reporting security issues
 
@@ -109,8 +110,10 @@ it’s disclosed.
 
 ## Licensing
 
-The backend ([evidential-be](https://github.com/agency-fund/evidential-be)) is licensed
-under Apache 2.0. By contributing, you agree that your contributions will be licensed
-under the same terms as the repository you contribute to.
+The backend ([evidential-be](https://github.com/agency-fund/evidential-be)) is licensed under Apache 2.0
+(see its `LICENSE` file). The frontend ([evidential-fe](https://github.com/agency-fund/evidential-fe)) and this docs
+site ([evidential-site](https://github.com/agency-fund/evidential-site)) follow the same open-source contribution terms.
+By contributing, you agree that your contributions will be licensed under the same terms as the repository you
+contribute to.
 
 Thanks for helping us build something better—together!

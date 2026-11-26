@@ -5,7 +5,7 @@ sidebar:
 ---
 
 Evidential has optional support for using [Sentry](https://sentry.io/), [Glitchtip](https://glitchtip.com/) (open source), or any
-other Sentry- compatible service for capturing operational errors and metrics from the backend service.
+other Sentry-compatible service for capturing operational errors and metrics from the backend service.
 
 These environment variables are used to configure Sentry:
 
@@ -16,3 +16,8 @@ These environment variables are used to configure Sentry:
 
 In some cases, we will send additional detail along with the error reports, such as Organization ID, Datasource ID,
 User ID, Experiment ID, or a request correlation ID.
+
+:::note[Secrets and PII scrubbing]
+Evidential configures Sentry's event scrubber to strip secrets and common PII from error payloads (for example `email`,
+`webhook_token`, OIDC components, datasource credentials, and `SENTRY_DSN` itself).
+:::
