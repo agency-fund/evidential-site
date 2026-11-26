@@ -21,9 +21,10 @@ In its **PostgreSQL application database**, Evidential stores:
 Certain experiment features store granular, participant-level fields that could contain PII if passed in raw form:
 
 - **Participant IDs** — used to track assignment and outcomes.
-- **Unique values of columns used as filters** — stored to enable autocomplete. Avoid using columns with PII (e.g., names, emails) as filters.
+- **Unique values of columns used as filters** (coming soon) — stored to enable autocomplete. Avoid using columns with PII (e.g., names, emails) as filters.
 - **Strata values and cluster keys** — stored alongside assignments for stratified or cluster-randomized experiments.
 - **Bandit outcomes and context values** — for multi-armed and contextual bandits, Evidential stores each participant's recorded outcome and (for contextual bandits) the context values sent via the API.
+- **Table schemas and table names** — cached for faster datasource configuration and to enable autocomplete.
 
 :::caution[Keep PII and sensitive data out of experiment fields]
 Avoid using raw personal or sensitive information in participant IDs, filters, strata, cluster keys, or bandit context

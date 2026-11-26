@@ -4,65 +4,119 @@ sidebar:
   order: 3
 ---
 
-This page answers the most common questions about how Evidential handles analytics, outlining the statistical logic and assumptions that power Evidential’s experiment engine.
+This page outlines the statistical methods and assumptions behind Evidential's experiment engine. For an overview of when
+to use each experiment type, see [Experiment design types](/concepts/experiment-design-types/).
 
 ## Power Calculations
 
-We calculate power using a **two-sample t-test**, with a default, editable **80% power (1−β)** and **0.05 significance level (α)**.
-We derive the baseline value for the outcome from existing potential participants and compute a default target effect size of:
+Before you launch a **Preassigned A/B** experiment (individual or cluster-randomized), Evidential runs a power check
+against eligible participants in your participant table (after applying your experiment's filters). **Online A/B** and
+**Bayesian (bandit)** designs don't include upfront power calculations.
+
+- **Defaults and inputs:** Evidential derives baseline outcome statistics from eligible participants and uses an
+  editable default of **80% power (1−β)** and **0.05 significance level (α)**. It computes both the **sample size
+  needed** for your target effect size (specified as a percentage change from baseline) and an **MDE curve** showing
+  the smallest effect you can detect across different sample sizes.
+- **Numeric vs. binary metrics:** Numeric metrics use a **two-sample t-test**; binary metrics use a **two-sample normal
+  approximation** (via Cohen's *h*).
+- **Multi-arm and unbalanced splits:** When an experiment has more than two arms or custom arm weights, power is sized
+  for the smallest treatment arm relative to the baseline arm so every arm meets your target power.
+- **Cluster-randomized designs:** Sample size and MDE calculations account for clustering via the design effect
+  (Eldridge et al., 2006; see also [this World Bank post](https://blogs.worldbank.org/en/impactevaluations/different-sized-baskets-fruit-how-unequally-sized-clusters-can-lead-your-power)):
 
 ```text
-Target Effect Size = Baseline × 0.1
+DEFF = 1 + ICC × [(m − 1) + m × CV²]
 ```
+
+where *m* is the average cluster size, *ICC* is the intracluster correlation coefficient, and *CV* is the coefficient
+of variation in cluster sizes.
 
 ## Assignments
 
-### Pre-assigned
+### Preassigned A/B
 
-Static, **stratified randomized assignment** by selected strata.
+Static **stratified randomized assignment** across selected strata (with numeric strata bucketed into quartiles for
+stratification), or simple random assignment when no strata are selected. Supports equal or custom arm weights.
 
-### Online
+### Preassigned A/B (Cluster-Randomized)
 
-Dynamic **randomized assignment** without any stratification. Higher risk of statistical imbalance in smaller samples.
+Static randomized assignment of whole **clusters**—such as schools, clinics, or villages—so everyone matching your
+filters in a selected cluster joins the same arm. Clusters are stratified internally by cluster size so arms receive a
+balanced mix of cluster sizes; custom strata aren't supported. Supports equal or custom arm weights at the cluster
+level.
+
+### Online A/B
+
+Dynamic **simple random assignment** as participants arrive, without stratification or clustering. Higher risk of
+imbalance in smaller samples.
+
+### Bayesian (Bandits)
+
+Dynamic **Thompson Sampling** (with optional top-two exploration) that shifts traffic toward better-performing arms as
+outcomes arrive. See [Bayesian Designs](/concepts/experiment-design-types/#bayesian-designs) for details.
 
 ## Balance Checks
 
-Omnibus test predicting treatment assignment using any available user-level data variables.
-This can be any combination of outcomes, strata, or filter values.
-We should **not** be able to predict treatment assignment with any individual or combination of these variables.
+After randomization for **Preassigned A/B** experiments, Evidential checks whether arms are statistically balanced
+across baseline characteristics whenever usable covariates exist—across your selected strata for individual
+experiments, or across cluster size for cluster-randomized experiments (when cluster sizes vary).
 
-We report the **F-statistic test of joint significance** in a standard OLS regression.
+- Evidential runs an **omnibus F-test of joint significance** from an OLS regression predicting treatment assignment
+  (currently comparing the **first two arms**), using **HC1 heteroskedasticity-robust standard errors** (or
+  **cluster-robust standard errors** when clustering applies).
+- Constant columns and unique non-numeric columns are excluded. Numeric columns with missing values are bucketed into
+  quartiles, with missing values treated as their own category.
+- Baseline characteristics should **not** predict treatment assignment; a high p-value indicates balanced arms.
 
 ## Strata
 
-Also known as **covariates** or **controls**.
-These are user-level characteristics that are considered **prior to treatment assignment**.
-They are used primarily to stratify treatment assignment but can also be used to:
+Strata (also known as **covariates** or **controls**) are pre-treatment participant-level
+characteristics drawn from columns in your participant table. They are available for individual
+**Preassigned A/B** experiments (not cluster-randomized or Online A/B), and are used to:
 
-- Estimate **heterogeneous treatment effects**, and
-- Achieve (marginally) improved **efficiency in estimating standard errors**.
+- Stratify treatment assignment so each arm receives a balanced mix of participants, and
+- Verify baseline balance in post-assignment balance checks.
+
+Each participant's strata values (as recorded at assignment time) are exported alongside assignments so you can run
+post-hoc subgroup or covariate-adjusted analyses yourself. Evidential's built-in analysis regression does not currently
+include strata as covariates (see [Frequentist Analysis: Regression](#frequentist-analysis-regression) below).
 
 ## Data Warehouse Metrics
 
-Outcome metrics that are the **target of experiments** are stored in a data warehouse table at a **user level**.
+Outcome metrics for frequentist experiments live in your data warehouse table at the **participant level**.
 
-These metrics should be the **primary metrics** that the organization holds itself accountable to.
-They should match the metrics the organization already uses to assess its programs’ operational and impact performance.
+These should be the **primary metrics** your organization holds itself accountable to. They should
+ideally match the operational and impact metrics you already use to evaluate your programs.
 
-## Regression
+## Frequentist Analysis: Regression
 
-We estimate the **intent-to-treat average treatment effect (ATE)** using the following model:
+For frequentist experiments, Evidential estimates the **intent-to-treat average treatment effect (ATE)** for each
+metric using **linear OLS with arm indicators** (no covariates):
+
+```text
+Metricᵢ = Σⱼ βⱼ × Armᵢⱼ + εᵢ
+```
+
+- Each arm's estimated treatment effect is the contrast against the baseline arm (`β_treatment − β_baseline`),
+  interpreted as the intent-to-treat average treatment effect on the chosen metric.
+- Inference uses **HC1 heteroskedasticity-robust standard errors** for individually randomized experiments and
+  **cluster-robust standard errors** (clustered by your cluster key) for cluster-randomized experiments.
+
+:::note[Coming soon: covariate-adjusted regression]
+We plan to add covariate-adjusted estimation:
 
 ```text
 Metricᵢ = β₀ + β₁ × Treatmentᵢ + Controlsᵢ + εᵢ
 ```
 
-Controls include pre-specified strata as well as pre-treatment values for the outcome metric.
+where `Controls` include pre-specified strata as well as pre-treatment values for the outcome
+metric, to reduce standard errors and therefore improve precision.
+:::
 
-## Interpretation of Results
+## Bayesian (Bandit) Analysis
 
-We run a **linear OLS model**, where we interpret the coefficient on the treatment indicator (**β₁**) as the:
-
-> Intent-to-treat, average treatment effect of the treatment on the chosen metric.
+For multi-armed and contextual bandits, Evidential updates each arm's posterior distribution as outcomes arrive
+(Beta-Binomial for binary outcomes, Normal models for real-valued outcomes, and Bayesian regression for contextual
+bandits) and reports posterior estimates and credible intervals rather than frequentist p-values.
 
 *Evidential handles all the above automatically — so you can focus on learning what works, not on the math behind it.*
