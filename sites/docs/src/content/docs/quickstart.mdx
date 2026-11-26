@@ -3,14 +3,14 @@ title: "Quickstart"
 ---
 
 :::note[Self-onboarding isn’t available yet]
-Join the wait-list by [contacting us](/contact/).
+Join the waitlist by [contacting us](/contact/).
 :::
 
 ## Log in
 
 Once your organization is authorized, go to **[app.evidential.dev](https://app.evidential.dev)** and sign in with your organization's single sign-on provider.
 
-## 5-minutes Setup
+## 5-Minute Setup
 
 <video src="https://media.evidential.dev/docs/evidential_demo_20250709.mp4" poster="/media/evidential-demo-poster.webp" preload="none" controls width="100%" title="5-minute onboarding video"></video>
 
@@ -18,24 +18,29 @@ Once your organization is authorized, go to **[app.evidential.dev](https://app.e
 
 1. **Connect your data warehouse**
 
-   We currently support BigQuery, Redshift or Postgres. More connections may be coming.
+   We currently support BigQuery, Redshift, Postgres and Lakehouse. (If you'd like to run an
+   API-only bandit, skip this step and specify the **API Only** data source.)
 
 1. **Define experiment participants**
 
-   Point us to the table or view that lists your participants with the relevant metrics.
+   For warehouse-backed experiments, point us to the table or view that lists your participants with the relevant
+   metrics.
 
 1. **Create an experiment**
 
-   Name it, pick metrics & filters, choose randomization unit and traffic split. See
+   Name it, choose a randomization unit and traffic split, and pick metrics & filters. See
    [Experiment design types](/concepts/experiment-design-types/) to decide which design fits.
 
 1. **Retrieve assignments**
 
-   Download a CSV from the UI or call the `/v1/assignments` REST endpoint.
+   Download a CSV from the UI to use in your own service or fetch assignments via the
+   [Experiments API](/guides/integrate-with-the-api/) (see the [API reference](/api/)).
 
 1. **Analyze results**
 
-   Use the built-in dashboard or query the experiment results endpoint.
+   Track progress and analyze results in the built-in dashboard. (Depending on experiment type, your
+   service may push outcomes to Evidential via the API; or we pull outcomes from your data warehouse
+   for you.)
 
 </Steps>
 
