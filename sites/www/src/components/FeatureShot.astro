@@ -3,6 +3,7 @@
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import bandit from "../assets/screens/console-bandit-analysis.webp";
+import datasources from "../assets/screens/console-datasources.webp";
 import experiments from "../assets/screens/console-experiments.webp";
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
   class?: string;
 }
 
-const screens = { experiments, "bandit-analysis": bandit };
+const screens = { experiments, "bandit-analysis": bandit, datasources };
 const { feature, class: className } = Astro.props;
 const { screen, alt, crop } = feature.data;
 ---
