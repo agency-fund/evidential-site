@@ -83,7 +83,7 @@ const features = defineCollection({
     title: z.string(),
     summary: z.string(),
     useWhen: z.string(),
-    screen: z.enum(["experiments", "bandit-analysis"]),
+    screen: z.enum(["experiments", "bandit-analysis", "datasources"]),
     alt: z.string(),
     crop: z.object({ width: z.number(), left: z.number(), top: z.number() }),
   }),

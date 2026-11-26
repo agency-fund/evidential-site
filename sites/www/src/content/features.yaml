@@ -8,7 +8,7 @@
   useWhen: you have a few versions of a message and want to know which one works.
   screen: experiments
   alt: Experiment cards labeled A/B and bandit experiment types
-  crop: { width: 193.85, left: -82.05, top: -45.19 }
+  crop: { width: 193.85, left: -82.5, top: -45.19 }
 - id: bayesian
   title: Bayesian designs
   summary: Decide sooner, even with small samples.
@@ -34,6 +34,6 @@
   title: Works with your data
   summary: Warehouse and event integrations, plus a full API.
   useWhen: your data already lives in a warehouse or app and you don’t want to move it by hand.
-  screen: experiments
+  screen: datasources
   alt: Evidential sidebar with the Integrations menu and experiments list
-  crop: { width: 229.09, left: 0, top: -18.18 }
+  crop: { width: 147, left: -2, top: 0 }
