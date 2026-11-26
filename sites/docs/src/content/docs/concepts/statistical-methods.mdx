@@ -8,6 +8,12 @@ This page answers the most common questions about how Evidential handles analyti
 
 ## Power Calculations
 
+Before you launch a **Preassigned A/B** experiment (individual or cluster-randomized), Evidential runs a power check
+against the eligible participants in your participant table (after applying your experiment's filters). This lets you
+estimate the sample size needed to detect a target effect size, or see how the minimum detectable effect changes across
+sample sizes given the participants you have on hand. **Online A/B** and **Bayesian (bandit)** designs don't include
+upfront power calculations.
+
 We calculate power using a **two-sample t-test**, with a default, editable **80% power (1−β)** and **0.05 significance level (α)**.
 We derive the baseline value for the outcome from existing potential participants and compute a default target effect size of:
 
@@ -15,19 +21,32 @@ We derive the baseline value for the outcome from existing potential participant
 Target Effect Size = Baseline × 0.1
 ```
 
+For **cluster-randomized** experiments, power calculations automatically account for clustering (assigning whole groups
+rather than individuals).
+
 ## Assignments
 
-### Pre-assigned
+### Preassigned
 
-Static, **stratified randomized assignment** by selected strata.
+Static, **stratified randomized assignment** by selected strata (such as region or age group), so each arm gets a
+similar mix of participants.
+
+### Cluster-randomized (Preassigned)
+
+Static randomized assignment of whole **clusters**—such as schools, clinics, or villages—so everyone matching your
+filters in a selected cluster joins the same arm. Cluster-randomized designs can't be combined with strata, and both
+power calculations and treatment effect analysis account for clustering.
 
 ### Online
 
-Dynamic **randomized assignment** without any stratification. Higher risk of statistical imbalance in smaller samples.
+Dynamic **randomized assignment** without stratification or cluster assignment. Higher risk of statistical imbalance in smaller samples.
 
 ## Balance Checks
 
-Omnibus test predicting treatment assignment using any available user-level data variables.
+After randomization, Evidential checks whether the arms are statistically balanced across baseline participant
+characteristics.
+
+This uses an omnibus test predicting treatment assignment from any available user-level data variables.
 This can be any combination of outcomes, strata, or filter values.
 We should **not** be able to predict treatment assignment with any individual or combination of these variables.
 
@@ -36,8 +55,8 @@ We report the **F-statistic test of joint significance** in a standard OLS regre
 ## Strata
 
 Also known as **covariates** or **controls**.
-These are user-level characteristics that are considered **prior to treatment assignment**.
-They are used primarily to stratify treatment assignment but can also be used to:
+These are user-level characteristics drawn from columns in your participant table and considered **prior to treatment assignment**.
+They are available for individual Preassigned A/B experiments (not cluster-randomized or Online A/B), and are used primarily to stratify treatment assignment so each arm receives a balanced mix of participants. They can also be used to:
 
 - Estimate **heterogeneous treatment effects**, and
 - Achieve (marginally) improved **efficiency in estimating standard errors**.

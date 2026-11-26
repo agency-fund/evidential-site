@@ -6,19 +6,21 @@ sidebar:
 
 Evidential offers two families of experiment design:
 
-- **Frequentist (A/B testing)** keeps the split between arms fixed for the whole experiment. Use it to measure whether
-  a change makes a difference, and by how much.
+- **Frequentist (A/B testing)** keeps the split between variations (**arms**) you wish to compare fixed
+for the whole experiment. Use it to measure whether a change makes a difference, and by how much.
 - **Bayesian (multi-armed bandits)** learns as results come in and sends more participants to the arms that are doing
   best. Use it to find and serve the best option while the experiment runs.
 
-Within each family, the design you pick decides when participants are assigned, what Evidential needs from your data
-warehouse, and how outcomes reach Evidential:
+Within each family, the design you pick decides when participants are assigned to a variation, what
+Evidential needs from your data warehouse, and how your metrics (**outcomes**) reach Evidential:
 
-- **Pull:** Evidential reads outcomes from your data warehouse (on each snapshot or on a regular schedule).
-- **Push:** Your app sends each participant's outcome to Evidential via the API.
+- **Pull:** Evidential reads outcomes from your data warehouse, snapshotting results at a regular interval.
+- **Push:** Your app sends each participant's outcome to Evidential via the [API](/api/).
 
-Push and pull describe **outcomes only**. Your app always pulls assignments from Evidential (or downloads them as a CSV
-for Preassigned A/B).
+Push and pull only describe how Evidential **receives outcomes** for analyses, but in either case
+the data always comes from and is determined by your serivice. Your own service always pulls
+assignments from Evidential using the API, or you may download a CSV of the current participants and
+their assignments.
 
 ## Choosing a Design
 
@@ -33,79 +35,74 @@ for Preassigned A/B).
 
 ### Supported Data Sources
 
-Evidential connects to **BigQuery**, **Redshift**, and **Postgres**. Bandits that don't use a data warehouse run on
+Evidential connects to **BigQuery**, **Redshift**, **Postgres**, and **Lakebase** (experimental). Bandits that don't use a data warehouse run on
 your organization's **API Only** data source. If you use a source that isn't listed here yet,
 [contact us](/contact/) for support or [file a feature request](https://github.com/agency-fund/evidential-be/issues).
 
 ## Frequentist Designs
 
-A frequentist experiment is a classic A/B test. You set the arms and how participants are split between them, then
-compare the arms to see whether the change made a difference.
+A frequentist experiment is a classic A/B test. You set the arms and how participants are randomly split
+between them—either evenly or with unequal allocations (such as 80/20)—then Evidential compares the
+arms to see whether the change made a difference. For the statistical details behind sample size
+planning, randomization, and analysis, see [Statistical methods](/concepts/statistical-methods/).
 
 Every frequentist design:
 
-- **Uses a participant table.** You point Evidential at a table or view in your data warehouse that lists your
-  participants, one per row, with a column that uniquely identifies each one. Potential metrics, filters, and
-  strata are also all drawn from columns in this table that describe each participant.
+- **Needs a table of potential participants.** You point Evidential at a table or view in your data warehouse that lists
+  your elgibile participants, one per row, with a column that uniquely identifies each one. Your metrics and filters
+  that describe each (such as income, age or location) also come from columns in this table.
+- **Uses Filters to target eligible participants.** Filters limit an experiment to the participants
+  you want, for example *country is Kenya* or *signed up after January 1*. Each filter compares one
+  column to one or more values: the column **is one of** a list of values, **is not one of** them,
+  or, for numbers and dates, falls **between** two values. A participant must match all of an
+  experiment's filters.
 - **Pulls outcomes from your warehouse.** Evidential reads metric values for assigned participants directly from your
-  data warehouse on each snapshot and compares each arm against the baseline arm. (Your app doesn't push outcomes to
-  Evidential via the API.)
+  data warehouse and compares each arm against the baseline arm.
+- **Has sticky assignments.** Once a participant is assigned to an arm, repeat requests always return the same arm, even
+  after the experiment's end date when new enrollments stop.
 
 ### Preassigned A/B
 
-Evidential selects participants and assigns every one of them to an arm when you create the experiment.
-
-- **Sample size.** Choose how many participants to include. Evidential draws them at random from the participants who
-  match your filters.
-- **Power check.** Before you launch, Evidential uses your data to estimate how many participants you need to detect
-  the effect you care about, and shows how that changes with sample size.
-- **Balanced arms.** You can pick strata, such as region or age group, so each arm gets a similar mix of participants.
-- **Getting assignments.** Download the full list as a CSV, fetch it through the API, or look up one participant at a
-  time.
-
 Choose Preassigned A/B when you know your participants ahead of time, or need the full list of who's in which arm
-before the start date.
+before the start date. Evidential will select participants and assign every one of them to an arm
+when you create the experiment.
+
+- **Sample size.** Before you launch, Evidential uses your existing data to help you choose how many participants to
+  include, or see how small an effect you can reliably detect with the participants who match your filters.
+  Evidential then draws your sample at random from those eligible.
+- **Getting assignments.** Download the full list as a CSV, fetch them all through the API, or look
+  up one participant at a time on demand.
 
 ### Preassigned A/B (Cluster-Randomized)
 
-A Preassigned A/B experiment that assigns whole **clusters**—such as schools, clinics, or villages—instead of
-individuals.
+Choose a cluster-randomized experiment when your intervention or change is applied to whole
+**clusters**—such as schools, clinics, or villages—instead of individuals, but you are looking to
+impact outcomes that you collect at the individual level.
 
-- **How to enable it.** In the experiment wizard, set the optional **Cluster key** to the column that identifies each
-  group and choose how many clusters to include.
+- **Setup.** Pick the column in your participant table that identifies each group, and choose how many clusters
+  to include.
 - **Who gets assigned.** Everyone who matches your filters in a selected cluster joins the same arm; participants
-  without a cluster value are left out.
-- **Power and analysis.** Sample size planning and treatment effect analysis automatically account for clustering.
-- **No strata.** Cluster-randomized designs can't be combined with strata.
+  not in a cluster but otherwise would match are left out.
+- **Sample size and analysis.** Sample size planning and results analysis automatically account for how group members
+  may have outcomes more similar to each other than those outside their group.
 
 ### Online A/B
 
-Evidential assigns each participant the first time your app asks for their assignment, using the split you set.
-There's no list of participants up front.
+Choose Online A/B when you don't know who will take part in advance such as experiments on new
+users, or when participants arrive continuously. Evidential assigns each participant on the fly the
+first time your app requests an assignment, using the split you set.  There's no list of
+participants up front.
 
-- **Your participant table is still required.** Evidential uses it to define your metrics and pull outcomes, but
-  doesn't select participants from it.
-- **No power check.** Online A/B doesn't include sample size planning.
-- **Participants are assigned independently**, so there are no strata or group assignment.
-- **Every request assigns.** Asking about a new participant always enrolls them. If you only want part of your traffic
-  in the experiment, decide which participants to include in your own app first, then request assignments only for
-  them.
-- **Assignments don't change.** Once a participant has an arm, every later request returns the same arm.
-- **The end date stops new assignments.** Participants who arrive after it aren't assigned an arm. Participants who
-  already have one keep it.
+- **Individual assignment only.** Participants are assigned independently as they arrive, without upfront sample size
+  planning or whole-group (cluster) assignment.
 
-Choose Online A/B when you don't know who will take part in advance, or participants arrive continuously.
-
-### How Filters Work: Preassigned vs Online
-
-Filters limit an experiment to the participants you want, for example *country is Kenya* or *signed up after
-January 1*. Each filter compares one column to one or more values: the column **is one of** a list of values, **is not
-one of** them, or, for numbers and dates, falls **between** two values. A participant must match all of an
-experiment's filters.
+<Accordion id="how-filters-work-preassigned-vs-online">
+<AccordionTrigger class="text-lg font-semibold">How Filters Work: Preassigned vs Online</AccordionTrigger>
+<AccordionContent>
 
 The two frequentist designs apply the same filters in different ways.
 
-**Preassigned A/B** applies filters to your participant table in the **power check** (so sample size estimates reflect
+**Preassigned A/B** applies filters to your participant table during **sample size planning** (so estimates reflect
 only matching participants) and when you **create the experiment** (to decide who can be selected). Eligibility is
 decided once, from the data in your warehouse at that moment: people who match later aren't added, participants who
 stop matching stay in the experiment, and changing filters requires a new experiment.
@@ -116,9 +113,10 @@ participant's details along with the assignment request, and Evidential checks t
 - If the details match, the participant is assigned an arm. Once enrolled, they aren't removed if their details change.
 - If they don't match, no arm is returned and the participant isn't enrolled.
 
-To have filters applied, your app must use the assignment request that includes participant details (shown under
-**Example API Calls** in the experiment's **Integration Guide**) and send a value for every filtered column—a missing
-value counts as empty. A request without participant details assigns the participant regardless of your filters.
+To have filters applied, your app must use the assignment request that includes participant details
+and send a value for every filtered column—a missing value counts as empty. A request without
+participant details assigns the participant regardless of your filters.  See the [Integrate
+Evidential with your application](/guides/integrate-with-the-api/) guide for more details.
 
 #### Limitations
 
@@ -131,6 +129,9 @@ value counts as empty. A request without participant details assigns the partici
   add **OR NULL**. **Is not one of** keeps them by default; add **OR NULL** to exclude them too.
 - Dates and times are in UTC.
 
+</AccordionContent>
+</Accordion>
+
 ## Bayesian Designs
 
 Bayesian designs are multi-armed bandits. Each arm starts with an expected performance, called a prior. As results
@@ -141,13 +142,13 @@ Every bandit:
 - **Has an outcome type**: **Binary** for yes/no results such as a click or a sign-up, or **Real-valued** for numbers
   such as a rating or time spent.
 - **Starts from priors**, which you can set for each arm or have Evidential derive from starting weights.
-- **Shows results as estimates** for each arm, which update as results arrive. There's no power check.
+- **Shows results as estimates** for each arm, which update as results arrive. There's no upfront sample size planning.
 - **Stops new assignments at the end date.** Participants who arrive after it aren't assigned an arm; those who already
   have one keep it.
 
 :::note[Use an A/B test to measure effects]
 Bandits are built to find and serve the best option, not to measure the size of a difference. If you need a reliable
-estimate of an effect, use an A/B test.
+estimate of an effect, [use an A/B test](#frequentist-designs).
 :::
 
 ### Multi-armed Bandit
@@ -183,8 +184,6 @@ of day.
 - **At least one context is required.** Each context is either binary or real-valued.
 - **Your app pushes each outcome** via the API, as with the standard Multi-armed Bandit. Autofail is available.
 - **Results depend on context.** To see an arm's estimated performance, you choose context values.
-- **No example calls.** The Integration Guide doesn't include example API calls for this design. See the
-  [API reference](/api/) instead.
 
 ## Next Steps
 
