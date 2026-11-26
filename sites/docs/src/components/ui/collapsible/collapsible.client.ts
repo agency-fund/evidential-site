@@ -2,6 +2,7 @@
 
 import { mount, makeDisclosure } from "@cloudflare/nimbus-docs/client";
 
+/** If the URL hash matches the collapsible's own id or any element inside, open automatically. */
 function matchesHash(root: HTMLElement): boolean {
   const raw = window.location.hash.slice(1);
   if (!raw) return false;
