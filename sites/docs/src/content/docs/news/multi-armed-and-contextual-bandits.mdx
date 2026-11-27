@@ -11,9 +11,9 @@ We’re excited to announce that **Evidential now supports Multi-Armed Bandit an
 
 ## What are Bandits?
 
-Think of each version of your intervention as "arm" in a slot machine. Your "reward" when you pull the arm is the outcome you observe when you deploy your intervention to your beneficiaries.
+Think of each version of your intervention as an "arm" in a slot machine. Your "reward" when you pull the arm is the outcome you observe when you deploy your intervention to your beneficiaries.
 
-A **multi-armed bandit** algorithm learns which arm pays off best and automatically directs more participants toward it -- so you optimize your interventions on the go, rather than at the end of your experiment.
+A **multi-armed bandit** algorithm learns which arm pays off best and automatically directs more participants toward it — so you optimize your interventions on the go, rather than at the end of your experiment.
 
 A **contextual bandit** goes one step further: it takes into account **information about participants** — such as demographics or behavior — to decide which arm is likely to work best for *that specific user*.
 
@@ -27,8 +27,9 @@ Together, these approaches reduce the audience size and time needed to discover 
 
 ## How to use it
 
-It’s just as straightforward as creating any other experiment in Evidential:
-when you set up an experiment, simply choose **Multi-Armed Bandit** or **Contextual Bandit** in the experiment type dropdown. Evidential takes care of the complex math under the hood — no extra coding required.
+It’s just as straightforward as creating any other experiment in Evidential: when you set up an experiment, choose
+**Multi-armed Bandit** or **Contextual Multi-armed Bandit** in the experiment type dropdown. Evidential handles the math;
+for API-only bandits your application only calls the assignment and outcome endpoints.
 
 ## What problems can this solve?
 

@@ -4,12 +4,17 @@ sidebar:
   order: 16
 ---
 
-## How do I hide the generated SQL from the logs or console output? {#how-do-i-hide-the-generated-sql-from-the-logs-or-console-output}
+## How do I show or hide generated SQL in logs?
 
-See the environment variables in [Taskfile.yml](https://github.com/agency-fund/evidential-be/blob/main/Taskfile.yml) and customlogging.py for documentation on how to
-control logging.
+SQL logging is **off by default** (`LOG_SQL_DWH` and `LOG_SQL_APP_DB` are `false` in
+[Taskfile.yml](https://github.com/agency-fund/evidential-be/blob/main/Taskfile.yml)). To print SQL to the console while
+debugging, set one or both to `true` when starting the server (for example `LOG_SQL_DWH=true task start`).
 
-## psycopg2 module does not install correctly. {#psycopg2-module-does-not-install-correctly}
+See [customlogging.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/customlogging.py) and
+[flags.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/flags.py) for how these flags are
+wired up.
+
+## psycopg2 module does not install correctly
 
 You might see this error:
 
@@ -17,7 +22,9 @@ You might see this error:
 >
 > pg_config is required to build psycopg2 from source.
 
-The fix will depend on your operating system.
+The fix will depend on your operating system. On macOS, `evidential-be` depends on
+`psycopg2-binary`, so you should not need `pg_config`. This error is most common on Linux when
+building `psycopg2` from source.
 
 ### Linux
 
@@ -25,6 +32,6 @@ The fix will depend on your operating system.
 1. See [https://www.psycopg.org/docs/install.html](https://www.psycopg.org/docs/install.html).
 1. See [https://www.psycopg.org/docs/faq.html](https://www.psycopg.org/docs/faq.html).
 
-### OSX {#osx}
+### macOS
 
-Run `brew install postgresql@18`.
+If you still hit psycopg2 build issues, run `brew install postgresql@18`.

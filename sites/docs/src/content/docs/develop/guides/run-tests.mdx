@@ -4,8 +4,8 @@ sidebar:
   order: 13
 ---
 
-This is a collection of random tips about testing. Most of the test configurations you will use are already defined
-in the [Taskfile](https://github.com/agency-fund/evidential-be/blob/main/Taskfile.yml).
+This is a collection of tips for running tests in `evidential-be`. Most test configurations are defined in the
+[Taskfile](https://github.com/agency-fund/evidential-be/blob/main/Taskfile.yml).
 
 ## Unit Tests {#unit-tests}
 
@@ -15,92 +15,103 @@ Run unit tests with:
 task test
 ```
 
-We run unittests with [pytest](https://docs.pytest.org/en/stable/). Run `task --summary test` to see examples of how to run subsets of tests.
+We run unit tests with [pytest](https://docs.pytest.org/en/stable/). Test files (`test_*.py`) are colocated alongside
+the modules they test under `src/`. Run `task --summary test` to see examples of how to run subsets of tests.
 
-The `task test` helper automatically creates a local Postgres instance for testing and creates
-testing data warehouses named "dwh" and "wide".
+`task test` automatically starts a local Postgres instance and bootstraps the testing data warehouse tables (such as
+`testing_dwh`, `wide_dwh`, `clustered_dwh`, and `stress_dwh`).
 
-[Various tests](https://github.com/agency-fund/evidential-be/blob/main/.github/workflows/test.yaml) are also run as part of our GitHub Action test workflow.
+[Various tests](https://github.com/agency-fund/evidential-be/blob/main/.github/workflows/test.yaml) also run in our
+GitHub Actions test workflow.
 
-[conftest.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/conftest.py) defines fixtures used by many of the tests.
+Shared fixtures and test helpers live in:
 
-## Google Integration Tests {#google-integration-tests}
+- [src/xngin/conftest.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/conftest.py) — core fixtures used across the test suite
+- [src/xngin/apiserver/worker/tq/conftest.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/worker/tq/conftest.py) — task-queue worker fixtures
+- [src/xngin/apiserver/dwh/dwh_test_helpers.py](https://github.com/agency-fund/evidential-be/blob/main/src/xngin/apiserver/dwh/dwh_test_helpers.py) — DWH query fixtures (loaded via `pytest_plugins`)
+- [src/xngin/apiserver/testing/](https://github.com/agency-fund/evidential-be/tree/main/src/xngin/apiserver/testing) — reusable test helpers, API clients, and pytest plugins
 
-Some of our pytests have a test marked as 'integration'. These are only usually run in GHA but you can run them locally
-by setting `GOOGLE_APPLICATION_CREDENTIALS` and running:
+## Cloud Integration Tests {#google-integration-tests}
 
-```shell
-uv run pytest -m integration
-```
-
-## BigQuery Integration Tests {#bigquery-integration-tests}
-
-Method 1:
-
-1. Push the branch to GitHub (i.e. draft PR)
-1. Use the GitHub CLI to trigger the BigQuery integration tests on a specific branch:
+Tests marked with `@pytest.mark.integration` exercise real cloud services. Run them locally with:
 
 ```shell
-gh workflow run tests --ref your-branch-name -f run-bq-integration=true
+task test-integration
 ```
 
-`tests` refers to the name of the workflow containing the integration tests. `run-bq-integration` refers to the name
-of the workflow_dispatch input that determines if the BigQuery integration tests are run. The branch must already be
-pushed to GitHub.
+`task test-integration` reads environment variables from `.env` (or your shell) and skips any tests whose variables are
+unset:
 
-Method 2: Trigger via GitHub UI
+- **BigQuery:** `XNGIN_DEVDWH_GCP_CREDENTIALS` (path to a service account key file allowed to create datasets) and
+  `XNGIN_DEVDWH_GCP_CREDENTIALS_RESTRICTED` (a key with only BigQuery Job User, for permission tests).
+- **GCP KMS secrets:** `XNGIN_SECRETS_GCP_CREDENTIALS` and `XNGIN_SECRETS_GCP_KMS_KEY_URI`.
+- **Redshift:** `XNGIN_DEVDWH_AWS_REDSHIFT_DSN` (a Redshift user allowed to create schemas).
 
-1. Push the branch to GitHub (i.e. draft PR)
-1. Go to the [Testing workflow](https://github.com/agency-fund/evidential-be/actions/workflows/test.yaml)
-1. Click "new workflow"
-1. Select the PR's branch name
-1. Tick the "bq integration" box.
+## BigQuery Integration Tests in CI {#bigquery-integration-tests}
+
+The `bq-integration` job in [test.yaml](https://github.com/agency-fund/evidential-be/blob/main/.github/workflows/test.yaml)
+runs automatically on branches and PRs in this repository when query or BigQuery-related files change.
+
+To trigger the workflow manually on a pushed branch:
+
+- **GitHub CLI:**
+
+  ```shell
+  gh workflow run tests --ref your-branch-name
+  ```
+
+- **GitHub UI:** Go to the [Testing workflow](https://github.com/agency-fund/evidential-be/actions/workflows/test.yaml),
+  click **Run workflow**, and select your branch.
 
 ## Showing additional test output {#showing-additional-test-output}
 
-`task test -- -rA` to print out _all_ stdout from your tests; `-rx` for just those failing. (See
-[docs](https://docs.pytest.org/en/latest/how-to/output.html#producing-a-detailed-summary-report) for more info.)
+Run `task test -- -rA` to print out _all_ stdout from your tests, or `-rx` for failing tests only. See the
+[pytest docs](https://docs.pytest.org/en/latest/how-to/output.html#producing-a-detailed-summary-report) for more
+options.
 
-## Loading the testing DWH with a different schema? {#loading-the-testing-dwh-with-a-different-schema}
+## Loading the testing DWH with a different schema {#loading-the-testing-dwh-with-a-different-schema}
 
 Use the CLI command:
 
 ```shell
 uv run xngin-cli create-testing-dwh \
-   --dsn=$DATABASE_URL \
-   --password=$PASSWORD \
-   --table-name=test_participant_type \
-   --schema-name=alt
+  --dsn=$DATABASE_URL \
+  --password=$PASSWORD \
+  --table-name=test_participant_type \
+  --schema-name=alt
 ```
 
-### How can I run the unittests against an arbitrary data warehouse? {#how-can-i-run-the-unittests-that-use-my-pgbq-instance-as-the-test-dwh}
+### How can I run the unit tests against an arbitrary data warehouse? {#how-can-i-run-the-unittests-that-use-my-pgbq-instance-as-the-test-dwh}
 
-Tests that exercise integration with a data warehouse do so via two mechanisms:
+The `XNGIN_QUERIES_TEST_URI` environment variable defines the SQLAlchemy URI that `apiserver.dwh` tests run against.
 
-1. xngin.testing.settings.json defines some static configuration for stable databases.
-1. The XNGIN_QUERIES_TEST_URI environment variable defines a SQLAlchemy URI that some of the apiserver.dwh tests are run
-    against.
-
-By default, `task test` will run all the tests against Postgres. See the bq-integration GHA job for an example of how
-to run some of the tests against BigQuery.
+By default, `task test` runs all tests against local Postgres. See the `bq-integration` job in
+[test.yaml](https://github.com/agency-fund/evidential-be/blob/main/.github/workflows/test.yaml) for an example of
+running query tests against BigQuery.
 
 ## Testing environment for BigQuery as the Service Provider {#testing-environment-for-bigquery-as-the-service-provider}
 
-You can create a test dataset on a project you've configured with bigquery
-using our xngin-cli tool:
+You can create a test dataset on a project you've configured with BigQuery using `xngin-cli`:
 
 ```shell
-export GSHEET_GOOGLE_APPLICATION_CREDENTIALS=~/.config/gspread/service_account.json
-xngin-cli create-testing-dwh --dsn 'bigquery://xngin-development-dc/ds'
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/service_account.json
+uv run xngin-cli create-testing-dwh --dsn 'bigquery://xngin-development-dc/ds'
 ```
 
-The tool is also used for interacting with the BQ API directly
-(i.e. `bigquery_dataset_set_default_expiration`).
+The CLI also includes helpers for interacting with the BigQuery API directly (for example,
+`uv run xngin-cli bigquery-dataset-set-default-expiration`).
 
-These commands use the process defined in Google's
-[Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials).
-You do not need the gcloud CLI or related tooling installed.
+These CLI commands use Google's
+[Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). You do
+not need the `gcloud` CLI installed.
 
 :::note
-The GHA service account has permissions to access the xngin-development-dc.ds dataset.
+The GHA service account has permissions to access the GCP project hosting our dev BigQuery dataset.
+To use your own project instead, update the `--dsn` with `<your-project>/<your-dataset>` and point
+`GOOGLE_APPLICATION_CREDENTIALS` at a service account key file with permissions to create datasets
+on that project.
+
+Similarly, to run `task test-integration` against your own project, update
+`XNGIN_DEVDWH_GCP_CREDENTIALS`, as tests create their own temporary datasets in the project the key
+file specifies.
 :::
